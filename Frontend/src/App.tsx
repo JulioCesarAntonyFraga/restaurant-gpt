@@ -5,14 +5,19 @@ import {
   ClipboardList,
   ChevronLeft,
   ChevronRight,
+  PlusCircle,
+  List,
+  ChevronDown,
 } from "lucide-react";
 import { Routes, Route, Link } from "react-router-dom";
 
 import Orders from "./pages/Orders";
 import MenuList from "./pages/MenuList";
+import MenuForm from "./pages/MenuForm";
 
 export default function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
     <div className="flex overflow-hidden h-screen text-gray-800 bg-white">
@@ -39,19 +44,55 @@ export default function App() {
           </div>
           <nav className="flex-1 p-4 space-y-2">
             <Link
-              to="/orders"
+              to="/pedidos"
               className="flex items-center gap-2 p-2 rounded hover:bg-white/20 transition"
             >
               <ShoppingBag size={20} />
               {isSidebarOpen && "Pedidos"}
             </Link>
             <Link
-              to="/menu"
-              className="flex items-center gap-2 p-2 rounded hover:bg-white/20 transition"
-            >
-              <ClipboardList size={20} />
-              {isSidebarOpen && "Cardápio"}
-            </Link>
+        to="/pedidos"
+        className="flex items-center gap-2 p-2 rounded hover:bg-white/20 transition"
+      >
+        <ShoppingBag size={20} />
+        {isSidebarOpen && "Pedidos"}
+      </Link>
+
+      {/* Cardápio Toggle */}
+      <button
+        onClick={() => setIsMenuOpen(!isMenuOpen)}
+        className="flex items-center gap-2 w-full text-left p-2 rounded hover:bg-white/20 transition"
+      >
+        <ClipboardList size={20} />
+        {isSidebarOpen && (
+          <>
+            <span>Cardápio</span>
+            <span className="ml-auto">
+              {isMenuOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+            </span>
+          </>
+        )}
+      </button>
+
+      {/* Subitens */}
+      {isSidebarOpen && isMenuOpen && (
+        <div className="ml-6 space-y-1">
+          <Link
+            to="/menu/novo"
+            className="flex items-center gap-2 p-2 text-sm rounded hover:bg-white/20 transition"
+          >
+            <PlusCircle size={16} />
+            Criar Item
+          </Link>
+          <Link
+            to="/menu/"
+            className="flex items-center gap-2 p-2 text-sm rounded hover:bg-white/20 transition"
+          >
+            <List size={16} />
+                Listar Itens
+              </Link>
+            </div>
+          )}
           </nav>
         </div>
         {!isSidebarOpen && (
@@ -76,8 +117,9 @@ export default function App() {
         {/* Page content */}
         <div className="flex-1 p-6 overflow-y-auto">
           <Routes>
-            <Route path="/orders" element={<Orders />} />
+            <Route path="/pedidos" element={<Orders />} />
             <Route path="/menu" element={<MenuList />} />
+            <Route path="/menu/novo" element={<MenuForm />} />
             <Route path="*" element={<Orders />} />
           </Routes>
         </div>
