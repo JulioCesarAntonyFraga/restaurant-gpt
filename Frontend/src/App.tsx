@@ -50,49 +50,42 @@ export default function App() {
               <ShoppingBag size={20} />
               {isSidebarOpen && "Pedidos"}
             </Link>
-            <Link
-        to="/pedidos"
-        className="flex items-center gap-2 p-2 rounded hover:bg-white/20 transition"
-      >
-        <ShoppingBag size={20} />
-        {isSidebarOpen && "Pedidos"}
-      </Link>
 
-      {/* Cardápio Toggle */}
-      <button
-        onClick={() => setIsMenuOpen(!isMenuOpen)}
-        className="flex items-center gap-2 w-full text-left p-2 rounded hover:bg-white/20 transition"
-      >
-        <ClipboardList size={20} />
-        {isSidebarOpen && (
-          <>
-            <span>Cardápio</span>
-            <span className="ml-auto">
-              {isMenuOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-            </span>
-          </>
-        )}
-      </button>
+          {/* Cardápio Toggle */}
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="flex items-center gap-2 w-full text-left p-2 rounded hover:bg-white/20 transition"
+          >
+            <ClipboardList size={20} />
+            {isSidebarOpen && (
+              <>
+                <span>Cardápio</span>
+                <span className="ml-auto">
+                  {isMenuOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                </span>
+              </>
+            )}
+          </button>
 
-      {/* Subitens */}
-      {isSidebarOpen && isMenuOpen && (
-        <div className="ml-6 space-y-1">
-          <Link
-            to="/menu/novo"
-            className="flex items-center gap-2 p-2 text-sm rounded hover:bg-white/20 transition"
-          >
-            <PlusCircle size={16} />
-            Criar Item
-          </Link>
-          <Link
-            to="/menu/"
-            className="flex items-center gap-2 p-2 text-sm rounded hover:bg-white/20 transition"
-          >
-            <List size={16} />
-                Listar Itens
+          {/* Subitens */}
+          {isSidebarOpen && isMenuOpen && (
+            <div className="ml-6 space-y-1">
+              <Link
+                to="/menu/novo"
+                className="flex items-center gap-2 p-2 text-sm rounded hover:bg-white/20 transition"
+              >
+                <PlusCircle size={16} />
+                Criar Item
               </Link>
-            </div>
-          )}
+              <Link
+                to="/menu/"
+                className="flex items-center gap-2 p-2 text-sm rounded hover:bg-white/20 transition"
+              >
+                <List size={16} />
+                    Listar Itens
+                  </Link>
+                </div>
+              )}
           </nav>
         </div>
         {!isSidebarOpen && (
