@@ -1,8 +1,0 @@
-**/node_modules/
-**/.venv/
-**/.env/
-**/.env
-**/__pycache__/
-**/firebase-credentials.json
-**/.history/
-**/.vscode/
