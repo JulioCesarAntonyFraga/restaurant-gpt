@@ -47,11 +47,11 @@ const OrderCard = ({order} : OrderProps) => {
             <p><strong>Time:</strong> {formatTimestamp(order.ordered_at)}</p>
             <p><strong>Status:</strong> {order.status}</p>
             <div className="mt-4 flex gap-2">
-              <button className="bg-blue-200 hover:bg-blue-300 text-blue-900 px-4 py-1 rounded">
-                ⬆️ Next Status
+              <button onClick={() => console.log("Avançar pedido")} className="bg-blue-200 hover:bg-blue-300 text-blue-900 px-4 py-1 rounded">
+                ⬆️ Avançar Pedido
               </button>
-              <button className="bg-red-200 hover:bg-red-300 text-red-900 px-4 py-1 rounded">
-                ⬇️ Prev Status
+              <button onClick={() => console.log("Voltar pedido")} className="bg-red-200 hover:bg-red-300 text-red-900 px-4 py-1 rounded">
+                ⬇️ Voltar Pedido
               </button>
             </div>
           </div>
