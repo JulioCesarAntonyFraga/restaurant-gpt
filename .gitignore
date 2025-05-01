@@ -2,3 +2,4 @@
 Backend/**/__pycache__
 Backend/firebase-credentials.json
 Backend/.vscode
+*.env
