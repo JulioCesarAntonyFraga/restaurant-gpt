@@ -31,6 +31,8 @@ def add_menu_item(menu_item: dict) -> dict:
 
 def get_menu():
     menu_ref = db.collection("menu")
+    if menu_ref:
+        menu_ref = menu_ref.where("available", "==", True)
 
     return [
         {**doc.to_dict(), "id": doc.id}

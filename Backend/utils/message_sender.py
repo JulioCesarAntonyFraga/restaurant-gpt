@@ -1,6 +1,10 @@
 import requests
+import os
 
-def send_whatsapp_message(token, phone_number_id, to_number, body, url_preview="", api_version="v22.0"):
+token = os.getenv("WHATSAPP_API_TOKEN")
+phone_number_id = os.getenv("WHATSAPP_PHONE_NUMBER_ID")
+
+def send_whatsapp_message(to_number, body, url_preview="", api_version="v22.0"):
     url = f"https://graph.facebook.com/{api_version}/{phone_number_id}/messages"
     
     headers = {
@@ -21,6 +25,6 @@ def send_whatsapp_message(token, phone_number_id, to_number, body, url_preview="
     response = requests.post(url, headers=headers, json=payload)
 
     if response.status_code == 200:
-        return {'status_code': {response.status_code}, 'response': {response.json()}}
+        return response.json()
     else:
         raise Exception(f"Erro ao enviar mensagem: {{'status_code': {response.status_code}, 'response': {response.text}}}")
