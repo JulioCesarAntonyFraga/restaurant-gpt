@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../utils/firebase"; // Ajuste o caminho conforme necessário
+import { useAuth } from "../utils/authContext";
+import { useNavigate } from "react-router-dom";
 
 type LoginRequest = {
   email: string;
@@ -8,7 +10,15 @@ type LoginRequest = {
 };
 
 const Login = () => {
-    // const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const { user } = useAuth(); 
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (user) {
+          navigate("/pedidos", { replace: true });
+        }
+    }, [user, navigate]);
+    
     const [formData, setFormData] = useState<LoginRequest>({
         email: "",
         password: "",
