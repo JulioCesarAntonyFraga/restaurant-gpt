@@ -1,11 +1,16 @@
 import json
 from utils.storage import add_menu_item
 import azure.functions as func
+from utils.auth import verify_token
 
 required_fields = ["name", "price", "available", "category"]
 optional_fields = ["description"]
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
+    user = verify_token(req)
+    if not user:
+        return func.HttpResponse("Unauthorized", status_code=401)
+
     menu_item = req.get_json()
 
     for key, value in menu_item.items():

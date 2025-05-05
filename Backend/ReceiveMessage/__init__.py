@@ -6,6 +6,7 @@ from utils.message_sender import send_whatsapp_message
 from utils.storage import start_conversation, add_message, end_conversation, get_active_conversation
 from utils.agent_response import generate_response
 
+##TODO: Add az function authentication to this function
 def main(req: func.HttpRequest) -> func.HttpResponse:
     VERIFY_TOKEN = os.getenv("VERIFY_TOKEN")
     
