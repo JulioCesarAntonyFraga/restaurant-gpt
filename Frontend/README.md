@@ -1,19 +1,25 @@
-# Dashboard de restaurante
+# 🍽️ Dashboard de Restaurante
 
-Por enquanto este template tem:
+Este projeto é um painel administrativo desenvolvido com **React + Vite**, estilizado com **Tailwind CSS**, e utilizando **Firebase** para autenticação. Ideal para restaurantes que precisam gerenciar pedidos e itens de cardápio de forma prática e moderna.
 
-- Uma tela para ver os pedidos
-- Uma tela para ver os itens do menu
-- Uma tela para cadastrar itens do menu
+## ✨ Funcionalidades
 
-## Como rodar o projeto
+- 📦 Visualização e controle de pedidos
+- 📝 CRUD completo de itens do cardápio
+- 🔐 Autenticação com Firebase (email/senha)
+- 🚪 Login e Logout de usuários
+- 🎯 Rotas protegidas com base na autenticação
 
-### Pré requisitos
-- Ter o [NodeJS](https://nodejs.org/en/download) instalado
+## 🚀 Como rodar o projeto
 
-Antes de rodar o projeto crie um arquivo `.env` na raíz da pasta `Frontend` com as seguintes variáveis
+### ⚙️ Pré-requisitos
+- [Node.js](https://nodejs.org/en/download) instalado
 
-```
+### 📦 Variáveis de ambiente
+
+Antes de iniciar, crie um arquivo `.env` na raiz da pasta `Frontend` com o seguinte conteúdo:
+
+```env
 VITE_API_BASE_URL=
 VITE_FIREBASE_KEY=
 VITE_FIREBASE_AUTH_DOMAIN=
@@ -23,14 +29,21 @@ VITE_FIREBASE_APP_ID=
 VITE_FIREBASE_SENDER_ID=
 ```
 
-Depois de preencher as variáveis, basta abrir um terminal na pasta `Frontend` e rodar o seguinte comando
+### 💻 Instruções
+
+1. Abra um terminal na pasta `Frontend`
+2. Instale as dependências:
 
 ```bash
 npm install
 ```
-_(você só precisa fazer na primeira vez que rodar o projeto)_
 
-Depois de instalar as dependências, pode rodar iniciar o projeto com
+3. Inicie o servidor de desenvolvimento:
+
 ```bash
 npm run dev
 ```
+
+---
+
+Ficou com alguma dúvida? Sinta-se à vontade para abrir uma *issue* ou contribuir com melhorias! 💬
