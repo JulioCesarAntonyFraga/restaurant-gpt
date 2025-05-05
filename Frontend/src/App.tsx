@@ -14,6 +14,7 @@ import { Routes, Route, Link } from "react-router-dom";
 import Orders from "./pages/Orders";
 import MenuList from "./pages/MenuList";
 import MenuForm from "./pages/MenuForm";
+import Login from "./pages/Login";
 
 export default function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -114,6 +115,8 @@ export default function App() {
             <Route path="/menu" element={<MenuList />} />
             <Route path="/menu/novo" element={<MenuForm />} />
             <Route path="*" element={<Orders />} />
+            {/* TODO: Move this route to outside of this template */}
+            <Route path="/login" element={<Login />} />
           </Routes>
         </div>
       </main>
