@@ -22,7 +22,10 @@ const OrderCard = (props : OrderProps) => {
   async function advanceOrderStatus(orderId: string) {
     console.log("order", order);
     const res = await fetch(`${apiUrl}/advance-order-status/${orderId}`, {
-      method: "PUT",});
+      method: "PUT",
+      headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+      },});
     if (!res.ok) {
         throw new Error("Failed to advance order status");
     }
@@ -32,7 +35,10 @@ const OrderCard = (props : OrderProps) => {
   async function regressOrderStatus(orderId: string) {
     console.log("order", order);
     const res = await fetch(`${apiUrl}/regress-order-status/${orderId}`, {
-      method: "PUT",});
+      method: "PUT",
+      headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+      }, });
     if (!res.ok) {
         throw new Error("Failed to advance order status");
     }

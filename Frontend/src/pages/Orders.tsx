@@ -96,7 +96,13 @@ const Orders = () => {
 async function fetchOrders(): Promise<Order[]> {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     console.log("API URL:", apiUrl);
-    const res = await fetch(`${apiUrl}/retrieve-orders`)
+    const res = await fetch(`${apiUrl}/retrieve-orders`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        },
+    })
     if (!res.ok) {
         throw new Error("Failed to fetch orders");
     }
