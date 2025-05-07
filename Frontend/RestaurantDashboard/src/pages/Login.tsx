@@ -9,6 +9,7 @@ type LoginRequest = {
   password: string;
 };
 
+//Comentário teste
 const Login = () => {
     const { user } = useAuth(); 
     const navigate = useNavigate();
