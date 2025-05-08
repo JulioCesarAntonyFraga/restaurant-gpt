@@ -9,39 +9,46 @@ type MenuItemType = {
   image?: string;
 };
 
-const mockMenu: MenuItemType[] = [
-  {
-    name: "Pizza Margherita",
-    price: 35.5,
-    category: "Pizza",
-    description: "Molho de tomate, muçarela e manjericão fresco.",
-    image: "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png",
-  },
-  {
-    name: "Lasanha Bolonhesa",
-    price: 42,
-    category: "Massas",
-    image: "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png",
-  },
-  {
-    name: "Spaghetti Carbonara",
-    price: 37,
-    category: "Massas",
-    description: "Clássico italiano com bacon e ovo.",
-    image: "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png",
-  },
-];
+async function fetchMenuItems(): Promise<MenuItemType[]> {
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const res = await fetch(`${apiUrl}/retrieve-menu-items`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        },
+    });
+    if (!res.ok) {
+        throw new Error("Failed to fetch orders");
+    }
+    return res.json()
+}
 
 const Menu = () => {
   const [menuItems, setMenuItems] = useState<MenuItemType[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("Todos");
   const [sortBy, setSortBy] = useState<"name" | "price">("name");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setMenuItems(mockMenu);
+    const getItems = async () => {
+        try {
+            const data = await fetchMenuItems();
+            setMenuItems(data);
+        } catch (error) {
+            console.error("Erro ao buscar itens do menu:", error);
+        } finally {
+            setLoading(false);
+        }
+    }
+    getItems();
   }, []);
 
-  const categories = ["Todos", ...Array.from(new Set(mockMenu.map(item => item.category)))];
+  if (loading) {
+    return <p className="text-center mt-8">Carregando pedidos...</p>
+  }
+
+  const categories = ["Todos", ...Array.from(new Set(menuItems.map(item => item.category)))];
 
   const filteredItems = menuItems
     .filter(item => selectedCategory === "Todos" || item.category === selectedCategory)

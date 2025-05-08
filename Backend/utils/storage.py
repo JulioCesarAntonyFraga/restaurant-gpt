@@ -25,6 +25,7 @@ def add_menu_item(menu_item: dict) -> dict:
     menu_item["id"] = str(uuid.uuid4())
     menu_item["created_at"] = int(time.time())
     menu_item["updated_at"] = int(time.time())
+    menu_item["price"] = float(menu_item["price"])
 
     db.collection("menu").document(menu_item["id"]).set(menu_item)
     return menu_item
