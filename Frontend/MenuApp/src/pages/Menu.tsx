@@ -15,20 +15,20 @@ const mockMenu: MenuItemType[] = [
     price: 35.5,
     category: "Pizza",
     description: "Molho de tomate, muçarela e manjericão fresco.",
-    image: "https://via.placeholder.com/150",
+    image: "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png",
   },
   {
     name: "Lasanha Bolonhesa",
     price: 42,
     category: "Massas",
-    image: "https://via.placeholder.com/150",
+    image: "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png",
   },
   {
     name: "Spaghetti Carbonara",
     price: 37,
     category: "Massas",
     description: "Clássico italiano com bacon e ovo.",
-    image: "https://via.placeholder.com/150",
+    image: "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png",
   },
 ];
 

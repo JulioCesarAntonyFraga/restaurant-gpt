@@ -39,7 +39,7 @@ const Navbar = () => {
           <Link to="/" className="block text-white hover:underline">
             Cardápio
           </Link>
-          <Link to="/meu-pedido" className="block text-white hover:underline">
+          <Link to="/carrinho" className="block text-white hover:underline">
             Meu Pedido
           </Link>
         </nav>
