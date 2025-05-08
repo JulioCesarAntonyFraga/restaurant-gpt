@@ -1,6 +1,6 @@
 import { useCart } from "../utils/CartContext";
 
-type MenuItemProps = {
+export type MenuItemProps = {
   name: string;
   price: number;
   category: string;
@@ -8,8 +8,12 @@ type MenuItemProps = {
   image?: string;
 };
 
-const MenuItem = ({ name, price, category, description, image }: MenuItemProps) => {
+const MenuItem = ({ name, price, description, image }: MenuItemProps) => {
   const { addToCart } = useCart();
+  
+  const add = async () => {
+    addToCart({ name, price });
+  };
 
   return (
     <div className="bg-white shadow rounded-lg p-4 flex flex-col">
@@ -18,7 +22,7 @@ const MenuItem = ({ name, price, category, description, image }: MenuItemProps) 
       <p className="text-sm text-gray-600">{description}</p>
       <p className="mt-2 font-medium text-blue-600">R$ {price.toFixed(2)}</p>
       <button
-        onClick={() => addToCart({ name, price, category, description, image })}
+        onClick={() => add()}
         className="mt-auto bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded transition"
       >
         Adicionar ao Carrinho
