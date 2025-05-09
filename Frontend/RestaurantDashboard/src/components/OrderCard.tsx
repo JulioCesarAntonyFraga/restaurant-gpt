@@ -4,7 +4,6 @@ import OrderItemList from "./OrderItemList";
 import OrderInfo from "./OrderInfo";
 import OrderActions from "./OrderActions";
 
-
 export interface Order {
   id: string;
   number: number;
@@ -27,7 +26,6 @@ const OrderCard = ({ order: initialOrder }: OrderProps) => {
       const updatedOrder = await apiFetch(`/advance-order-status/${orderId}`, {
         method: "PUT",
       });
-
       setOrder(updatedOrder);
     } catch (error: any) {
       console.error("Erro ao avançar pedido:", error);
@@ -40,7 +38,6 @@ const OrderCard = ({ order: initialOrder }: OrderProps) => {
       const updatedOrder = await apiFetch(`/regress-order-status/${orderId}`, {
         method: "PUT",
       });
-
       setOrder(updatedOrder);
     } catch (error: any) {
       console.error("Erro ao regredir pedido:", error);
@@ -48,7 +45,7 @@ const OrderCard = ({ order: initialOrder }: OrderProps) => {
     }
   }
 
-  const statusColors: Record<string, string> = {
+  const statusColors = {
     "In Progress": "bg-yellow-100",
     "On the Way to the customer": "bg-blue-100",
     "Ready to take away": "bg-green-100",
@@ -57,21 +54,21 @@ const OrderCard = ({ order: initialOrder }: OrderProps) => {
 
   return (
     <div
+      key={order.id}
       className={`rounded-xl p-4 shadow-md border border-yellow-300 ${
-        statusColors[order.status] || ""
+        statusColors[order.status as keyof typeof statusColors] || ""
       } font-hand text-lg`}
       style={{ fontFamily: '"Patrick Hand", cursive' }}
     >
       <h2 className="text-xl font-bold mb-2">Order #{order.number}</h2>
 
       <OrderItemList items={order.items} />
-
       <OrderInfo
-        phone={order.phone}
-        isDelivery={order.is_delivery}
-        orderedAt={order.ordered_at}
-        status={order.status}
-      />
+  phone={order.phone}
+  isDelivery={order.is_delivery}
+  orderedAt={order.ordered_at}
+  status={order.status}
+/>
 
       <OrderActions
         onAdvance={() => advanceOrderStatus(order.id)}
