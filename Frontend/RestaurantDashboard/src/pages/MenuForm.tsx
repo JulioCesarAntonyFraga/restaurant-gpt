@@ -7,7 +7,7 @@ type MenuItem = {
   category: string;
   description?: string;
 };
-
+//teste 
 const MenuForm = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const [formData, setFormData] = useState<MenuItem>({

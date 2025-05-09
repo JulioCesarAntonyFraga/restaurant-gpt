@@ -3,7 +3,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../utils/firebase"; // Ajuste o caminho conforme necessário
 import { useAuth } from "../utils/authContext";
 import { useNavigate } from "react-router-dom";
-
+//teste
 type LoginRequest = {
   email: string;
   password: string;
