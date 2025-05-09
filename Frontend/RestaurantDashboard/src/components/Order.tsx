@@ -4,6 +4,7 @@ import OrderItemList from "./OrderItemList";
 import OrderInfo from "./OrderInfo";
 import OrderActions from "./OrderActions";
 
+
 export interface Order {
   id: string;
   number: number;
@@ -26,6 +27,7 @@ const OrderCard = ({ order: initialOrder }: OrderProps) => {
       const updatedOrder = await apiFetch(`/advance-order-status/${orderId}`, {
         method: "PUT",
       });
+
       setOrder(updatedOrder);
     } catch (error: any) {
       console.error("Erro ao avançar pedido:", error);
@@ -38,6 +40,7 @@ const OrderCard = ({ order: initialOrder }: OrderProps) => {
       const updatedOrder = await apiFetch(`/regress-order-status/${orderId}`, {
         method: "PUT",
       });
+
       setOrder(updatedOrder);
     } catch (error: any) {
       console.error("Erro ao regredir pedido:", error);
@@ -45,7 +48,7 @@ const OrderCard = ({ order: initialOrder }: OrderProps) => {
     }
   }
 
-  const statusColors = {
+  const statusColors: Record<string, string> = {
     "In Progress": "bg-yellow-100",
     "On the Way to the customer": "bg-blue-100",
     "Ready to take away": "bg-green-100",
@@ -55,7 +58,7 @@ const OrderCard = ({ order: initialOrder }: OrderProps) => {
   return (
     <div
       className={`rounded-xl p-4 shadow-md border border-yellow-300 ${
-        statusColors[order.status as keyof typeof statusColors] || ""
+        statusColors[order.status] || ""
       } font-hand text-lg`}
       style={{ fontFamily: '"Patrick Hand", cursive' }}
     >

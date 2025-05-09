@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import Select from "react-select";
-// import '../css/orders.css';
 import { formatTimestamp } from "../utils/orderUtils";
 import {Order} from "../components/Order";
 import OrderCard from "../components/Order";
+import { apiFetch } from "../utils/helper";
 
 
 
@@ -98,7 +98,7 @@ const Orders = () => {
 async function fetchOrders(): Promise<Order[]> {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     console.log("API URL:", apiUrl);
-    const res = await fetch(`${apiUrl}/retrieve-orders`, {
+    const res = await apiFetch(`/retrieve-orders`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
