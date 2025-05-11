@@ -184,18 +184,18 @@ export default function App() {
                     }
                   />
 
-<Route
-                  path="/menu/editar/:id"
-                  element={
-                    <PrivateRoute>
-                      <MenuEditForm />
-                    </PrivateRoute>
-                  }
-                />
+                  <Route
+                    path="/menu/editar/:id"
+                    element={
+                      <PrivateRoute>
+                        <MenuEditForm />
+                      </PrivateRoute>
+                    }
+                  />
 
                 </Routes>
 
-                
+
 
 
               </div>
