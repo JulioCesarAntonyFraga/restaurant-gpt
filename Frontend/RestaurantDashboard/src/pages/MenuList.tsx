@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import { Switch } from "@headlessui/react";
 import React from "react";
+import { useNavigate } from 'react-router-dom';
 
 type MenuItem = {
+  id: number; // ← adicionado
   name: string;
   price: number;
   available: boolean;
@@ -13,6 +15,7 @@ type MenuItem = {
 
 const mockData: MenuItem[] = [
   {
+    id: 1,
     name: "Pizza Margherita",
     price: 35.5,
     available: true,
@@ -20,12 +23,14 @@ const mockData: MenuItem[] = [
     description: "Molho de tomate, muçarela e manjericão fresco.",
   },
   {
+    id: 2,
     name: "Lasanha Bolonhesa",
     price: 42,
     available: false,
     category: "Massas",
   },
   {
+    id: 3,
     name: "Spaghetti Carbonara",
     price: 37,
     available: true,
@@ -41,6 +46,7 @@ const MenuList = () => {
   const [availabilityFilter, setAvailabilityFilter] =
     useState<AvailabilityFilter>("all");
   const [sortBy, setSortBy] = useState<SortField>("name");
+  const navigate = useNavigate(); // ← adicionado aqui
 
   useEffect(() => {
     setMenuItems(mockData);
@@ -106,7 +112,7 @@ const MenuList = () => {
       <div className="grid gap-4">
         {filteredItems.map((item, idx) => (
           <div
-            key={idx}
+            key={item.id}
             className="bg-white rounded-xl shadow-md p-4 border-l-4 border-blue-300"
           >
             <div className="flex justify-between items-start">
@@ -128,24 +134,26 @@ const MenuList = () => {
                   <Switch
                     checked={item.available}
                     onChange={() => toggleAvailability(idx)}
-                    className={`${
-                      item.available ? "bg-green-500" : "bg-gray-300"
-                    } relative inline-flex h-6 w-11 items-center rounded-full transition-colors`}
+                    className={`${item.available ? "bg-green-500" : "bg-gray-300"
+                      } relative inline-flex h-6 w-11 items-center rounded-full transition-colors`}
                   >
                     <span
-                      className={`${
-                        item.available ? "translate-x-6" : "translate-x-1"
-                      } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+                      className={`${item.available ? "translate-x-6" : "translate-x-1"
+                        } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
                     />
                   </Switch>
                 </div>
               </div>
 
               <div className="flex flex-col items-end gap-2">
-                <button className="flex items-center gap-1 text-sm bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition">
+                <button
+                  className="flex items-center gap-1 text-sm bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
+                  onClick={() => navigate(`/menu/editar/${item.id}`)} // ← corrigido aqui
+                >
                   <Pencil size={16} />
                   Editar
                 </button>
+
                 <button className="flex items-center gap-1 text-sm bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition">
                   <Trash2 size={16} />
                   Remover

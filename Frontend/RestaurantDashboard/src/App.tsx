@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import {
   Menu,
   ShoppingBag,
@@ -20,6 +21,9 @@ import { AuthProvider } from "./utils/authContext";
 import { PrivateRoute } from "./components/PrivateRoute";
 import { signOut } from "firebase/auth";
 import { auth } from "./utils/firebase";
+import MenuEditForm from './pages/MenuEditForm';
+
+
 
 export default function App() {
   const navigate = useNavigate();
@@ -37,9 +41,8 @@ export default function App() {
         {/* Sidebar */}
         <PrivateRoute>
           <aside
-            className={`transition-all duration-300 ${
-              isSidebarOpen ? "w-64" : "w-16"
-            } bg-gradient-to-br from-[#88e5fc] to-blue-100 shadow-lg text-white`}
+            className={`transition-all duration-300 ${isSidebarOpen ? "w-64" : "w-16"
+              } bg-gradient-to-br from-[#88e5fc] to-blue-100 shadow-lg text-white`}
           >
             <div className="h-full flex flex-col justify-between">
               <div>
@@ -134,55 +137,69 @@ export default function App() {
 
           {/* Page content */}
           <div className="flex-1 p-6 overflow-y-auto">
-              <div className="flex">
-                {/* Sidebar etc... */}
+            <div className="flex">
+              {/* Sidebar etc... */}
 
-                {/* Conteúdo da página */}
-                <div className="flex-1 p-6 overflow-y-auto">
-                  <Routes>
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/logout" element={
-                      <button
+              {/* Conteúdo da página */}
+              <div className="flex-1 p-6 overflow-y-auto">
+                <Routes>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/logout" element={
+                    <button
                       onClick={() => logout()}
                       className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
                     >
                       Sair
                     </button>} />
-                    <Route
-                      path="/pedidos"
-                      element={
-                        <PrivateRoute>
-                          <Orders />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
-                      path="/menu"
-                      element={
-                        <PrivateRoute>
-                          <MenuList />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
-                      path="/menu/novo"
-                      element={
-                        <PrivateRoute>
-                          <MenuForm />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
-                      path="*"
-                      element={
-                        <PrivateRoute>
-                          <Orders />
-                        </PrivateRoute>
-                      }
-                    />
-                  </Routes>
-                </div>
+                  <Route
+                    path="/pedidos"
+                    element={
+                      <PrivateRoute>
+                        <Orders />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/menu"
+                    element={
+                      <PrivateRoute>
+                        <MenuList />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/menu/novo"
+                    element={
+                      <PrivateRoute>
+                        <MenuForm />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="*"
+                    element={
+                      <PrivateRoute>
+                        <Orders />
+                      </PrivateRoute>
+                    }
+                  />
+
+                  <Route
+                    path="/menu/editar/:id"
+                    element={
+                      <PrivateRoute>
+                        <MenuEditForm />
+                      </PrivateRoute>
+                    }
+                  />
+
+                </Routes>
+
+
+
+
               </div>
+            </div>
           </div>
         </main>
       </AuthProvider>
