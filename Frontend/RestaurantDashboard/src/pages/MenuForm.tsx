@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { apiFetch } from "../utils/apiHelper";
 
 
 
@@ -38,7 +39,7 @@ const MenuForm = () => {
         e.preventDefault();
 
         try {
-            const res = await fetch(`${apiUrl}/add-menu-item`, {
+            const res = await apiFetch(`${apiUrl}/add-menu-item`, {
                 method: "POST",
                 headers: { 
                     "Content-Type": "application/json",
