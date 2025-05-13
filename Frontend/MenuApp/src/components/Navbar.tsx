@@ -18,7 +18,7 @@ const Navbar = () => {
             <Link to="/" className="text-white hover:underline">
               Cardápio
             </Link>
-            <Link to="/meu-pedido" className="text-white hover:underline">
+            <Link to="/carrinho" className="text-white hover:underline">
               Meu Pedido
             </Link>
           </nav>
@@ -39,7 +39,7 @@ const Navbar = () => {
           <Link to="/" className="block text-white hover:underline">
             Cardápio
           </Link>
-          <Link to="/meu-pedido" className="block text-white hover:underline">
+          <Link to="/carrinho" className="block text-white hover:underline">
             Meu Pedido
           </Link>
         </nav>
