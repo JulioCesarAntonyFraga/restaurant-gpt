@@ -3,7 +3,7 @@ name: Placeholder CI
 on:
   pull_request:
     branches:
-      - main  # ou a branch principal do seu repositório
+      - master
 
 jobs:
   always-pass:
