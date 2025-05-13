@@ -66,4 +66,6 @@ jobs:
           az functionapp deployment source config-zip \
             --name restaurant-gpt \
             --resource-group Restaurant-GPT \
-            --src function.zip
+            --src function.zip \
+            --build-remote true
+
