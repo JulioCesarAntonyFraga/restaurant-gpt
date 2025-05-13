@@ -17,7 +17,7 @@ const MenuItem = ({ name, price, description, image }: MenuItemProps) => {
 
   return (
     <div className="bg-white shadow rounded-lg p-4 flex flex-col">
-      <img src={image} alt={name} className="w-full h-40 object-cover rounded mb-4" />
+      <img src={image ? image : "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png"} alt={name} className="w-full h-40 object-cover rounded mb-4" />
       <h2 className="text-lg font-bold">{name}</h2>
       <p className="text-sm text-gray-600">{description}</p>
       <p className="mt-2 font-medium text-blue-600">R$ {price.toFixed(2)}</p>
