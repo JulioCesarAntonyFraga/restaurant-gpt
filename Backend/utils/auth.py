@@ -1,5 +1,5 @@
 import firebase_admin
-from firebase_admin import auth, credentials
+from firebase_admin import auth
 import azure.functions as func
 
 def verify_token(req: func.HttpRequest):
