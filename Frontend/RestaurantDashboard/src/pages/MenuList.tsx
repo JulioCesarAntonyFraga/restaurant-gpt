@@ -13,44 +13,52 @@ type MenuItem = {
   description?: string;
 };
 
-const mockData: MenuItem[] = [
-  {
-    id: 1,
-    name: "Pizza Margherita",
-    price: 35.5,
-    available: true,
-    category: "Pizza",
-    description: "Molho de tomate, muçarela e manjericão fresco.",
-  },
-  {
-    id: 2,
-    name: "Lasanha Bolonhesa",
-    price: 42,
-    available: false,
-    category: "Massas",
-  },
-  {
-    id: 3,
-    name: "Spaghetti Carbonara",
-    price: 37,
-    available: true,
-    category: "Massas",
-  },
-];
 
 type AvailabilityFilter = "all" | "available" | "unavailable";
 type SortField = "name" | "price" | "category";
 
+async function fetchMenuItems(): Promise<MenuItem[]> {
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const res = await fetch(`${apiUrl}/retrieve-menu-items`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        },
+    });
+    if (!res.ok) {
+        throw new Error("Failed to fetch orders");
+    }
+    return res.json()
+}
+
 const MenuList = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const getItems = async () => {
+        try {
+            const data = await fetchMenuItems();
+            setMenuItems(data);
+        } catch (error) {
+            console.error("Erro ao buscar itens do menu:", error);
+        } finally {
+            setLoading(false);
+        }
+    }
+    getItems();
+  }, []);
+
   const [availabilityFilter, setAvailabilityFilter] =
     useState<AvailabilityFilter>("all");
   const [sortBy, setSortBy] = useState<SortField>("name");
   const navigate = useNavigate(); // ← adicionado aqui
 
-  useEffect(() => {
-    setMenuItems(mockData);
-  }, []);
+  
+  if (loading) {
+    return <p className="text-center mt-8">Carregando pedidos...</p>
+  }
 
   const toggleAvailability = (index: number) => {
     setMenuItems((prev) =>

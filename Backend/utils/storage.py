@@ -2,9 +2,28 @@ import firebase_admin
 from firebase_admin import credentials, firestore 
 import uuid
 import time
+import base64
+import os
+import os
+import base64
+import firebase_admin
+from firebase_admin import credentials, firestore
 
-cred = credentials.Certificate("./firebase-credentials.json")
-firebase_admin.initialize_app(cred)
+cred_path = "/tmp/firebase-credentials.json"
+
+firebase_json_b64 = os.environ.get("FIREBASE_CREDENTIALS_B64")
+
+if firebase_json_b64:
+    decoded = base64.b64decode(firebase_json_b64)
+    with open(cred_path, "wb") as f:
+        f.write(decoded)
+else:
+    # Executando localmente — usa o arquivo local
+    cred_path = "./firebase-credentials.json"
+
+if not firebase_admin._apps:
+    cred = credentials.Certificate(cred_path)
+    firebase_admin.initialize_app(cred)
 
 db = firestore.client()
 
@@ -25,6 +44,7 @@ def add_menu_item(menu_item: dict) -> dict:
     menu_item["id"] = str(uuid.uuid4())
     menu_item["created_at"] = int(time.time())
     menu_item["updated_at"] = int(time.time())
+    menu_item["price"] = float(menu_item["price"])
 
     db.collection("menu").document(menu_item["id"]).set(menu_item)
     return menu_item
@@ -139,7 +159,6 @@ def advance_order_status(order_id: str) -> dict:
 
     return order
 
-
 def regress_order_status(order_id: str) -> dict:
     order_ref = db.collection("orders").document(order_id)
 
@@ -163,7 +182,6 @@ def regress_order_status(order_id: str) -> dict:
     order['status'] = next_status
 
     return order
-
 
 def get_previous_status(current_status: str) -> str:
     status_order = [

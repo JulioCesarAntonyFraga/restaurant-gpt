@@ -6,6 +6,9 @@ import {Order} from "../components/Order";
 import OrderCard from "../components/Order";
 
 
+
+
+
 const statusOptions = [
     { value: "In Progress", label: "Em Andamento" },
     { value: "On the Way to the customer", label: "A caminho do cliente" },
@@ -18,22 +21,21 @@ const Orders = () => {
     const [statusFilter, setStatusFilter] = useState<{ value: string; label: string }[]>([]);
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const getOrders = async () => {
-        try {
-            const data = await fetchOrders()
-            setOrders(data)
-        } catch (error) {
-            console.error("Erro ao buscar pedidos:", error)
-        } finally {
-            setLoading(false)
+            try {
+                const data = await fetchOrders()
+                setOrders(data);
+            } catch (error) {
+                console.error("Erro ao buscar pedidos:", error);
+            } finally {
+                setLoading(false);
+            }
         }
-        }
-
-        getOrders()
-    }, [])
+        getOrders();
+    }, []);
 
     if (loading) {
         return <p className="text-center mt-8">Carregando pedidos...</p>
