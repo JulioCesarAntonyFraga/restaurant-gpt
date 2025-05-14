@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { apiFetch } from "../utils/helper";
+import { apiFetch } from "../utils/apiHelper";
 
 type MenuItem = {
   name: string;
