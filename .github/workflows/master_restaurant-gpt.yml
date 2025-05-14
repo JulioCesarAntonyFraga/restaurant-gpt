@@ -61,11 +61,10 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_49839D7B608445E3BD41AE00F2D8944E }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_433575CC698B44DDAD062F23003631E4 }}
 
-      - name: Deploy to Azure Function App
+      - name: Deploy to Azure Function App (with remote build)
         run: |
           az functionapp deployment source config-zip \
             --name restaurant-gpt \
             --resource-group Restaurant-GPT \
             --src function.zip \
             --build-remote true
-

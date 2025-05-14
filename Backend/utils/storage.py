@@ -2,9 +2,28 @@ import firebase_admin
 from firebase_admin import credentials, firestore 
 import uuid
 import time
+import base64
+import os
+import os
+import base64
+import firebase_admin
+from firebase_admin import credentials, firestore
 
-cred = credentials.Certificate("./firebase-credentials.json")
-firebase_admin.initialize_app(cred)
+cred_path = "/tmp/firebase-credentials.json"
+
+firebase_json_b64 = os.environ.get("FIREBASE_CREDENTIALS_B64")
+
+if firebase_json_b64:
+    decoded = base64.b64decode(firebase_json_b64)
+    with open(cred_path, "wb") as f:
+        f.write(decoded)
+else:
+    # Executando localmente — usa o arquivo local
+    cred_path = "./firebase-credentials.json"
+
+if not firebase_admin._apps:
+    cred = credentials.Certificate(cred_path)
+    firebase_admin.initialize_app(cred)
 
 db = firestore.client()
 
