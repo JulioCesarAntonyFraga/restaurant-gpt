@@ -149,53 +149,40 @@ export default function App() {
                     >
                       Sair
                     </button>} />
-                  <Route
-                    path="/pedidos"
-                    element={
-                      <PrivateRoute>
-                        <Orders />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route
-                    path="/menu"
-                    element={
-                      <PrivateRoute>
-                        <MenuList />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route
-                    path="/menu/novo"
-                    element={
-                      <PrivateRoute>
-                        <MenuForm />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route
-                    path="*"
-                    element={
-                      <PrivateRoute>
-                        <Orders />
-                      </PrivateRoute>
-                    }
-                  />
-
-<Route
-                  path="/menu/editar/:id"
-                  element={
-                    <PrivateRoute>
-                      <MenuEditForm />
-                    </PrivateRoute>
-                  }
-                />
-
-                </Routes>
-
-                
-
-
+                    <Route
+                      path="/pedidos"
+                      element={
+                        <PrivateRoute>
+                          <Orders />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      path="/menu"
+                      element={
+                        <PrivateRoute>
+                          <MenuList />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      path="/menu/novo"
+                      element={
+                        <PrivateRoute>
+                          <MenuForm />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      path="*"
+                      element={
+                        <PrivateRoute>
+                          <Orders />
+                        </PrivateRoute>
+                      }
+                    />
+                  </Routes>
+                </div>
               </div>
             </div>
           </div>
