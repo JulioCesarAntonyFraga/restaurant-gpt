@@ -159,10 +159,7 @@ const MenuList = () => {
               </div>
 
               <div className="flex flex-col items-end gap-2">
-                <button
-                  className="flex items-center gap-1 text-sm bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
-                  onClick={() => navigate(`/menu/editar/${item.id}`)}
-                >
+                <button className="flex items-center gap-1 text-sm bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition">
                   <Pencil size={16} />
                   Editar
                 </button>
