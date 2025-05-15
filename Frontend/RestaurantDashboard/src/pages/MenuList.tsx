@@ -146,7 +146,7 @@ const MenuList = () => {
                   <span className="text-sm text-gray-700">Disponível:</span>
                   <Switch
                     checked={item.available}
-                    onChange={() => toggleAvailability(item.id - 1)} // Alterado para garantir o índice correto
+                    onChange={() => toggleAvailability(item.id - 1)} 
                     className={`${item.available ? "bg-green-500" : "bg-gray-300"
                       } relative inline-flex h-6 w-11 items-center rounded-full transition-colors`}
                   >
