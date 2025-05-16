@@ -27,7 +27,19 @@ const MenuEditForm = () => {
 
   const fetchItem = async () => {
     try {
-      const data = await apiFetch(`/get-menu-item/${id}`);
+      const apiUrl = import.meta.env.VITE_API_BASE_URL;
+      const res = await fetch(`${apiUrl}/get-menu-item/${id}`, {
+          method: "GET",
+          headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${localStorage.getItem("token")}`,
+          },
+      })
+      if (!res.ok) {
+          throw new Error("Failed to fetch menu item");
+      }
+
+      const data : MenuItem = await res.json()
 
       if (data) {
         setFormData({
