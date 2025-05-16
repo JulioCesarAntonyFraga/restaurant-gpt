@@ -1,13 +1,7 @@
 import { useEffect, useState } from "react";
 import Select from "react-select";
-// import '../css/orders.css';
-import { formatTimestamp } from "../utils/orderUtils";
 import {Order} from "../components/Order";
 import OrderCard from "../components/Order";
-
-
-
-
 
 const statusOptions = [
     { value: "In Progress", label: "Em Andamento" },
