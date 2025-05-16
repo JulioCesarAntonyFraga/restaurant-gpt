@@ -2,11 +2,46 @@ import firebase_admin
 from firebase_admin import credentials, firestore 
 import uuid
 import time
+import base64
+import os
+import os
+import base64
+import firebase_admin
+from firebase_admin import credentials, firestore
 
-cred = credentials.Certificate("./firebase-credentials.json")
-firebase_admin.initialize_app(cred)
+cred_path = "/tmp/firebase-credentials.json"
+
+firebase_json_b64 = os.environ.get("FIREBASE_CREDENTIALS_B64")
+
+if firebase_json_b64:
+    decoded = base64.b64decode(firebase_json_b64)
+    with open(cred_path, "wb") as f:
+        f.write(decoded)
+else:
+    # Executando localmente — usa o arquivo local
+    cred_path = "./firebase-credentials.json"
+
+if not firebase_admin._apps:
+    cred = credentials.Certificate(cred_path)
+    firebase_admin.initialize_app(cred)
 
 db = firestore.client()
+
+def get_menu_item(menu_item_id: str) -> dict:
+    
+    menu_item_ref = db.collection("menu").document(menu_item_id)
+
+    # Get the snapshot first
+    menu_item_snapshot = menu_item_ref.get()
+
+    if not menu_item_snapshot.exists:
+        raise ValueError(f"Menu item with ID {menu_item_id} not found.")
+
+    # Then convert snapshot to dict
+    menu_item = menu_item_snapshot.to_dict()
+    menu_item['id'] = menu_item_id
+
+    return menu_item
 
 def start_conversation(phone_number: str) -> str:
     conversation_id = str(uuid.uuid4())
