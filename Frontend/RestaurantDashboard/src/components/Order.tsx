@@ -3,8 +3,6 @@ import { apiFetch } from "../utils/apiHelper";
 import OrderItemList from "./OrderItemList";
 import OrderInfo from "./OrderInfo";
 import OrderActions from "./OrderActions";
-import { useAuth } from "../utils/authContext"; // deve ser o mesmo nome exato do arquivo
-
 
 export interface Order {
   id: string;
@@ -22,23 +20,16 @@ export interface OrderProps {
 
 const OrderCard = ({ order: initialOrder }: OrderProps) => {
   const [order, setOrder] = useState<Order>(initialOrder);
-  const { token } = useAuth(); // Pegando o token do contexto
 
   async function advanceOrderStatus(orderId: string) {
     try {
       const updatedOrder = await apiFetch(`/advance-order-status/${orderId}`, {
         method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       });
-
-      setOrder(updatedOrder as Order);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error("Erro ao avançar pedido:", error.message);
-        alert(error.message || "Erro ao avançar pedido");
-      }
+      setOrder(updatedOrder);
+    } catch (error: any) {
+      console.error("Erro ao avançar pedido:", error);
+      alert(error.message || "Erro ao avançar pedido");
     }
   }
 
@@ -46,19 +37,11 @@ const OrderCard = ({ order: initialOrder }: OrderProps) => {
     try {
       const updatedOrder = await apiFetch(`/regress-order-status/${orderId}`, {
         method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       });
-
-      setOrder(updatedOrder as Order);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error("Erro ao regredir pedido:", error.message);
-        alert(error.message || "Erro ao regredir pedido");
-      } else {
-        console.error("Erro desconhecido:", error);
-      }
+      setOrder(updatedOrder);
+    } catch (error: any) {
+      console.error("Erro ao regredir pedido:", error);
+      alert(error.message || "Erro ao regredir pedido");
     }
   }
 
