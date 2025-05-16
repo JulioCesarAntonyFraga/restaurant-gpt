@@ -4,7 +4,7 @@ import { Switch } from "@headlessui/react";
 import React from "react";
 
 type MenuItem = {
-  id: number;
+  id: string;
   name: string;
   price: number;
   available: boolean;
@@ -57,10 +57,10 @@ const MenuList = () => {
     return <p className="text-center mt-8">Carregando pedidos...</p>
   }
 
-  const toggleAvailability = (index: number) => {
+  const toggleAvailability = (id: string) => {
     setMenuItems((prev) =>
-      prev.map((item, i) =>
-        i === index ? { ...item, available: !item.available } : item
+      prev.map((item) =>
+        item.id === id ? { ...item, available: !item.available } : item
       )
     );
   };
@@ -159,7 +159,7 @@ const MenuList = () => {
                   <span className="text-sm text-gray-700">Disponível:</span>
                   <Switch
                     checked={item.available}
-                    onChange={() => toggleAvailability(item.id - 1)} // Alterado para garantir o índice correto
+                    onChange={() => toggleAvailability(item.id)} 
                     className={`${item.available ? "bg-green-500" : "bg-gray-300"
                       } relative inline-flex h-6 w-11 items-center rounded-full transition-colors`}
                   >
@@ -172,10 +172,7 @@ const MenuList = () => {
               </div>
 
               <div className="flex flex-col items-end gap-2">
-                <button
-                  className="flex items-center gap-1 text-sm bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
-                  onClick={() => navigate(`/menu/editar/${item.id}`)}
-                >
+                <button className="flex items-center gap-1 text-sm bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition">
                   <Pencil size={16} />
                   Editar
                 </button>
