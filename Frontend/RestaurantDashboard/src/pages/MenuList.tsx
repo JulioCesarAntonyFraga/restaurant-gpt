@@ -54,6 +54,10 @@ const MenuList = () => {
   const [sortBy, setSortBy] = useState<SortField>("name");
   const navigate = useNavigate();
 
+  if (loading) {
+    return <p className="text-center mt-8">Carregando pedidos...</p>
+  }
+
   const toggleAvailability = (index: number) => {
     setMenuItems((prev) =>
       prev.map((item, i) =>
@@ -157,11 +161,7 @@ const MenuList = () => {
                   <Pencil size={16} />
                   Editar
                 </button>
-
-                <button
-                  className="flex items-center gap-1 text-sm bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"
-                  onClick={() => handleRemove(item.id)}
-                >
+                <button className="flex items-center gap-1 text-sm bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition">
                   <Trash2 size={16} />
                   Remover
                 </button>
