@@ -1,13 +1,7 @@
 import { useEffect, useState } from "react";
 import Select from "react-select";
-// import '../css/orders.css';
-import { formatTimestamp } from "../utils/orderUtils";
 import {Order} from "../components/Order";
 import OrderCard from "../components/Order";
-
-
-
-
 
 const statusOptions = [
     { value: "In Progress", label: "Em Andamento" },
@@ -48,10 +42,11 @@ const Orders = () => {
             : statusFilter.some((status) => status.value === order.status)
         )
         .sort((a, b) => {
-        const timeA = parseInt(formatTimestamp(a.ordered_at).replace(":", ""));
-        const timeB = parseInt(formatTimestamp(b.ordered_at).replace(":", ""));
-        return sortOrder === "asc" ? timeA - timeB : timeB - timeA;
-    });
+    const dateA = new Date(a.ordered_at).getTime();
+    const dateB = new Date(b.ordered_at).getTime();
+    return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+});
+
 
     return (
         <div className="p-6">
