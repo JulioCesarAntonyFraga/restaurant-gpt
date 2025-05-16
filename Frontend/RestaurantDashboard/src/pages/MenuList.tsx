@@ -68,10 +68,29 @@ const MenuList = () => {
     );
   };
 
-  // Função para remover um item do menu
-  const removeMenuItem = (id: number) => {
-    setMenuItems((prevItems) => prevItems.filter((item) => item.id !== id));
+    // Função para remover um item do menu
+  const removeMenuItem = async (id: string) => {
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+
+    try {
+      const res = await fetch(`${apiUrl}/delete-menu-item/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error("Erro ao remover o item do menu");
+      }
+
+      // Atualiza o estado apenas se a exclusão for bem-sucedida
+      setMenuItems((prevItems) => prevItems.filter((item) => item.id !== id));
+    } catch (error) {
+      console.error("Erro ao remover item:", error);
+    }
   };
+
 
   const filteredItems = menuItems
     .filter((item) => {
@@ -146,7 +165,7 @@ const MenuList = () => {
                   <span className="text-sm text-gray-700">Disponível:</span>
                   <Switch
                     checked={item.available}
-                    onChange={() => toggleAvailability(item.id - 1)} 
+                    onChange={() => toggleAvailability(item.id)} 
                     className={`${item.available ? "bg-green-500" : "bg-gray-300"
                       } relative inline-flex h-6 w-11 items-center rounded-full transition-colors`}
                   >
