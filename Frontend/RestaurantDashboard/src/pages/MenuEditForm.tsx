@@ -27,7 +27,7 @@ const MenuEditForm = () => {
 
   const fetchItem = async () => {
     try {
-      const data = await apiFetch(`/menu-item/${id}`);
+      const data = await apiFetch(`/get-menu-item/${id}`);
 
       if (data) {
         setFormData({
