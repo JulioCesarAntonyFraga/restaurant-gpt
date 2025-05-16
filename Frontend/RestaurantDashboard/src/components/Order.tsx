@@ -20,28 +20,49 @@ export interface OrderProps {
 
 const OrderCard = ({ order: initialOrder }: OrderProps) => {
   const [order, setOrder] = useState<Order>(initialOrder);
+  const token = localStorage.getItem("token"); // 🔁 Pegando o token direto
 
   async function advanceOrderStatus(orderId: string) {
+    if (!token) {
+      alert("Token não encontrado.");
+      return;
+    }
+
     try {
       const updatedOrder = await apiFetch(`/advance-order-status/${orderId}`, {
         method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-      setOrder(updatedOrder);
-    } catch (error: any) {
-      console.error("Erro ao avançar pedido:", error);
-      alert(error.message || "Erro ao avançar pedido");
+      setOrder(updatedOrder as Order);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error("Erro ao avançar pedido:", error.message);
+        alert(error.message || "Erro ao avançar pedido");
+      }
     }
   }
 
   async function regressOrderStatus(orderId: string) {
+    if (!token) {
+      alert("Token não encontrado.");
+      return;
+    }
+
     try {
       const updatedOrder = await apiFetch(`/regress-order-status/${orderId}`, {
         method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-      setOrder(updatedOrder);
-    } catch (error: any) {
-      console.error("Erro ao regredir pedido:", error);
-      alert(error.message || "Erro ao regredir pedido");
+      setOrder(updatedOrder as Order);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error("Erro ao regredir pedido:", error.message);
+        alert(error.message || "Erro ao regredir pedido");
+      }
     }
   }
 

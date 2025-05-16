@@ -20,6 +20,7 @@ import { AuthProvider } from "./utils/authContext";
 import { PrivateRoute } from "./components/PrivateRoute";
 import { signOut } from "firebase/auth";
 import { auth } from "./utils/firebase";
+import MenuEditForm from "./pages/MenuEditForm";
 
 export default function App() {
   const navigate = useNavigate();
@@ -148,41 +149,55 @@ export default function App() {
                     >
                       Sair
                     </button>} />
-                    <Route
-                      path="/pedidos"
-                      element={
-                        <PrivateRoute>
-                          <Orders />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
-                      path="/menu"
-                      element={
-                        <PrivateRoute>
-                          <MenuList />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
-                      path="/menu/novo"
-                      element={
-                        <PrivateRoute>
-                          <MenuForm />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
-                      path="*"
-                      element={
-                        <PrivateRoute>
-                          <Orders />
-                        </PrivateRoute>
-                      }
-                    />
-                  </Routes>
-                </div>
+                  <Route
+                    path="/pedidos"
+                    element={
+                      <PrivateRoute>
+                        <Orders />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/menu"
+                    element={
+                      <PrivateRoute>
+                        <MenuList />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/menu/novo"
+                    element={
+                      <PrivateRoute>
+                        <MenuForm />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="*"
+                    element={
+                      <PrivateRoute>
+                        <Orders />
+                      </PrivateRoute>
+                    }
+                  />
+
+<Route
+                  path="/menu/editar/:id"
+                  element={
+                    <PrivateRoute>
+                      <MenuEditForm />
+                    </PrivateRoute>
+                  }
+                />
+
+                </Routes>
+
+                
+
+
               </div>
+            </div>
           </div>
         </main>
       </AuthProvider>

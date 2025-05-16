@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../utils/firebase"; // Ajuste o caminho conforme necessário
-import { useAuth } from "../utils/authContext";
+import { useAuth } from "../utils/useAuth";
 import { useNavigate } from "react-router-dom";
 
 type LoginRequest = {
