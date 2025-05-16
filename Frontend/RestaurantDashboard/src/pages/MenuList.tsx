@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import { Switch } from "@headlessui/react";
 import React from "react";
+import { useNavigate } from 'react-router-dom';
 
 type MenuItem = {
   id: string;
@@ -52,6 +53,8 @@ const MenuList = () => {
   const [availabilityFilter, setAvailabilityFilter] =
     useState<AvailabilityFilter>("all");
   const [sortBy, setSortBy] = useState<SortField>("name");
+
+  const navigate = useNavigate();
   
   if (loading) {
     return <p className="text-center mt-8">Carregando pedidos...</p>
@@ -172,7 +175,10 @@ const MenuList = () => {
               </div>
 
               <div className="flex flex-col items-end gap-2">
-                <button className="flex items-center gap-1 text-sm bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition">
+                <button
+                  className="flex items-center gap-1 text-sm bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
+                  onClick={() => navigate(`/menu/editar/${item.id}`)}
+                >
                   <Pencil size={16} />
                   Editar
                 </button>
