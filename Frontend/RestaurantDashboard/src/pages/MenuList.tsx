@@ -4,12 +4,14 @@ import { Switch } from "@headlessui/react";
 import React from "react";
 
 type MenuItem = {
+  id: string;
   name: string;
   price: number;
   available: boolean;
   category: string;
   description?: string;
 };
+
 
 type AvailabilityFilter = "all" | "available" | "unavailable";
 type SortField = "name" | "price" | "category";
@@ -50,18 +52,38 @@ const MenuList = () => {
   const [availabilityFilter, setAvailabilityFilter] =
     useState<AvailabilityFilter>("all");
   const [sortBy, setSortBy] = useState<SortField>("name");
-
   
   if (loading) {
     return <p className="text-center mt-8">Carregando pedidos...</p>
   }
 
-  const toggleAvailability = (index: number) => {
+  const toggleAvailability = (id: string) => {
     setMenuItems((prev) =>
-      prev.map((item, i) =>
-        i === index ? { ...item, available: !item.available } : item
+      prev.map((item) =>
+        item.id === id ? { ...item, available: !item.available } : item
       )
     );
+  };
+
+  const removeMenuItem = async (id: string) => {
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+
+    try {
+      const res = await fetch(`${apiUrl}/delete-menu-item/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error("Erro ao remover o item do menu");
+      }
+
+      setMenuItems((prevItems) => prevItems.filter((item) => item.id !== id));
+    } catch (error) {
+      console.error("Erro ao remover item:", error);
+    }
   };
 
   const filteredItems = menuItems
@@ -114,9 +136,9 @@ const MenuList = () => {
       </div>
 
       <div className="grid gap-4">
-        {filteredItems.map((item, idx) => (
+        {filteredItems.map((item) => (
           <div
-            key={idx}
+            key={item.id}
             className="bg-white rounded-xl shadow-md p-4 border-l-4 border-blue-300"
           >
             <div className="flex justify-between items-start">
@@ -137,15 +159,13 @@ const MenuList = () => {
                   <span className="text-sm text-gray-700">Disponível:</span>
                   <Switch
                     checked={item.available}
-                    onChange={() => toggleAvailability(idx)}
-                    className={`${
-                      item.available ? "bg-green-500" : "bg-gray-300"
-                    } relative inline-flex h-6 w-11 items-center rounded-full transition-colors`}
+                    onChange={() => toggleAvailability(item.id)} 
+                    className={`${item.available ? "bg-green-500" : "bg-gray-300"
+                      } relative inline-flex h-6 w-11 items-center rounded-full transition-colors`}
                   >
                     <span
-                      className={`${
-                        item.available ? "translate-x-6" : "translate-x-1"
-                      } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+                      className={`${item.available ? "translate-x-6" : "translate-x-1"
+                        } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
                     />
                   </Switch>
                 </div>
@@ -156,7 +176,12 @@ const MenuList = () => {
                   <Pencil size={16} />
                   Editar
                 </button>
-                <button className="flex items-center gap-1 text-sm bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition">
+
+                {/* Botão de Remover */}
+                <button
+                  className="flex items-center gap-1 text-sm bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"
+                  onClick={() => removeMenuItem(item.id)} 
+                >
                   <Trash2 size={16} />
                   Remover
                 </button>
