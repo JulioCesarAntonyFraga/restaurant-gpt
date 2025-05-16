@@ -68,9 +68,25 @@ const MenuList = () => {
     );
   };
 
-  // Função para remover um item do menu
-  const removeMenuItem = (id: number) => {
-    setMenuItems((prevItems) => prevItems.filter((item) => item.id !== id));
+  const removeMenuItem = async (id: string) => {
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+
+    try {
+      const res = await fetch(`${apiUrl}/delete-menu-item/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error("Erro ao remover o item do menu");
+      }
+
+      setMenuItems((prevItems) => prevItems.filter((item) => item.id !== id));
+    } catch (error) {
+      console.error("Erro ao remover item:", error);
+    }
   };
 
   const filteredItems = menuItems
