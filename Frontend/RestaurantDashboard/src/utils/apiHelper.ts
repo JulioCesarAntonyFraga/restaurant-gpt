@@ -16,26 +16,38 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
   };
 
   try {
-
     const response = await fetch(`${apiUrl}${endpoint}`, {
       ...options,
       headers,
     });
 
-
-    if (!response.ok) {
-
-      const errorData = await response.json();
-
-      throw new Error(errorData.message || "Erro na requisição");
+    // Se não tiver conteúdo, retorna null (ou pode retornar {} dependendo do uso)
+    if (response.status === 204) {
+      return null;
     }
 
+    // Tenta ler o corpo se tiver conteúdo
+    const text = await response.text();
 
-    return await response.json();
+    // Se o corpo estiver vazio, retorna null ou {}
+    if (!text) {
+      return null;
+    }
 
-  } catch (error: any) {
+    const data = JSON.parse(text);
 
-    console.error("Erro ao fazer requisição:", error);
-    throw new Error(error.message || "Erro desconhecido ao se comunicar com a API");
+    if (!response.ok) {
+      throw new Error(data.message || "Erro na requisição");
+    }
+
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Erro ao fazer requisição:", error);
+      throw new Error(error.message);
+    } else {
+      console.error("Erro desconhecido ao fazer requisição:", error);
+      throw new Error("Erro desconhecido ao se comunicar com a API");
+    }
   }
 }
