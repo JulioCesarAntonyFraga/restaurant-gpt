@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import { Switch } from "@headlessui/react";
 import React from "react";
-import { useNavigate } from 'react-router-dom';
 
 type MenuItem = {
   id: number;
@@ -53,8 +52,6 @@ const MenuList = () => {
   const [availabilityFilter, setAvailabilityFilter] =
     useState<AvailabilityFilter>("all");
   const [sortBy, setSortBy] = useState<SortField>("name");
-  const navigate = useNavigate();
-
   
   if (loading) {
     return <p className="text-center mt-8">Carregando pedidos...</p>
