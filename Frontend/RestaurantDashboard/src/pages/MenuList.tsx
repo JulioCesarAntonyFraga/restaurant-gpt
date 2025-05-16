@@ -5,7 +5,7 @@ import React from "react";
 import { useNavigate } from 'react-router-dom';
 
 type MenuItem = {
-  id: number; // ← adicionado
+  id: number;
   name: string;
   price: number;
   available: boolean;
