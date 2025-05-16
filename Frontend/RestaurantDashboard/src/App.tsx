@@ -20,6 +20,7 @@ import { AuthProvider } from "./utils/authContext";
 import { PrivateRoute } from "./components/PrivateRoute";
 import { signOut } from "firebase/auth";
 import { auth } from "./utils/firebase";
+import MenuEditForm from "./pages/MenuEditForm";
 
 export default function App() {
   const navigate = useNavigate();
