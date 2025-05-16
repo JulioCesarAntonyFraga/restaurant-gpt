@@ -1,6 +1,4 @@
 import { useState } from "react";
-import MenuEditForm from './pages/MenuEditForm';
-
 import {
   Menu,
   ShoppingBag,
