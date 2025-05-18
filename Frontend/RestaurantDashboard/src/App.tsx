@@ -20,10 +20,11 @@ import { AuthProvider } from "./utils/authContext";
 import { PrivateRoute } from "./components/PrivateRoute";
 import { signOut } from "firebase/auth";
 import { auth } from "./utils/firebase";
-import MenuEditForm from "./pages/MenuEditForm";
+
 
 export default function App() {
   const navigate = useNavigate();
+
   const logout = () => {
     signOut(auth);
     navigate("/login");
@@ -35,7 +36,6 @@ export default function App() {
   return (
     <div className="flex overflow-hidden h-screen text-gray-800 bg-white">
       <AuthProvider>
-        {/* Sidebar */}
         <PrivateRoute>
           <aside
             className={`transition-all duration-300 ${
@@ -77,7 +77,11 @@ export default function App() {
                       <>
                         <span>Cardápio</span>
                         <span className="ml-auto">
-                          {isMenuOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                          {isMenuOpen ? (
+                            <ChevronDown size={16} />
+                          ) : (
+                            <ChevronRight size={16} />
+                          )}
                         </span>
                       </>
                     )}
@@ -104,9 +108,11 @@ export default function App() {
                 </nav>
               </div>
 
-              {/* Botão de logout fixado no rodapé */}
               <div className="p-4 border-t border-white/20">
-                <button className="flex items-center gap-2 w-full p-2 rounded hover:bg-white/20 transition text-white cursor-pointer" onClick={() => logout()}>
+                <button
+                  className="flex items-center gap-2 w-full p-2 rounded hover:bg-white/20 transition text-white cursor-pointer"
+                  onClick={() => logout()}
+                >
                   <LogOut size={20} />
                   {isSidebarOpen && "Sair"}
                 </button>
@@ -126,65 +132,58 @@ export default function App() {
           </aside>
         </PrivateRoute>
 
-        {/* Main content */}
         <main className="flex-1 flex flex-col bg-white">
-          {/* Header */}
           <header className="h-16 flex items-center px-6 shadow bg-gradient-to-r from-[#88e5fc] to-blue-100 text-white border-b border-white/20">
             <h1 className="text-2xl font-semibold">Restaurant GPT</h1>
           </header>
 
-          {/* Page content */}
           <div className="flex-1 p-6 overflow-y-auto">
-              <div className="flex">
-                {/* Sidebar etc... */}
-
-                {/* Conteúdo da página */}
-                <div className="flex-1 p-6 overflow-y-auto">
-                  <Routes>
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/logout" element={
-                      <button
-                      onClick={() => logout()}
-                      className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
-                    >
-                      Sair
-                    </button>} />
-                    <Route
-                      path="/pedidos"
-                      element={
-                        <PrivateRoute>
-                          <Orders />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
-                      path="/menu"
-                      element={
-                        <PrivateRoute>
-                          <MenuList />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
-                      path="/menu/novo"
-                      element={
-                        <PrivateRoute>
-                          <MenuForm />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
-                      path="*"
-                      element={
-                        <PrivateRoute>
-                          <Orders />
-                        </PrivateRoute>
-                      }
-                    />
-                  </Routes>
-                </div>
-              </div>
-            </div>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route
+                path="/logout"
+                element={
+                  <button
+                    onClick={() => logout()}
+                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+                  >
+                    Sair
+                  </button>
+                }
+              />
+              <Route
+                path="/pedidos"
+                element={
+                  <PrivateRoute>
+                    <Orders />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/menu"
+                element={
+                  <PrivateRoute>
+                    <MenuList />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/menu/novo"
+                element={
+                  <PrivateRoute>
+                    <MenuForm />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="*"
+                element={
+                  <PrivateRoute>
+                    <Orders />
+                  </PrivateRoute>
+                }
+              />
+            </Routes>
           </div>
         </main>
       </AuthProvider>
