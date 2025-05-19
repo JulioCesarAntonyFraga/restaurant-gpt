@@ -87,7 +87,7 @@ const MenuEditForm = () => {
     if (!id) return;
 
     try {
-      const updatedItem = await fetch(`${apiUrl}/edit-menu-item`, {
+      await fetch(`${apiUrl}/edit-menu-item`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
