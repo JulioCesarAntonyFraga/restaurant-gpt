@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useAuth } from "../utils/authContext";
 import { apiFetch } from "../utils/apiHelper";
 
 type MenuItem = {
+  id: string
   name: string;
   price: number;
   available: boolean;
@@ -12,9 +14,11 @@ type MenuItem = {
 
 const MenuEditForm = () => {
   const { id } = useParams<{ id: string }>();
+  const { token } = useAuth();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState<MenuItem>({
+    id: "",
     name: "",
     price: 0,
     available: true,
@@ -27,13 +31,8 @@ const MenuEditForm = () => {
 
   const fetchItem = async () => {
     try {
-      const apiUrl = import.meta.env.VITE_API_BASE_URL;
-      const res = await fetch(`${apiUrl}/get-menu-item/${id}`, {
+      const res = await apiFetch(`/get-menu-item/${id}`, token ?? "",{
           method: "GET",
-          headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${localStorage.getItem("token")}`,
-          },
       })
       if (!res.ok) {
           throw new Error("Failed to fetch menu item");
@@ -43,6 +42,7 @@ const MenuEditForm = () => {
 
       if (data) {
         setFormData({
+          id: id,
           name: data.name || "",
           price: data.price || 0,
           available: data.available ?? true,
@@ -85,15 +85,11 @@ const MenuEditForm = () => {
     if (!id) return;
 
     try {
-      await apiFetch(`/update-menu-item/${id}`, {
+      await apiFetch(`/edit-menu-item`, token ?? "", {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
         body: JSON.stringify(formData),
       });
-      navigate("/menu"); // Redireciona após sucesso
+      navigate("/menu");
     } catch (err) {
       console.error("Erro ao atualizar item:", err);
       alert(err instanceof Error ? err.message : "Erro ao atualizar o item.");

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import Select from "react-select";
-import {Order} from "../components/Order";
-import OrderCard from "../components/Order";
+import OrderCard, {Order} from "../components/OrderCard";
+import { apiFetch } from "../utils/apiHelper";
+import { useAuth } from "../utils/authContext";
 
 const statusOptions = [
     { value: "In Progress", label: "Em Andamento" },
@@ -14,8 +15,19 @@ const Orders = () => {
     const [orders, setOrders] = useState<Order[]>([]);
     const [statusFilter, setStatusFilter] = useState<{ value: string; label: string }[]>([]);
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+    const { token } = useAuth();
 
     const [loading, setLoading] = useState(true);
+
+    async function fetchOrders(): Promise<Order[]> {
+        const res = await apiFetch(`/retrieve-orders`, token ?? "",{
+            method: "GET",
+        })
+        if (!res.ok) {
+            throw new Error("Failed to fetch orders");
+        }
+        return res.json()
+    }
 
     useEffect(() => {
         const getOrders = async () => {
@@ -89,21 +101,5 @@ const Orders = () => {
         </div>
     );
 };
-
-async function fetchOrders(): Promise<Order[]> {
-    const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    console.log("API URL:", apiUrl);
-    const res = await fetch(`${apiUrl}/retrieve-orders`, {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${localStorage.getItem("token")}`,
-        },
-    })
-    if (!res.ok) {
-        throw new Error("Failed to fetch orders");
-    }
-    return res.json()
-}
 
 export default Orders;

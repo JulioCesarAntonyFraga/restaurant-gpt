@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { apiFetch } from "../utils/apiHelper";
+import { useAuth } from "../utils/authContext";
 
 
 
@@ -11,7 +13,7 @@ type MenuItem = {
 };
 
 const MenuForm = () => {
-    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const { token } = useAuth();
     const [formData, setFormData] = useState<MenuItem>({
         name: "",
         price: 0,
@@ -38,12 +40,8 @@ const MenuForm = () => {
         e.preventDefault();
 
         try {
-            const res = await fetch(`${apiUrl}/add-menu-item`, {
+            const res = await apiFetch(`/add-menu-item`, token ?? "",{
                 method: "POST",
-                headers: { 
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${localStorage.getItem("token")}`, 
-                },
                 body: JSON.stringify(formData),
             });
 
