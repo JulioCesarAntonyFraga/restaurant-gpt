@@ -5,6 +5,7 @@ type CartItem = {
   name: string;
   price: number;
   quantity: number;
+  observation?: string;
 };
 
 type CartContextType = {
@@ -59,16 +60,17 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   
   
 
-  const removeFromCart = (item: Omit<CartItem, "quantity">) => {
-    setCartItems((prev) => {
-      return prev
+   const removeFromCart = (item: Omit<CartItem, "quantity">) => {
+    setCartItems((prev) =>
+      prev
         .map((i) =>
-          i.name === item.name ? { ...i, quantity: i.quantity - 1 } : i
+          i.name === item.name && i.observation === item.observation
+            ? { ...i, quantity: i.quantity - 1 }
+            : i
         )
-        .filter((i) => i.quantity > 0);
-    });
+        .filter((i) => i.quantity > 0)
+    );
   };
-
   const clearCart = () => {
     setCartItems([]);
   };
@@ -81,3 +83,5 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     </CartContext.Provider>
   );
 };
+
+
