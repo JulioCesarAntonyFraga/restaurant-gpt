@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import Select from "react-select";
-import {Order} from "../components/Order";
-import OrderCard from "../components/Order";
+import OrderCard, {Order} from "../components/OrderCard";
 
 const statusOptions = [
     { value: "In Progress", label: "Em Andamento" },
