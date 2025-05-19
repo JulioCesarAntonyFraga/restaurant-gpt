@@ -3,6 +3,8 @@ import { Pencil, Trash2 } from "lucide-react";
 import { Switch } from "@headlessui/react";
 import React from "react";
 import { useNavigate } from 'react-router-dom';
+import { apiFetch } from "../utils/apiHelper";
+import { useAuth } from "../utils/authContext";
 
 type MenuItem = {
   id: string;
@@ -17,24 +19,20 @@ type MenuItem = {
 type AvailabilityFilter = "all" | "available" | "unavailable";
 type SortField = "name" | "price" | "category";
 
-async function fetchMenuItems(): Promise<MenuItem[]> {
-    const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const res = await fetch(`${apiUrl}/retrieve-menu-items`, {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${localStorage.getItem("token")}`,
-        },
-    });
-    if (!res.ok) {
-        throw new Error("Failed to fetch orders");
-    }
-    return res.json()
-}
-
 const MenuList = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const {token} = useAuth();
+
+  async function fetchMenuItems(): Promise<MenuItem[]> {
+      const res = await apiFetch(`/retrieve-menu-items`, token ?? "",{
+          method: "GET",
+      });
+      if (!res.ok) {
+          throw new Error("Failed to fetch orders");
+      }
+      return res.json()
+  }
 
   useEffect(() => {
     const getItems = async () => {
@@ -48,7 +46,7 @@ const MenuList = () => {
         }
     }
     getItems();
-  }, []);
+  }, [token]);
 
   const [availabilityFilter, setAvailabilityFilter] =
     useState<AvailabilityFilter>("all");
@@ -69,14 +67,9 @@ const MenuList = () => {
   };
 
   const removeMenuItem = async (id: string) => {
-    const apiUrl = import.meta.env.VITE_API_BASE_URL;
-
     try {
-      const res = await fetch(`${apiUrl}/delete-menu-item/${id}`, {
+      const res = await apiFetch(`/delete-menu-item/${id}`, token ?? "", {
         method: "DELETE",
-        headers: {
-          "Authorization": `Bearer ${localStorage.getItem("token")}`,
-        },
       });
 
       if (!res.ok) {

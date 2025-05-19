@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useAuth } from "../utils/authContext";
+import { apiFetch } from "../utils/apiHelper";
 
 type MenuItem = {
   id: string
@@ -12,7 +14,7 @@ type MenuItem = {
 
 const MenuEditForm = () => {
   const { id } = useParams<{ id: string }>();
-  const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const { token } = useAuth();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState<MenuItem>({
@@ -29,12 +31,8 @@ const MenuEditForm = () => {
 
   const fetchItem = async () => {
     try {
-      const res = await fetch(`${apiUrl}/get-menu-item/${id}`, {
+      const res = await apiFetch(`/get-menu-item/${id}`, token ?? "",{
           method: "GET",
-          headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${localStorage.getItem("token")}`,
-          },
       })
       if (!res.ok) {
           throw new Error("Failed to fetch menu item");
@@ -87,15 +85,11 @@ const MenuEditForm = () => {
     if (!id) return;
 
     try {
-      await fetch(`${apiUrl}/edit-menu-item`, {
+      await apiFetch(`/edit-menu-item`, token ?? "", {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
         body: JSON.stringify(formData),
       });
-      navigate("/menu"); // Redireciona após sucesso
+      navigate("/menu");
     } catch (err) {
       console.error("Erro ao atualizar item:", err);
       alert(err instanceof Error ? err.message : "Erro ao atualizar o item.");
