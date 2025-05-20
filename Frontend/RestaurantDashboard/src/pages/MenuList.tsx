@@ -59,11 +59,26 @@ const MenuList = () => {
   }
 
   const toggleAvailability = (id: string) => {
-    setMenuItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, available: !item.available } : item
-      )
-    );
+    const item = menuItems.find((item) => item.id === id);
+    if (item) {
+      item.available = !item.available;
+
+      apiFetch(`/edit-menu-item`, token ?? "", {
+          method: "PUT",
+          body: JSON.stringify(item)
+      }).then((res) => {
+        console.log("res", res);
+          if (!res.ok) {
+              alert("Erro ao atualizar a disponibilidade do item");
+          } else {
+              setMenuItems((prev) =>
+                  prev.map((prevItem) =>
+                      prevItem.id === id ? { ...prevItem, available: item.available } : prevItem
+                  )
+              );
+          }
+      });
+    }
   };
 
   const removeMenuItem = async (id: string) => {

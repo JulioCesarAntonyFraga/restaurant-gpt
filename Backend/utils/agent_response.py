@@ -90,7 +90,7 @@ def generate_response(user_message: str, historic=[], phone_number: str = "", co
     # Inicia com o contexto básico
     base_context.append({
         "role": "system",
-        "content": f"Cardápio:{get_menu()}"
+        "content": f"Cardápio:{get_menu(False)}"
     })
     messages = base_context.copy()
 
