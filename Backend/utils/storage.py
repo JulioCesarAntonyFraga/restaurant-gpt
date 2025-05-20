@@ -65,9 +65,9 @@ def add_menu_item(menu_item: dict) -> dict:
     db.collection("menu").document(menu_item["id"]).set(menu_item)
     return menu_item
 
-def get_menu():
+def get_menu(get_all: bool = True) -> list:
     menu_ref = db.collection("menu")
-    if menu_ref:
+    if menu_ref and not get_all:
         menu_ref = menu_ref.where("available", "==", True)
 
     return [
