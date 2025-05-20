@@ -53,21 +53,20 @@ const MenuItem = ({ name, price, description, image }: MenuItemProps) => {
           />
           <div className="flex gap-2">
             <button
-  onClick={() => {
-    setShowObservation(false);
-    setObservation("");
-  }}
-  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
->
-  Cancelar
-</button>
-<button
-  onClick={handleAddToCart}
-  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
->
-  Adicionar ao carrinho
-</button>
-
+              onClick={() => {
+                setShowObservation(false);
+                setObservation("");
+              }}
+              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleAddToCart}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+            >
+              Adicionar ao carrinho
+            </button>
           </div>
         </div>
       )}
