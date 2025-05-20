@@ -1,6 +1,7 @@
 // src/firebase.ts
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
+import { ref, uploadBytes, getDownloadURL, getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_KEY,
@@ -13,4 +14,14 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
+
+export const storage = getStorage(app);
 export const auth = getAuth(app);
+
+export const uploadImage = async (file: File, itemId: string) => {
+  const imageRef = ref(storage, `menu-items/${itemId}/${file.name}`);
+  await uploadBytes(imageRef, file);
+  const url = await getDownloadURL(imageRef);
+  return url;
+};
+

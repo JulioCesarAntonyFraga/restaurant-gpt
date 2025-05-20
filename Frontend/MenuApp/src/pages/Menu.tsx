@@ -6,7 +6,7 @@ type MenuItemType = {
   price: number;
   category: string;
   description?: string;
-  image?: string;
+  imageUrl?: string;
 };
 
 async function fetchMenuItems(): Promise<MenuItemType[]> {
@@ -99,7 +99,7 @@ const Menu = () => {
             price={item.price}
             category={item.category}
             description={item.description}
-            image={item.image}
+            imageUrl={item.imageUrl}
           />
         ))}
       </div>

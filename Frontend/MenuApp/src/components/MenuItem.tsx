@@ -6,10 +6,10 @@ export type MenuItemProps = {
   price: number;
   category: string;
   description?: string;
-  image?: string;
+  imageUrl?: string;
 };
 
-const MenuItem = ({ name, price, description, image }: MenuItemProps) => {
+const MenuItem = ({ name, price, description, imageUrl }: MenuItemProps) => {
   const { addToCart } = useCart();
   const [showModal, setShowModal] = useState(false);
   const [observation, setObservation] = useState("");
@@ -49,8 +49,8 @@ const MenuItem = ({ name, price, description, image }: MenuItemProps) => {
     <div className="bg-white shadow rounded-lg p-4 flex flex-col relative">
       <img
         src={
-          image
-            ? image
+          imageUrl
+            ? imageUrl
             : "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png"
         }
         alt={name}
