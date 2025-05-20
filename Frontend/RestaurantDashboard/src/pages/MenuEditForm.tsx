@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../utils/authContext";
 import { apiFetch } from "../utils/apiHelper";
+import { uploadImage } from "../utils/firebase";
 
 type MenuItem = {
   id: string
@@ -10,6 +11,7 @@ type MenuItem = {
   available: boolean;
   category: string;
   description?: string;
+  imageUrl?: string;
 };
 
 const MenuEditForm = () => {
@@ -24,42 +26,47 @@ const MenuEditForm = () => {
     available: true,
     category: "",
     description: "",
+    imageUrl: "",
   });
 
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
   useEffect(() => {
-  if (!id) return;
+    if (!id) return;
 
-  const fetchItem = async () => {
-    try {
-      const res = await apiFetch(`/get-menu-item/${id}`, token ?? "",{
-          method: "GET",
-      })
-      if (!res.ok) {
-          throw new Error("Failed to fetch menu item");
+    const fetchItem = async () => {
+      try {
+        const res = await apiFetch(`/get-menu-item/${id}`, token ?? "",{
+            method: "GET",
+        })
+        if (!res.ok) {
+            throw new Error("Failed to fetch menu item");
+        }
+
+        const data : MenuItem = await res.json()
+
+        if (data) {
+          setFormData({
+            id: id,
+            name: data.name || "",
+            price: data.price || 0,
+            available: data.available ?? true,
+            category: data.category || "",
+            description: data.description || "",
+            imageUrl: data.imageUrl || "",
+          });
+        } else {
+          alert("Nenhum dado encontrado para o item.");
+        }
+      } catch (err) {
+        console.error("Erro ao carregar o item:", err);
+        alert(err instanceof Error ? err.message : "Erro ao carregar o item.");
       }
+    };
 
-      const data : MenuItem = await res.json()
-
-      if (data) {
-        setFormData({
-          id: id,
-          name: data.name || "",
-          price: data.price || 0,
-          available: data.available ?? true,
-          category: data.category || "",
-          description: data.description || "",
-        });
-      } else {
-        alert("Nenhum dado encontrado para o item.");
-      }
-    } catch (err) {
-      console.error("Erro ao carregar o item:", err);
-      alert(err instanceof Error ? err.message : "Erro ao carregar o item.");
-    }
-  };
-
-  fetchItem();
-}, [id]);
+    fetchItem();
+  }, [id]);
 
 
   const handleChange = (
@@ -85,16 +92,29 @@ const MenuEditForm = () => {
     if (!id) return;
 
     try {
+      let imageUrl = formData.imageUrl;
+
+      if (imageFile) {
+        imageUrl = await uploadImage(imageFile, id);
+      }
+
+      const updatedData = {
+        ...formData,
+        imageUrl,
+      };
+
       await apiFetch(`/edit-menu-item`, token ?? "", {
         method: "PUT",
-        body: JSON.stringify(formData),
+        body: JSON.stringify(updatedData),
       });
+
       navigate("/menu");
     } catch (err) {
       console.error("Erro ao atualizar item:", err);
       alert(err instanceof Error ? err.message : "Erro ao atualizar o item.");
     }
   };
+
 
   return (
     <div className="p-6 max-w-xl mx-auto bg-white rounded-xl shadow-md space-y-4">
@@ -134,6 +154,47 @@ const MenuEditForm = () => {
           onChange={handleChange}
           className="w-full p-2 border rounded"
         />
+        <div className="space-y-2">
+          <label htmlFor="image-upload" className="block text-sm font-medium text-gray-700">
+            Imagem do prato
+          </label>
+
+          <div className="flex items-center space-x-4">
+            <label
+              htmlFor="image-upload"
+              className="cursor-pointer inline-flex items-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded shadow"
+            >
+              📷 Selecionar imagem
+            </label>
+
+            {imageFile && (
+              <span className="text-sm text-gray-600 truncate max-w-[200px]">{imageFile.name}</span>
+            )}
+          </div>
+
+          <input
+            id="image-upload"
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              if (e.target.files && e.target.files[0]) {
+                const file = e.target.files[0];
+                setImageFile(file);
+                setImagePreview(URL.createObjectURL(file));
+              }
+            }}
+            className="hidden"
+          />
+
+          {(imagePreview || formData.imageUrl) && (
+            <img
+              src={imagePreview || formData.imageUrl}
+              alt="Pré-visualização"
+              className="mt-2 h-32 w-32 object-cover rounded border"
+            />
+          )}
+        </div>
+
         <label className="flex items-center space-x-2">
           <input
             type="checkbox"
