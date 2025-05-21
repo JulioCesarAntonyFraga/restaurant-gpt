@@ -1,10 +1,14 @@
 import { useCart } from "../utils/CartContext";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Cart = () => {
   const { cartItems, removeFromCart, clearCart } = useCart();
 
+  const navigate = useNavigate();
+
   const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
@@ -61,9 +65,9 @@ const Cart = () => {
             </button>
             <button
               className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded transition"
-              onClick={() => alert("Simulando finalização de pedido")}
+              onClick={() => navigate("/finalizar-pedido")}
             >
-              Finalizar Pedido
+              Prosseguir
             </button>
           </div>
         </div>

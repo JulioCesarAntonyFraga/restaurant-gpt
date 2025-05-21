@@ -2,6 +2,8 @@ import { Route, Routes } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Menu from "./pages/Menu";
 import Cart from "./pages/Cart";
+import FinalizarPedido from "./pages/FinalizarPedido";
+
 
 function App() {
   return (
@@ -11,6 +13,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Menu />} />
           <Route path="/carrinho" element={<Cart />} />
+          <Route path="/finalizar-pedido" element={<FinalizarPedido />} />
+
         </Routes>
       </main>
     </>
