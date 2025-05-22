@@ -114,31 +114,49 @@ def save_order(
     items: list,
     total: float,
     is_delivery: bool,
-    address: str,
+    cep: str,
+    rua: str,
+    bairro: str,
+    numero: str,
+    cidade: str,
     payment_method: str,
-    change: float = None,
     status: str = "In Progress",
     ordered_at: time = time.time(),
 ):
     order_data = {
-        "number": get_last_order_number() + 1 if get_last_order_number() else 1,
+        "order_number": get_last_order_number() + 1 if get_last_order_number() else 1,
         "phone_number": phone_number,
-        "items": items,
         "total": total,
         "is_delivery": is_delivery,
-        "address": address,
+        "cep": cep,
+        "rua": rua,
+        "bairro": bairro,
+        "numero": numero,
+        "cidade": cidade,
         "ordered_at": ordered_at,
         "payment_method": payment_method,
-        "change": change,
         "status": status
     }
+
+    items_data = []
+    for item in items:
+        menu_item = get_menu_item(item["id"])
+        item_data = {
+            "name": menu_item["name"],
+            "price": menu_item["price"],
+            "quantity": item["quantity"],
+            "observations": item.get("observations", "")
+        }
+        items_data.append(item_data)
+    
+    order_data["items"] = items_data
 
     db.collection("orders").add(order_data)
 
 def get_last_order_number() -> int:
-    orders_ref = db.collection("orders").order_by("number", direction=firestore.Query.DESCENDING).limit(1).stream()
+    orders_ref = db.collection("orders").order_by("order_number", direction=firestore.Query.DESCENDING).limit(1).stream()
     for order in orders_ref:
-        return order.to_dict()['number']
+        return order.to_dict()['order_number']
     return None
 
 def get_orders(order_status: str = None):
