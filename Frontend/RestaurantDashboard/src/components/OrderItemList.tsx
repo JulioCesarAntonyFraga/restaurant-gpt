@@ -12,7 +12,7 @@ const OrderItemList: React.FC<OrderItemListProps> = ({ items }) => {
       <ul className="list-disc list-inside">
         {items.map((item, idx) => (
           <li key={idx}>
-            {item.amount}x {item.name}
+            {item.quantity}x {item.name}
             <p>{item.observation}</p>
           </li>
         ))}
