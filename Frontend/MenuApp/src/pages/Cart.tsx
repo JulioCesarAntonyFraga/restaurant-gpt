@@ -2,10 +2,9 @@ import { useCart } from "../utils/CartContext";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
-
-
 const Cart = () => {
   const { cartItems, removeFromCart, clearCart } = useCart();
+
   const navigate = useNavigate();
 
   const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -33,16 +32,16 @@ const Cart = () => {
               className="flex items-center justify-between bg-white shadow p-4 rounded-lg"
             >
               <div>
-                <h2 className="text-lg font-semibold text-gray-800">{item.name}</h2>
-                <p className="text-sm text-gray-600">
-                  {item.quantity} x R$ {item.price.toFixed(2)}
-                </p>
-                {item.observation && (
-                  <p className="text-sm text-blue-600 italic mt-1">
-                    Observação: {item.observation}
-                  </p>
-                )}
-              </div>
+  <h2 className="text-lg font-semibold text-gray-800">{item.name}</h2>
+  <p className="text-sm text-gray-600">
+    {item.quantity} x R$ {item.price.toFixed(2)}
+  </p>
+  {item.observation && (
+    <p className="text-sm text-blue-600 italic mt-1">
+      Observação: {item.observation}
+    </p>
+  )}
+</div>
 
               <button
                 onClick={() => removeFromCart(item)}

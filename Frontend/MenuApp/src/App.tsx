@@ -14,6 +14,7 @@ function App() {
           <Route path="/" element={<Menu />} />
           <Route path="/carrinho" element={<Cart />} />
           <Route path="/finalizar-pedido" element={<FinalizarPedido />} />
+
         </Routes>
       </main>
     </>
