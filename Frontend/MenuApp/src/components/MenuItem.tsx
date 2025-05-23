@@ -4,13 +4,14 @@ import { useCart } from "../utils/CartContext";
 export type MenuItemProps = {
   id: string;
   name: string;
+  phone_number: string;
   price: number;
   category: string;
   description?: string;
   imageUrl?: string;
 };
 
-const MenuItem = ({ id, name, price, description, imageUrl }: MenuItemProps) => {
+const MenuItem = ({ id, name, price, description, imageUrl, phone_number }: MenuItemProps) => {
   const { addToCart } = useCart();
   const [showModal, setShowModal] = useState(false);
   const [observation, setObservation] = useState("");
@@ -38,6 +39,7 @@ const MenuItem = ({ id, name, price, description, imageUrl }: MenuItemProps) => 
       id,
       name,
       price,
+      phone_number,
       observation: `${observation}${selectedOptions.length ? ` | Opções: ${selectedOptions.join(", ")}` : ""
         }`,
     });

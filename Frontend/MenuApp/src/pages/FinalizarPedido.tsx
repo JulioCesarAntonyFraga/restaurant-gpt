@@ -1,12 +1,10 @@
 import { useState } from 'react';
 import { useCart } from '../utils/CartContext';
 
-
 function FinalizarPedido() {
   const { cartItems } = useCart();
 
   const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
 
   const [form, setForm] = useState({
     name: '',
@@ -176,7 +174,6 @@ function FinalizarPedido() {
             onChange={(e) => setForm({ ...form, cep: e.target.value })}
             onBlur={() => buscarEnderecoPorCEP(form.cep)}
           />
-
 
           <input
             value={form.rua}

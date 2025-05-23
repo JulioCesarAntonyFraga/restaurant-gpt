@@ -4,6 +4,7 @@ import MenuItem from "../components/MenuItem";
 type MenuItemType = {
   id: string;
   name: string;
+  phone_number: string;
   price: number;
   category: string;
   description?: string;
@@ -22,7 +23,6 @@ async function fetchMenuItems(): Promise<MenuItemType[]> {
   if (!res.ok) {
     throw new Error("Failed to fetch orders");
   }
-
 
   return res.json()
 }
@@ -100,6 +100,7 @@ const Menu = () => {
             id={item.id}
             key={index}
             name={item.name}
+            phone_number={item.phone_number}
             price={item.price}
             category={item.category}
             description={item.description}

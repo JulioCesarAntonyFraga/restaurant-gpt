@@ -4,7 +4,7 @@ import { useNotification } from "./NotificationContext";
 type CartItem = {
   id: string,
   name: string;
-  fone: number;
+  phone_number: string;
   price: number;
   quantity: number;
   observation?: string;
@@ -60,8 +60,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       return updatedCart;
     });
   };
-
-
 
   const removeFromCart = (item: Omit<CartItem, "quantity">) => {
     setCartItems((prev) =>
