@@ -1,44 +1,26 @@
 import { useState } from 'react';
-import { LoadScript, Autocomplete as GoogleAutocomplete } from '@react-google-maps/api';
+import { useCart } from '../utils/CartContext';
 
-type AutocompleteType = google.maps.places.Autocomplete | null;
-const libraries = ['places'] as Array<'places' | 'drawing' | 'geometry' | 'visualization'>;
-
-const googleMapsApiKey = 'AIzaSyAEJwPiFgqcTZ3UrKubRozTt9282HnrIUc';
 
 function FinalizarPedido() {
-  const [autocomplete, setAutocomplete] = useState<AutocompleteType>(null);
+  const { cartItems } = useCart();
+
+  const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+
   const [form, setForm] = useState({
+    name: '',
+    phone_number: '',
     cep: '',
     rua: '',
     numero: '',
     bairro: '',
     cidade: '',
-    formaPagamento: 'credito',
-    metodoEntrega: 'delivery',
+    is_delivery: true,
+    payment_method: '', // credit_card, debit_card, pix, cash
   });
 
-  const handlePlaceChanged = () => {
-    if (autocomplete !== null) {
-      const place = autocomplete.getPlace();
-      const addressComponents = place.address_components || [];
-
-      const getComponent = (type: string) =>
-        addressComponents.find((c) => c.types.includes(type))?.long_name || '';
-
-      setForm((form) => ({
-        ...form,
-        rua: getComponent('route'),
-        numero: getComponent('street_number'),
-        bairro: getComponent('sublocality') || getComponent('neighborhood'),
-        cidade: getComponent('administrative_area_level_2'),
-      }));
-    }
-  };
-
-  // Função para buscar o endereço pelo CEP na API ViaCEP
   const buscarEnderecoPorCEP = async (cep: string) => {
-    // Remove qualquer caractere não numérico do CEP
     const cepLimpo = cep.replace(/\D/g, '');
 
     if (cepLimpo.length === 8) {
@@ -56,132 +38,238 @@ function FinalizarPedido() {
         } else {
           alert('CEP não encontrado');
         }
-     } catch (error) {
-  console.error(error); 
-  alert('Erro ao buscar CEP');
-}
-
+      } catch (error) {
+        console.error(error);
+        alert('Erro ao buscar CEP');
+      }
     }
   };
 
-  const handleSubmit = () => {
-    console.log('Pedido finalizado:', form);
+  const handleSubmit = async () => {
+    if (cartItems.length === 0) {
+      alert('O carrinho está vazio!');
+      return;
+    }
+
+    if (form.is_delivery !== true && form.is_delivery !== false) {
+      return;
+    }
+
+    if (form.is_delivery === true) {
+      if (!form.cep.trim() || !form.rua.trim() || !form.numero.trim() || !form.bairro.trim() || !form.cidade.trim()) {
+        alert("Preencha todos os campos");
+        return;
+      }
+    }
+
+    if (!form.payment_method) {
+      alert("Por favor, selecione a forma de pagamento.");
+      return;
+    }
+
+    const payload = {
+      name: form.name,
+      phone_number: form.phone_number,
+      items: cartItems.map(item => ({
+        id: item.id,
+        quantity: item.quantity,
+        observation: item.observation || ''
+      })),
+      is_delivery: form.is_delivery === true,
+      cep: form.cep,
+      rua: form.rua,
+      numero: form.numero,
+      bairro: form.bairro,
+      cidade: form.cidade,
+      payment_method: form.payment_method
+    };
+
+    console.log(payload);
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+
+    try {
+      const response = await fetch(`${apiUrl}/add-order`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) throw new Error('Erro na requisição');
+
+      const data = await response.json();
+      console.log('Pedido finalizado com sucesso:', data);
+      alert('Pedido enviado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao enviar pedido:', error);
+      alert('Erro ao finalizar pedido');
+    }
   };
 
   return (
-    <LoadScript googleMapsApiKey={googleMapsApiKey} libraries={libraries}>
-      <div className="max-w-md mx-auto p-6 border border-gray-300 rounded-lg font-sans bg-white">
-        <h2 className="text-2xl font-semibold mb-6 text-center">Finalizar Pedido</h2>
 
-        <div className="mb-6">
-          <label className="block font-bold mb-2">Método de entrega:</label>
+    <div className="max-w-md mx-auto p-6 border border-gray-300 rounded-lg font-sans bg-white">
+      <h2 className="text-2xl font-semibold mb-6 text-center">Finalizar Pedido</h2>
 
-          <label className="flex items-center gap-2 mb-2">
-            <input
-              type="radio"
-              value="delivery"
-              checked={form.metodoEntrega === 'delivery'}
-              onChange={() => setForm({ ...form, metodoEntrega: 'delivery' })}
-              className="form-radio"
-            />
-            Delivery
-          </label>
+      <div className='mb-6'>
+        <h4 className='text-lg font-semibold mb-4'>Dados Pessoais</h4>
 
-          <label className="flex items-center gap-2">
-            <input
-              type="radio"
-              value="retirada"
-              checked={form.metodoEntrega === 'retirada'}
-              onChange={() => setForm({ ...form, metodoEntrega: 'retirada' })}
-              className="form-radio"
-            />
-            Retirada no local
-          </label>
-        </div>
+        <input
+          type="text"
+          placeholder='Nome completo'
+          required
+          className='w-full p-2 mb-3 border border-gray-300 rounded'
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+        />
 
-        {form.metodoEntrega === 'delivery' && (
-          <>
-            <h4 className="text-lg font-semibold mb-4">Endereço</h4>
+        <input
+          type="tel"
+          placeholder='Telefone'
+          required
+          className='w-full p-2 mb-3 border border-gray-300 rounded'
+          value={form.phone_number}
+          onChange={(e) => setForm({ ...form, phone_number: e.target.value })}
+        />
 
-            <input
-              type="text"
-              placeholder="CEP"
-              className="w-full p-2 mb-3 border border-gray-300 rounded"
-              value={form.cep}
-              onChange={(e) => setForm({ ...form, cep: e.target.value })}
-              onBlur={() => buscarEnderecoPorCEP(form.cep)}
-            />
-
-            <GoogleAutocomplete
-              onLoad={(autocompleteInstance) => setAutocomplete(autocompleteInstance)}
-              onPlaceChanged={handlePlaceChanged}
-            >
-              <input
-                type="text"
-                placeholder="Rua"
-                className="w-full p-2 mb-3 border border-gray-300 rounded"
-                value={form.rua}
-                onChange={(e) => setForm({ ...form, rua: e.target.value })}
-              />
-            </GoogleAutocomplete>
-
-            <input
-              value={form.numero}
-              onChange={(e) => setForm({ ...form, numero: e.target.value })}
-              placeholder="Número"
-              className="w-full p-2 mb-3 border border-gray-300 rounded"
-            />
-
-            <input
-              value={form.bairro}
-              onChange={(e) => setForm({ ...form, bairro: e.target.value })}
-              placeholder="Bairro"
-              className="w-full p-2 mb-3 border border-gray-300 rounded"
-            />
-
-            <input
-              value={form.cidade}
-              onChange={(e) => setForm({ ...form, cidade: e.target.value })}
-              placeholder="Cidade"
-              className="w-full p-2 mb-3 border border-gray-300 rounded"
-            />
-          </>
-        )}
-
-        <div className="mb-6">
-          <label className="block font-bold mb-2">Forma de pagamento:</label>
-
-          <label className="flex items-center gap-2 mb-2">
-            <input
-              type="radio"
-              value="credito"
-              checked={form.formaPagamento === 'credito'}
-              onChange={() => setForm({ ...form, formaPagamento: 'credito' })}
-              className="form-radio"
-            />
-            Cartão de crédito
-          </label>
-
-          <label className="flex items-center gap-2">
-            <input
-              type="radio"
-              value="pix"
-              checked={form.formaPagamento === 'pix'}
-              onChange={() => setForm({ ...form, formaPagamento: 'pix' })}
-              className="form-radio"
-            />
-            Pix
-          </label>
-        </div>
-
-        <button
-          onClick={handleSubmit}
-          className="w-full bg-green-600 text-white py-3 rounded hover:bg-green-700 transition"
-        >
-          Finalizar Pedido
-        </button>
       </div>
-    </LoadScript>
+
+      {/* Tipo de entrega */}
+      <div className="mb-6">
+        <label className="block font-bold mb-2">Método de entrega:</label>
+
+        <label className="flex items-center gap-2 mb-2">
+          <input
+            type="radio"
+            value="delivery"
+            required
+            checked={form.is_delivery === true}
+            onChange={() => setForm({ ...form, is_delivery: true })}
+            className="form-radio"
+          />
+          Delivery
+        </label>
+
+        <label className="flex items-center gap-2">
+          <input
+            type="radio"
+            value="pickup"
+            checked={form.is_delivery === false}
+            onChange={() => setForm({ ...form, is_delivery: false })}
+            className="form-radio"
+          />
+          Retirada no local
+        </label>
+      </div>
+
+      {/* Endereço */}
+      {form.is_delivery === true && (
+        <>
+          <h4 className="text-lg font-semibold mb-4">Endereço</h4>
+
+          <input
+            type="text"
+            placeholder="CEP"
+            className="w-full p-2 mb-3 border border-gray-300 rounded"
+            value={form.cep}
+            onChange={(e) => setForm({ ...form, cep: e.target.value })}
+            onBlur={() => buscarEnderecoPorCEP(form.cep)}
+          />
+
+
+          <input
+            value={form.rua}
+            onChange={(e) => setForm({ ...form, rua: e.target.value })}
+            placeholder="Rua"
+            className="w-full p-2 mb-3 border border-gray-300 rounded"
+          />
+
+          <input
+            value={form.numero}
+            onChange={(e) => setForm({ ...form, numero: e.target.value })}
+            placeholder="Número"
+            className="w-full p-2 mb-3 border border-gray-300 rounded"
+          />
+
+          <input
+            value={form.bairro}
+            onChange={(e) => setForm({ ...form, bairro: e.target.value })}
+            placeholder="Bairro"
+            className="w-full p-2 mb-3 border border-gray-300 rounded"
+          />
+
+          <input
+            value={form.cidade}
+            onChange={(e) => setForm({ ...form, cidade: e.target.value })}
+            placeholder="Cidade"
+            className="w-full p-2 mb-3 border border-gray-300 rounded"
+          />
+        </>
+      )}
+
+      {/* Forma de pagamento */}
+      <div className="mb-6">
+        <label className="block font-bold mb-2">Forma de pagamento:</label>
+
+        <label className="flex items-center gap-2 mb-2">
+          <input
+            type="radio"
+            value="credit_card"
+            checked={form.payment_method === 'credit_card'}
+            onChange={() => setForm({ ...form, payment_method: 'credit_card' })}
+            className="form-radio"
+          />
+          Cartão de crédito
+        </label>
+
+        <label className="flex items-center gap-2 mb-2">
+          <input
+            type="radio"
+            value="debit_card"
+            checked={form.payment_method === 'debit_card'}
+            onChange={() => setForm({ ...form, payment_method: 'debit_card' })}
+            className="form-radio"
+          />
+          Cartão de débito
+        </label>
+
+        <label className="flex items-center gap-2 mb-2">
+          <input
+            type="radio"
+            value="pix"
+            checked={form.payment_method === 'pix'}
+            onChange={() => setForm({ ...form, payment_method: 'pix' })}
+            className="form-radio"
+          />
+          Pix
+        </label>
+
+        <label className="flex items-center gap-2">
+          <input
+            type="radio"
+            value="cash"
+            checked={form.payment_method === 'cash'}
+            onChange={() => setForm({ ...form, payment_method: 'cash' })}
+            className="form-radio"
+          />
+          Dinheiro
+        </label>
+      </div>
+
+      {/* Exibe o total do pedido */}
+      <div className="text-right font-bold text-lg">
+        <p>Total: R$ {total.toFixed(2)}</p>
+      </div>
+
+      <button
+        onClick={handleSubmit}
+        className="w-full bg-green-600 text-white py-3 rounded hover:bg-green-700 transition"
+      >
+        Finalizar Pedido
+      </button>
+    </div>
+
   );
 }
 

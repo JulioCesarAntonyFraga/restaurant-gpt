@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import MenuItem from "../components/MenuItem";
 
 type MenuItemType = {
+  id: string;
   name: string;
   price: number;
   category: string;
@@ -10,18 +11,20 @@ type MenuItemType = {
 };
 
 async function fetchMenuItems(): Promise<MenuItemType[]> {
-    const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const res = await fetch(`${apiUrl}/retrieve-menu-items`, {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${localStorage.getItem("token")}`,
-        },
-    });
-    if (!res.ok) {
-        throw new Error("Failed to fetch orders");
-    }
-    return res.json()
+  const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const res = await fetch(`${apiUrl}/retrieve-menu-items`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
+  if (!res.ok) {
+    throw new Error("Failed to fetch orders");
+  }
+
+
+  return res.json()
 }
 
 const Menu = () => {
@@ -32,14 +35,14 @@ const Menu = () => {
 
   useEffect(() => {
     const getItems = async () => {
-        try {
-            const data = await fetchMenuItems();
-            setMenuItems(data);
-        } catch (error) {
-            console.error("Erro ao buscar itens do menu:", error);
-        } finally {
-            setLoading(false);
-        }
+      try {
+        const data = await fetchMenuItems();
+        setMenuItems(data);
+      } catch (error) {
+        console.error("Erro ao buscar itens do menu:", error);
+      } finally {
+        setLoading(false);
+      }
     }
     getItems();
   }, []);
@@ -94,6 +97,7 @@ const Menu = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredItems.map((item, index) => (
           <MenuItem
+            id={item.id}
             key={index}
             name={item.name}
             price={item.price}
