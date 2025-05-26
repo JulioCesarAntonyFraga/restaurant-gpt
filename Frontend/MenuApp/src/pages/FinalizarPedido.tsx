@@ -15,8 +15,10 @@ function FinalizarPedido() {
     bairro: '',
     cidade: '',
     is_delivery: true,
-    payment_method: '', // credit_card, debit_card, pix, cash
+    payment_method: '', // credit_card, debit_card, pix, cash    
   });
+
+  const [errors, setErrors] = useState<{ [key: string]: boolean }>({});
 
   const buscarEnderecoPorCEP = async (cep: string) => {
     const cepLimpo = cep.replace(/\D/g, '');
@@ -49,19 +51,24 @@ function FinalizarPedido() {
       return;
     }
 
-    if (form.is_delivery !== true && form.is_delivery !== false) {
-      return;
+    const newErrors: { [key: string]: boolean } = {};
+
+    if (!form.name.trim()) newErrors.name = true;
+    if (!form.phone_number.trim()) newErrors.phone_number = true;
+    if (!form.payment_method.trim()) newErrors.payment_method = true;
+
+    if (form.is_delivery) {
+      if (!form.cep.trim()) newErrors.cep = true;
+      if (!form.rua.trim()) newErrors.rua = true;
+      if (!form.numero.trim()) newErrors.numero = true;
+      if (!form.bairro.trim()) newErrors.bairro = true;
+      if (!form.cidade.trim()) newErrors.cidade = true;
     }
 
-    if (form.is_delivery === true) {
-      if (!form.cep.trim() || !form.rua.trim() || !form.numero.trim() || !form.bairro.trim() || !form.cidade.trim()) {
-        alert("Preencha todos os campos");
-        return;
-      }
-    }
+    setErrors(newErrors);
 
-    if (!form.payment_method) {
-      alert("Por favor, selecione a forma de pagamento.");
+    if (Object.keys(newErrors).length > 0) {
+      alert("Preencha todos os campos");
       return;
     }
 
@@ -69,11 +76,12 @@ function FinalizarPedido() {
       name: form.name,
       phone_number: form.phone_number,
       items: cartItems.map(item => ({
-        id: item.id,
-        quantity: item.quantity,
-        observation: item.observation || ''
+      id: item.id,
+      quantity: item.quantity,
+      observation: item.observation || ''
+      
       })),
-      is_delivery: form.is_delivery === true,
+      is_delivery: form.is_delivery,
       cep: form.cep,
       rua: form.rua,
       numero: form.numero,
@@ -82,7 +90,6 @@ function FinalizarPedido() {
       payment_method: form.payment_method
     };
 
-    console.log(payload);
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
     try {
@@ -105,6 +112,7 @@ function FinalizarPedido() {
     }
   };
 
+
   return (
 
     <div className="max-w-md mx-auto p-6 border border-gray-300 rounded-lg font-sans bg-white">
@@ -115,20 +123,22 @@ function FinalizarPedido() {
 
         <input
           type="text"
-          placeholder='Nome completo'
+          placeholder="Nome completo"
           required
-          className='w-full p-2 mb-3 border border-gray-300 rounded'
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
+          className={`w-full p-2 mb-3 rounded border ${errors.name ? 'border-red-500' : 'border-gray-300'
+            }`}
         />
 
         <input
           type="tel"
           placeholder='Telefone'
           required
-          className='w-full p-2 mb-3 border border-gray-300 rounded'
           value={form.phone_number}
           onChange={(e) => setForm({ ...form, phone_number: e.target.value })}
+          className={`w-full p-2 mb-3 rounded border ${errors.phone_number ? 'border-red-500' : 'border-gray-300'
+            }`}
         />
 
       </div>
@@ -168,39 +178,38 @@ function FinalizarPedido() {
 
           <input
             type="text"
-            placeholder="CEP"
-            className="w-full p-2 mb-3 border border-gray-300 rounded"
+            placeholder="CEP"            
             value={form.cep}
             onChange={(e) => setForm({ ...form, cep: e.target.value })}
             onBlur={() => buscarEnderecoPorCEP(form.cep)}
+            className={`w-full p-2 mb-3 rounded border ${errors.cep ? 'border-red-800' : 'border-gray-300'}`}
           />
 
           <input
             value={form.rua}
             onChange={(e) => setForm({ ...form, rua: e.target.value })}
             placeholder="Rua"
-            className="w-full p-2 mb-3 border border-gray-300 rounded"
-          />
-
+            className={`w-full p-2 mb-3 rounded border ${errors.rua ? 'border-red-800' : 'border-gray-300'}`}
+            />
           <input
             value={form.numero}
             onChange={(e) => setForm({ ...form, numero: e.target.value })}
-            placeholder="Número"
-            className="w-full p-2 mb-3 border border-gray-300 rounded"
+            placeholder="Número"           
+            className={`w-full p-2 mb-3 rounded border ${errors.numero ? 'border-red-800' : 'border-gray-300'}`}
           />
 
           <input
             value={form.bairro}
             onChange={(e) => setForm({ ...form, bairro: e.target.value })}
             placeholder="Bairro"
-            className="w-full p-2 mb-3 border border-gray-300 rounded"
+           className={`w-full p-2 mb-3 rounded border ${errors.bairro ? 'border-red-800' : 'border-gray-300'}`}
           />
 
           <input
             value={form.cidade}
             onChange={(e) => setForm({ ...form, cidade: e.target.value })}
             placeholder="Cidade"
-            className="w-full p-2 mb-3 border border-gray-300 rounded"
+           className={`w-full p-2 mb-3 rounded border ${errors.cidade ? 'border-red-800' : 'border-gray-300'}`}
           />
         </>
       )}
