@@ -4,7 +4,6 @@ import { useNotification } from "./NotificationContext";
 type CartItem = {
   id: string,
   name: string;
-  fone: number;
   price: number;
   quantity: number;
   observation?: string;
