@@ -36,7 +36,7 @@ const MenuItem = ({ id, name, price, description, imageUrl }: MenuItemProps) => 
   const handleAddToCart = () => {
     addToCart({
       id,
-      name,
+      name,    
       price,
       observation: `${observation}${selectedOptions.length ? ` | Opções: ${selectedOptions.join(", ")}` : ""
         }`,
