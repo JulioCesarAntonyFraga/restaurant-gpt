@@ -54,3 +54,4 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         status_code=201,
         mimetype="application/json"
     )
+#trigger vercel test
