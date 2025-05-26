@@ -11,7 +11,7 @@ export type MenuItemProps = {
   imageUrl?: string;
 };
 
-const MenuItem = ({ id, name, price, description, imageUrl, phone_number }: MenuItemProps) => {
+const MenuItem = ({ id, name, price, description, imageUrl, }: MenuItemProps) => {
   const { addToCart } = useCart();
   const [showModal, setShowModal] = useState(false);
   const [observation, setObservation] = useState("");
@@ -38,8 +38,7 @@ const MenuItem = ({ id, name, price, description, imageUrl, phone_number }: Menu
     addToCart({
       id,
       name,    
-      price,
-      phone_number,
+      price,     
       observation: `${observation}${selectedOptions.length ? ` | Opções: ${selectedOptions.join(", ")}` : ""
         }`,
     });
