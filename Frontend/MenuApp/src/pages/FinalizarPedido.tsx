@@ -1,8 +1,12 @@
 import { useState } from 'react';
 import { useCart } from '../utils/CartContext';
+import { useNavigate } from 'react-router-dom';
 
 function FinalizarPedido() {
-  const { cartItems } = useCart();
+  const navigate = useNavigate();
+
+
+  const { clearCart, cartItems } = useCart();
 
   const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -45,6 +49,7 @@ function FinalizarPedido() {
     }
   };
 
+
   const handleSubmit = async () => {
     if (cartItems.length === 0) {
       alert('O carrinho está vazio!');
@@ -76,10 +81,10 @@ function FinalizarPedido() {
       name: form.name,
       phone_number: form.phone_number,
       items: cartItems.map(item => ({
-      id: item.id,
-      quantity: item.quantity,
-      observation: item.observation || ''
-      
+        id: item.id,
+        quantity: item.quantity,
+        observation: item.observation || ''
+
       })),
       is_delivery: form.is_delivery,
       cep: form.cep,
@@ -110,6 +115,9 @@ function FinalizarPedido() {
       console.error('Erro ao enviar pedido:', error);
       alert('Erro ao finalizar pedido');
     }
+
+    clearCart();
+    navigate('/');
   };
 
 
@@ -178,7 +186,7 @@ function FinalizarPedido() {
 
           <input
             type="text"
-            placeholder="CEP"            
+            placeholder="CEP"
             value={form.cep}
             onChange={(e) => setForm({ ...form, cep: e.target.value })}
             onBlur={() => buscarEnderecoPorCEP(form.cep)}
@@ -190,11 +198,11 @@ function FinalizarPedido() {
             onChange={(e) => setForm({ ...form, rua: e.target.value })}
             placeholder="Rua"
             className={`w-full p-2 mb-3 rounded border ${errors.rua ? 'border-red-800' : 'border-gray-300'}`}
-            />
+          />
           <input
             value={form.numero}
             onChange={(e) => setForm({ ...form, numero: e.target.value })}
-            placeholder="Número"           
+            placeholder="Número"
             className={`w-full p-2 mb-3 rounded border ${errors.numero ? 'border-red-800' : 'border-gray-300'}`}
           />
 
@@ -202,14 +210,14 @@ function FinalizarPedido() {
             value={form.bairro}
             onChange={(e) => setForm({ ...form, bairro: e.target.value })}
             placeholder="Bairro"
-           className={`w-full p-2 mb-3 rounded border ${errors.bairro ? 'border-red-800' : 'border-gray-300'}`}
+            className={`w-full p-2 mb-3 rounded border ${errors.bairro ? 'border-red-800' : 'border-gray-300'}`}
           />
 
           <input
             value={form.cidade}
             onChange={(e) => setForm({ ...form, cidade: e.target.value })}
             placeholder="Cidade"
-           className={`w-full p-2 mb-3 rounded border ${errors.cidade ? 'border-red-800' : 'border-gray-300'}`}
+            className={`w-full p-2 mb-3 rounded border ${errors.cidade ? 'border-red-800' : 'border-gray-300'}`}
           />
         </>
       )}
