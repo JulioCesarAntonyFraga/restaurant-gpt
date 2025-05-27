@@ -127,7 +127,7 @@ function FinalizarPedido() {
           required
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
-          className={`w-full p-2 mb-3 rounded border ${errors.name ? 'border-red-500' : 'border-gray-300'
+          className={`w-full p-2 mb-3 rounded border ${errors.name ? 'border-red-800' : 'border-gray-300'
             }`}
         />
 
@@ -137,7 +137,7 @@ function FinalizarPedido() {
           required
           value={form.phone_number}
           onChange={(e) => setForm({ ...form, phone_number: e.target.value })}
-          className={`w-full p-2 mb-3 rounded border ${errors.phone_number ? 'border-red-500' : 'border-gray-300'
+          className={`w-full p-2 mb-3 rounded border ${errors.phone_number ? 'border-red-800' : 'border-gray-300'
             }`}
         />
 

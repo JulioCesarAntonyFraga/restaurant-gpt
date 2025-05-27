@@ -48,7 +48,7 @@ const Menu = () => {
   }, []);
 
   if (loading) {
-    return <p className="text-center mt-8">Carregando pedidos...</p>
+    return <p className="text-center mt-8">Carregando cardápio...</p>
   }
 
   const categories = ["Todos", ...Array.from(new Set(menuItems.map(item => item.category)))];
