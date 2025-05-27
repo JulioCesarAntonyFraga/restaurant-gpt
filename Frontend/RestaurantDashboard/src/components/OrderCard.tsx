@@ -7,12 +7,17 @@ import { useAuth } from "../utils/authContext";
 
 export interface Order {
   id: string;
-  number: number;
-  items: { name: string; amount: number; observation: string }[];
-  phone: string;
+  order_number: number;
+  items: { name: string; quantity: number; observation: string }[];
+  phone_number: string;
   is_delivery: boolean;
   ordered_at: number;
   status: string;
+  cep: string;
+  rua: string;
+  numero: string;
+  cidade: string;
+  bairro: string;
 }
 
 export interface OrderProps {
@@ -72,11 +77,11 @@ const OrderCard = ({ order: initialOrder }: OrderProps) => {
       } font-hand text-lg`}
       style={{ fontFamily: '"Patrick Hand", cursive' }}
     >
-      <h2 className="text-xl font-bold mb-2">Order #{order.number}</h2>
+      <h2 className="text-xl font-bold mb-2">Order #{order.order_number}</h2>
 
       <OrderItemList items={order.items} />
       <OrderInfo
-        phone={order.phone}
+        phone={order.phone_number}
         isDelivery={order.is_delivery}
         orderedAt={order.ordered_at}
         status={order.status}

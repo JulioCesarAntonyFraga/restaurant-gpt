@@ -59,10 +59,10 @@ functions = [
                         "properties": {
                             "name": {"type": "string"},
                             "price": {"type": "number"},
-                            "amount": {"type": "integer"},
+                            "quantity": {"type": "integer"},
                             "observations": {"type": "string"}
                         },
-                        "required": ["name", "price", "amount"]
+                        "required": ["name", "price", "quantity"]
                     }
                 },
                 "total": {"type": "number"},
