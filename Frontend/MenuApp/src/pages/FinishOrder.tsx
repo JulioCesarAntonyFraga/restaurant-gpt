@@ -1,59 +1,61 @@
-import { useState } from 'react';
-import { useCart } from '../utils/CartContext';
-import { useNavigate } from 'react-router-dom';
-import Footer from '../components/Footer'; // ⬅️ Verifique se o caminho está correto
+import { useState } from "react";
+import { useCart } from "../utils/CartContext";
+import { useNavigate } from "react-router-dom";
 
-function formatCep(value: string): string {
-  const cep = value.replace(/\D/g, '').slice(0, 8);
-  return cep.length > 5 ? `${cep.slice(0, 5)}-${cep.slice(5)}` : cep;
-}
-
-function FinalizarPedido() {
+function FinishOrder() {
   const navigate = useNavigate();
+
   const { clearCart, cartItems } = useCart();
 
-  const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const total = cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
 
   const [form, setForm] = useState({
-    name: '',
-    phone_number: '',
-    cep: '',
-    rua: '',
-    numero: '',
-    bairro: '',
-    cidade: '',
+    name: "",
+    phone_number: "",
+    cep: "",
+    rua: "",
+    numero: "",
+    bairro: "",
+    cidade: "",
     is_delivery: true,
-    payment_method: '',
+    payment_method: "", // credit_card, debit_card, pix, cash
   });
 
   const [errors, setErrors] = useState<{ [key: string]: boolean }>({});
 
-  const buscarEnderecoPorCEP = async (cep: string) => {
-    const cepLimpo = cep.replace(/\D/g, '');
+  const searchByCEP = async (cep: string) => {
+    const cepLimpo = cep.replace(/\D/g, "");
+
     if (cepLimpo.length === 8) {
       try {
-        const response = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+        const response = await fetch(
+          `https://viacep.com.br/ws/${cepLimpo}/json/`
+        );
         const data = await response.json();
+
         if (!data.erro) {
           setForm((form) => ({
             ...form,
-            rua: data.logradouro || '',
-            bairro: data.bairro || '',
-            cidade: data.localidade || '',
+            rua: data.logradouro || "",
+            bairro: data.bairro || "",
+            cidade: data.localidade || "",
           }));
         } else {
-          alert('CEP não encontrado');
+          alert("CEP não encontrado");
         }
       } catch (error) {
         console.error(error);
-        alert('Erro ao buscar CEP');
+        alert("Erro ao buscar CEP");
       }
     }
   };
 
   const handleSubmit = async () => {
     if (cartItems.length === 0) {
-      alert('O carrinho está vazio!');
+      alert("O carrinho está vazio!");
       return;
     }
 
@@ -61,6 +63,7 @@ function FinalizarPedido() {
 
     if (!form.name.trim()) newErrors.name = true;
     if (!form.phone_number.trim()) newErrors.phone_number = true;
+    if (!form.payment_method.trim()) newErrors.payment_method = true;
 
     if (form.is_delivery) {
       if (!form.cep.trim()) newErrors.cep = true;
@@ -73,23 +76,17 @@ function FinalizarPedido() {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length > 0) {
-      alert("Preencha todos os campos obrigatórios.");
-      return;
-    }
-
-    if (!form.payment_method.trim()) {
-      setErrors((prev) => ({ ...prev, payment_method: true }));
-      alert("Escolha a forma de pagamento.");
+      alert("Preencha todos os campos");
       return;
     }
 
     const payload = {
       name: form.name,
       phone_number: form.phone_number,
-      items: cartItems.map(item => ({
+      items: cartItems.map((item) => ({
         id: item.id,
         quantity: item.quantity,
-        observation: item.observation || ''
+        observation: item.observation || "",
       })),
       is_delivery: form.is_delivery,
       cep: form.cep,
@@ -97,60 +94,69 @@ function FinalizarPedido() {
       numero: form.numero,
       bairro: form.bairro,
       cidade: form.cidade,
-      payment_method: form.payment_method
+      payment_method: form.payment_method,
     };
 
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
     try {
       const response = await fetch(`${apiUrl}/add-order`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
       });
 
-      if (!response.ok) throw new Error('Erro na requisição');
+      if (!response.ok) throw new Error("Erro na requisição");
 
       const data = await response.json();
-      console.log('Pedido finalizado com sucesso:', data);
-      alert('Pedido enviado com sucesso!');
+      console.log("Pedido finalizado com sucesso:", data);
+      alert("Pedido enviado com sucesso!");
     } catch (error) {
-      console.error('Erro ao enviar pedido:', error);
-      alert('Erro ao finalizar pedido');
+      console.error("Erro ao enviar pedido:", error);
+      alert("Erro ao finalizar pedido");
     }
 
     clearCart();
-    navigate('/');
+    navigate("/");
   };
 
   return (
     <div className="flex flex-col min-h-screen">
       <div className="flex-grow px-4 pt-30 pb-32">
         <div className="max-w-md mx-auto p-6 border border-gray-300 rounded-lg font-sans bg-white">
-          <h2 className="text-2xl font-semibold mb-6 text-center">Finalizar Pedido</h2>
-          <div className='mb-6'>
-            <h4 className='text-lg font-semibold mb-4'>Dados Pessoais</h4>
-
+          <h2 className="text-2xl font-semibold mb-6 text-center">
+            Finalizar Pedido
+          </h2>
+          <div className="mb-6">
+            <h4 className="text-lg font-semibold mb-4">Dados Pessoais</h4>
             <input
               type="text"
               placeholder="Nome completo"
               required
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className={`w-full p-2 mb-3 rounded border ${errors.name ? 'border-red-800' : 'border-gray-300'}`}
+              className={`w-full p-2 mb-3 rounded border ${
+                errors.name ? "border-red-800" : "border-gray-300"
+              }`}
             />
 
             <input
               type="tel"
-              placeholder='Telefone'
+              placeholder="Telefone"
               required
               value={form.phone_number}
-              onChange={(e) => setForm({ ...form, phone_number: e.target.value })}
-              className={`w-full p-2 mb-3 rounded border ${errors.phone_number ? 'border-red-800' : 'border-gray-300'}`}
+              onChange={(e) =>
+                setForm({ ...form, phone_number: e.target.value })
+              }
+              className={`w-full p-2 mb-3 rounded border ${
+                errors.phone_number ? "border-red-800" : "border-gray-300"
+              }`}
             />
           </div>
 
-          {/* Entrega */}
+          {/* Tipo de entrega */}
           <div className="mb-6">
             <label className="block font-bold mb-2">Método de entrega:</label>
 
@@ -158,6 +164,7 @@ function FinalizarPedido() {
               <input
                 type="radio"
                 value="delivery"
+                required
                 checked={form.is_delivery === true}
                 onChange={() => setForm({ ...form, is_delivery: true })}
                 className="form-radio"
@@ -178,7 +185,7 @@ function FinalizarPedido() {
           </div>
 
           {/* Endereço */}
-          {form.is_delivery && (
+          {form.is_delivery === true && (
             <>
               <h4 className="text-lg font-semibold mb-4">Endereço</h4>
 
@@ -186,67 +193,105 @@ function FinalizarPedido() {
                 type="text"
                 placeholder="CEP"
                 value={form.cep}
-                onChange={(e) => {
-                  const formattedCep = formatCep(e.target.value);
-                  setForm({ ...form, cep: formattedCep });
-                }}
-                onBlur={() => buscarEnderecoPorCEP(form.cep)}
-                className={`w-full p-2 mb-3 rounded border ${errors.cep ? 'border-red-800' : 'border-gray-300'}`}
+                onChange={(e) => setForm({ ...form, cep: e.target.value })}
+                onBlur={() => searchByCEP(form.cep)}
+                className={`w-full p-2 mb-3 rounded border ${
+                  errors.cep ? "border-red-800" : "border-gray-300"
+                }`}
               />
 
               <input
                 value={form.rua}
                 onChange={(e) => setForm({ ...form, rua: e.target.value })}
                 placeholder="Rua"
-                className={`w-full p-2 mb-3 rounded border ${errors.rua ? 'border-red-800' : 'border-gray-300'}`}
+                className={`w-full p-2 mb-3 rounded border ${
+                  errors.rua ? "border-red-800" : "border-gray-300"
+                }`}
               />
-
               <input
                 value={form.numero}
                 onChange={(e) => setForm({ ...form, numero: e.target.value })}
                 placeholder="Número"
-                className={`w-full p-2 mb-3 rounded border ${errors.numero ? 'border-red-800' : 'border-gray-300'}`}
+                className={`w-full p-2 mb-3 rounded border ${
+                  errors.numero ? "border-red-800" : "border-gray-300"
+                }`}
               />
 
               <input
                 value={form.bairro}
                 onChange={(e) => setForm({ ...form, bairro: e.target.value })}
                 placeholder="Bairro"
-                className={`w-full p-2 mb-3 rounded border ${errors.bairro ? 'border-red-800' : 'border-gray-300'}`}
+                className={`w-full p-2 mb-3 rounded border ${
+                  errors.bairro ? "border-red-800" : "border-gray-300"
+                }`}
               />
 
               <input
                 value={form.cidade}
                 onChange={(e) => setForm({ ...form, cidade: e.target.value })}
                 placeholder="Cidade"
-                className={`w-full p-2 mb-3 rounded border ${errors.cidade ? 'border-red-800' : 'border-gray-300'}`}
+                className={`w-full p-2 mb-3 rounded border ${
+                  errors.cidade ? "border-red-800" : "border-gray-300"
+                }`}
               />
             </>
           )}
 
-          {/* Pagamento */}
+          {/* Forma de pagamento */}
           <div className="mb-6">
             <label className="block font-bold mb-2">Forma de pagamento:</label>
 
-            {["credit_card", "debit_card", "pix", "cash"].map((method) => (
-              <label key={method} className="flex items-center gap-2 mb-2">
-                <input
-                  type="radio"
-                  value={method}
-                  checked={form.payment_method === method}
-                  onChange={() => setForm({ ...form, payment_method: method })}
-                  className="form-radio"
-                />
-                {method === "credit_card" && "Cartão de crédito"}
-                {method === "debit_card" && "Cartão de débito"}
-                {method === "pix" && "Pix"}
-                {method === "cash" && "Dinheiro"}
-              </label>
-            ))}
+            <label className="flex items-center gap-2 mb-2">
+              <input
+                type="radio"
+                value="credit_card"
+                checked={form.payment_method === "credit_card"}
+                onChange={() =>
+                  setForm({ ...form, payment_method: "credit_card" })
+                }
+                className="form-radio"
+              />
+              Cartão de crédito
+            </label>
+
+            <label className="flex items-center gap-2 mb-2">
+              <input
+                type="radio"
+                value="debit_card"
+                checked={form.payment_method === "debit_card"}
+                onChange={() =>
+                  setForm({ ...form, payment_method: "debit_card" })
+                }
+                className="form-radio"
+              />
+              Cartão de débito
+            </label>
+
+            <label className="flex items-center gap-2 mb-2">
+              <input
+                type="radio"
+                value="pix"
+                checked={form.payment_method === "pix"}
+                onChange={() => setForm({ ...form, payment_method: "pix" })}
+                className="form-radio"
+              />
+              Pix
+            </label>
+
+            <label className="flex items-center gap-2">
+              <input
+                type="radio"
+                value="cash"
+                checked={form.payment_method === "cash"}
+                onChange={() => setForm({ ...form, payment_method: "cash" })}
+                className="form-radio"
+              />
+              Dinheiro
+            </label>
           </div>
 
-          {/* Total e botão */}
-          <div className="text-right font-bold text-lg mb-4">
+          {/* Exibe o total do pedido */}
+          <div className="text-right font-bold text-lg">
             <p>Total: R$ {total.toFixed(2)}</p>
           </div>
 
@@ -258,12 +303,8 @@ function FinalizarPedido() {
           </button>
         </div>
       </div>
-
-      {/* Footer fixo no final da tela */}
-      <Footer />
     </div>
   );
 }
 
-
-export default FinalizarPedido;
+export default FinishOrder;
