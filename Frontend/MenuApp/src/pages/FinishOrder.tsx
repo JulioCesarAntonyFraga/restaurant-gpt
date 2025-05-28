@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useCart } from '../utils/CartContext';
 import { useNavigate } from 'react-router-dom';
+import MPPaymentButton from '../components/MPPaymentButton';
 
 function FinishOrder() {
   const navigate = useNavigate();
@@ -48,7 +49,7 @@ function FinishOrder() {
     }
   };
 
-
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleSubmit = async () => {
     if (cartItems.length === 0) {
       alert('O carrinho está vazio!');
@@ -118,7 +119,6 @@ function FinishOrder() {
     clearCart();
     navigate('/');
   };
-
 
   return (
 
@@ -274,13 +274,14 @@ function FinishOrder() {
       <div className="text-right font-bold text-lg">
         <p>Total: R$ {total.toFixed(2)}</p>
       </div>
-
-      <button
+      
+      <MPPaymentButton />
+      {/* <button
         onClick={handleSubmit}
         className="w-full bg-green-600 text-white py-3 rounded hover:bg-green-700 transition"
       >
         Finalizar Pedido
-      </button>
+      </button> */}
     </div>
 
   );
