@@ -2,9 +2,8 @@ import { useState } from 'react';
 import { useCart } from '../utils/CartContext';
 import { useNavigate } from 'react-router-dom';
 
-function FinalizarPedido() {
+function FinishOrder() {
   const navigate = useNavigate();
-
 
   const { clearCart, cartItems } = useCart();
 
@@ -24,7 +23,7 @@ function FinalizarPedido() {
 
   const [errors, setErrors] = useState<{ [key: string]: boolean }>({});
 
-  const buscarEnderecoPorCEP = async (cep: string) => {
+  const searchByCEP = async (cep: string) => {
     const cepLimpo = cep.replace(/\D/g, '');
 
     if (cepLimpo.length === 8) {
@@ -189,7 +188,7 @@ function FinalizarPedido() {
             placeholder="CEP"
             value={form.cep}
             onChange={(e) => setForm({ ...form, cep: e.target.value })}
-            onBlur={() => buscarEnderecoPorCEP(form.cep)}
+            onBlur={() => searchByCEP(form.cep)}
             className={`w-full p-2 mb-3 rounded border ${errors.cep ? 'border-red-800' : 'border-gray-300'}`}
           />
 
@@ -287,4 +286,4 @@ function FinalizarPedido() {
   );
 }
 
-export default FinalizarPedido;
+export default FinishOrder;
