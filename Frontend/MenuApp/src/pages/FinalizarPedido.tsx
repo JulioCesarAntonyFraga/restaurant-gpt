@@ -2,9 +2,14 @@ import { useState } from 'react';
 import { useCart } from '../utils/CartContext';
 import { useNavigate } from 'react-router-dom';
 
-function FinalizarPedido() {
-  const navigate = useNavigate();
+function formatCep(value: string): string {
+  const cep = value.replace(/\D/g, '').slice(0, 8);
+  return cep.length > 5 ? `${cep.slice(0, 5)}-${cep.slice(5)}` : cep;
+}
 
+function FinalizarPedido() {
+
+  const navigate = useNavigate();
 
   const { clearCart, cartItems } = useCart();
 
@@ -49,76 +54,80 @@ function FinalizarPedido() {
     }
   };
 
+const handleSubmit = async () => {
+  if (cartItems.length === 0) {
+    alert('O carrinho está vazio!');
+    return;
+  }
 
-  const handleSubmit = async () => {
-    if (cartItems.length === 0) {
-      alert('O carrinho está vazio!');
-      return;
-    }
+  const newErrors: { [key: string]: boolean } = {};
+  
+  if (!form.name.trim()) newErrors.name = true;
+  if (!form.phone_number.trim()) newErrors.phone_number = true;
 
-    const newErrors: { [key: string]: boolean } = {};
+  if (form.is_delivery) {
+    if (!form.cep.trim()) newErrors.cep = true;
+    if (!form.rua.trim()) newErrors.rua = true;
+    if (!form.numero.trim()) newErrors.numero = true;
+    if (!form.bairro.trim()) newErrors.bairro = true;
+    if (!form.cidade.trim()) newErrors.cidade = true;
+  }
+ 
+  setErrors(newErrors);
 
-    if (!form.name.trim()) newErrors.name = true;
-    if (!form.phone_number.trim()) newErrors.phone_number = true;
-    if (!form.payment_method.trim()) newErrors.payment_method = true;
-
-    if (form.is_delivery) {
-      if (!form.cep.trim()) newErrors.cep = true;
-      if (!form.rua.trim()) newErrors.rua = true;
-      if (!form.numero.trim()) newErrors.numero = true;
-      if (!form.bairro.trim()) newErrors.bairro = true;
-      if (!form.cidade.trim()) newErrors.cidade = true;
-    }
-
-    setErrors(newErrors);
-
-    if (Object.keys(newErrors).length > 0) {
-      alert("Preencha todos os campos");
-      return;
-    }
-
-    const payload = {
-      name: form.name,
-      phone_number: form.phone_number,
-      items: cartItems.map(item => ({
-        id: item.id,
-        quantity: item.quantity,
-        observation: item.observation || ''
-
-      })),
-      is_delivery: form.is_delivery,
-      cep: form.cep,
-      rua: form.rua,
-      numero: form.numero,
-      bairro: form.bairro,
-      cidade: form.cidade,
-      payment_method: form.payment_method
-    };
-
-    const apiUrl = import.meta.env.VITE_API_BASE_URL;
-
-    try {
-      const response = await fetch(`${apiUrl}/add-order`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-      });
-
-      if (!response.ok) throw new Error('Erro na requisição');
-
-      const data = await response.json();
-      console.log('Pedido finalizado com sucesso:', data);
-      alert('Pedido enviado com sucesso!');
-    } catch (error) {
-      console.error('Erro ao enviar pedido:', error);
-      alert('Erro ao finalizar pedido');
-    }
-
-    clearCart();
-    navigate('/');
+  // Se tiver campos obrigatórios com erro, interrompe aqui
+  if (Object.keys(newErrors).length > 0) {
+    alert("Preencha todos os campos obrigatórios.");
+    return;
+  }
+ 
+  if (!form.payment_method.trim()) {
+    setErrors((prev) => ({ ...prev, payment_method: true }));
+    alert("Escolha a forma de pagamento.");
+    return;
+  }
+  
+  const payload = {
+    name: form.name,
+    phone_number: form.phone_number,
+    items: cartItems.map(item => ({
+      id: item.id,
+      quantity: item.quantity,
+      observation: item.observation || ''
+    })),
+    is_delivery: form.is_delivery,
+    cep: form.cep,
+    rua: form.rua,
+    numero: form.numero,
+    bairro: form.bairro,
+    cidade: form.cidade,
+    payment_method: form.payment_method
   };
+
+  const apiUrl = import.meta.env.VITE_API_BASE_URL;
+
+  try {
+    const response = await fetch(`${apiUrl}/add-order`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) throw new Error('Erro na requisição');
+
+    const data = await response.json();
+    console.log('Pedido finalizado com sucesso:', data);
+    alert('Pedido enviado com sucesso!');
+  } catch (error) {
+    console.error('Erro ao enviar pedido:', error);
+    alert('Erro ao finalizar pedido');
+  }
+
+  clearCart();
+  navigate('/');
+};
 
 
   return (
@@ -188,7 +197,10 @@ function FinalizarPedido() {
             type="text"
             placeholder="CEP"
             value={form.cep}
-            onChange={(e) => setForm({ ...form, cep: e.target.value })}
+            onChange={(e) => {
+              const formattedCep = formatCep(e.target.value);
+              setForm({ ...form, cep: formattedCep });
+            }}
             onBlur={() => buscarEnderecoPorCEP(form.cep)}
             className={`w-full p-2 mb-3 rounded border ${errors.cep ? 'border-red-800' : 'border-gray-300'}`}
           />
