@@ -2,14 +2,16 @@ import { useState } from "react";
 import { useCart } from "../utils/CartContext";
 
 export type MenuItemProps = {
+  id: string;
   name: string;
+  phone_number: string;
   price: number;
   category: string;
   description?: string;
   imageUrl?: string;
 };
 
-const MenuItem = ({ name, price, description, imageUrl }: MenuItemProps) => {
+const MenuItem = ({ id, name, price, description, imageUrl, }: MenuItemProps) => {
   const { addToCart } = useCart();
   const [showModal, setShowModal] = useState(false);
   const [observation, setObservation] = useState("");
@@ -34,11 +36,11 @@ const MenuItem = ({ name, price, description, imageUrl }: MenuItemProps) => {
 
   const handleAddToCart = () => {
     addToCart({
-      name,
-      price,
-      observation: `${observation}${
-        selectedOptions.length ? ` | Opções: ${selectedOptions.join(", ")}` : ""
-      }`,
+      id,
+      name,    
+      price,     
+      observation: `${observation}${selectedOptions.length ? ` | Opções: ${selectedOptions.join(", ")}` : ""
+        }`,
     });
     setShowModal(false);
     setObservation("");

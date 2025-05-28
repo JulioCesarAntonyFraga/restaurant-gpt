@@ -2,6 +2,7 @@ import { createContext, useContext, useState, ReactNode } from "react";
 import { useNotification } from "./NotificationContext";
 
 type CartItem = {
+  id: string,
   name: string;
   price: number;
   quantity: number;
@@ -29,6 +30,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const { pushNotification } = useNotification();
 
+   console.log('cartItems', cartItems);
   const addToCart = async (item: Omit<CartItem, "quantity">) => {
     const existingItemQuantity = cartItems.find((i) => i.name === item.name)?.quantity;
 
@@ -44,7 +46,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
     setCartItems((prev) => {
       const existing = prev.find((i) => i.name === item.name);
-  
+
       if (existing) {
         updatedQuantity = existing.quantity + 1;
         updatedCart = prev.map((i) =>
@@ -53,14 +55,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       } else {
         updatedCart = [...prev, { ...item, quantity: 1 }];
       }
-  
+
       return updatedCart;
     });
   };
-  
-  
 
-   const removeFromCart = (item: Omit<CartItem, "quantity">) => {
+  const removeFromCart = (item: Omit<CartItem, "quantity">) => {
     setCartItems((prev) =>
       prev
         .map((i) =>
