@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../utils/authContext";
 import { apiFetch } from "../utils/apiHelper";
 import { uploadImage } from "../utils/firebase";
+import AddonCheckboxGroup from "../components/AddonCheckBoxGroup";
 
 type MenuItem = {
   id: string
@@ -18,6 +19,12 @@ const MenuEditForm = () => {
   const { id } = useParams<{ id: string }>();
   const { token } = useAuth();
   const navigate = useNavigate();
+
+   const [showExtras, setShowExtras] = useState(false);
+      const [selectedComplementos, setSelectedComplementos] = useState<{ [key: string]: number }>({});
+      const [selectedAdicionais, setSelectedAdicionais] = useState<{ [key: string]: number }>({});
+      const complementos = ["Ketchup", "Mostarda", "Maionase"];
+      const adicionais = ["Morango", "Creme de leite", "Leite condensado"];
 
   const [formData, setFormData] = useState<MenuItem>({
     id: "",
@@ -170,7 +177,8 @@ const MenuEditForm = () => {
             {imageFile && (
               <span className="text-sm text-gray-600 truncate max-w-[200px]">{imageFile.name}</span>
             )}
-          </div>
+
+            </div>
 
           <input
             id="image-upload"
@@ -204,6 +212,36 @@ const MenuEditForm = () => {
           />
           <span>Disponível</span>
         </label>
+
+
+        <label className="flex items-center space-x-2 mb-4">
+                    <input
+                        type="checkbox"
+                        checked={showExtras}
+                        onChange={(e) => setShowExtras(e.target.checked)}
+                    />
+                    <span>Adicionar complementos e adicionais</span>
+                </label>
+        
+          {showExtras && (
+                    <>
+                        <AddonCheckboxGroup
+                            title="Complementos"
+                            addons={complementos}
+                            selectedAddons={selectedComplementos}
+                            setSelectedAddons={setSelectedComplementos}
+                        />
+
+                        <AddonCheckboxGroup
+                            title="Adicionais"
+                            addons={adicionais}
+                            selectedAddons={selectedAdicionais}
+                            setSelectedAddons={setSelectedAdicionais}
+                            showPriceField={true}
+                        />
+                    </>
+                )}
+
         <button
           type="submit"
           className="px-4 py-2 bg-blue-400 hover:bg-blue-500 text-white rounded"
