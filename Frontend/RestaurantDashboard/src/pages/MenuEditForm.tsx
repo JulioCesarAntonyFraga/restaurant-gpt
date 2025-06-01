@@ -13,6 +13,8 @@ type MenuItem = {
   category: string;
   description?: string;
   imageUrl?: string;
+  maxComplementos?: number;
+  maxAdicionais?: number;
 };
 
 const MenuEditForm = () => {
@@ -34,6 +36,8 @@ const MenuEditForm = () => {
     category: "",
     description: "",
     imageUrl: "",
+    maxComplementos: 0,
+    maxAdicionais: 0,
   });
 
   const [imageFile, setImageFile] = useState<File | null>(null);
