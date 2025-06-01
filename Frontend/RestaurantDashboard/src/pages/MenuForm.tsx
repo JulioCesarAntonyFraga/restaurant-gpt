@@ -2,16 +2,17 @@ import React, { useState } from "react";
 import { apiFetch } from "../utils/apiHelper";
 import { useAuth } from "../utils/authContext";
 import { uploadImage } from "../utils/firebase";
-
-
+import AddonCheckboxGroup from "../components/AddonCheckBoxGroup";
 
 type MenuItem = {
-  name: string;
-  price: number;
-  available: boolean;
-  category: string;
-  description?: string;
-  imageUrl?: string;
+    name: string;
+    price: number;
+    available: boolean;
+    category: string;
+    description?: string;
+    imageUrl?: string;
+    maxComplementos?: number;
+    maxAdicionais?: number;
 };
 
 const MenuForm = () => {
@@ -23,31 +24,46 @@ const MenuForm = () => {
         category: "",
         description: "",
         imageUrl: "",
+        maxComplementos: 0,
+        maxAdicionais: 0,
     });
+
+    const [showExtras, setShowExtras] = useState(false);
+    const [selectedComplementos, setSelectedComplementos] = useState<{ [key: string]: number }>({});
+    const [selectedAdicionais, setSelectedAdicionais] = useState<{ [key: string]: number }>({});
+    const complementos = ["Ketchup", "Mostarda", "Maionase"];
+    const adicionais = ["Morango", "Creme de leite", "Leite condensado"];
+
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
-
     const [responseMsg, setResponseMsg] = useState("");
+
+
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value, type } = e.target;
-    
+
         const val =
-        type === "checkbox"
-            ? (e.target as HTMLInputElement).checked
-            : value;
-    
+            type === "checkbox"
+                ? (e.target as HTMLInputElement).checked
+                : value;
+
         setFormData((prev) => ({ ...prev, [name]: val }));
     };
-    
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         try {
-            const res = await apiFetch(`/add-menu-item`, token ?? "",{
+            const res = await apiFetch(`/add-menu-item`, token ?? "", {
                 method: "POST",
-                body: JSON.stringify(formData),
+                body: JSON.stringify({
+                    ...formData,
+                    complementos: Object.keys(selectedComplementos),
+                    adicionais: selectedAdicionais,
+
+                }),
+
             });
 
             const data = await res.json();
@@ -124,16 +140,75 @@ const MenuForm = () => {
 
                     {(imagePreview || formData.imageUrl) && (
                         <img
-                        src={imagePreview || formData.imageUrl}
-                        alt="Pré-visualização"
-                        className="mt-2 h-32 w-32 object-cover rounded border"
+                            src={imagePreview || formData.imageUrl}
+                            alt="Pré-visualização"
+                            className="mt-2 h-32 w-32 object-cover rounded border"
                         />
                     )}
+
                 </div>
+
                 <label className="flex items-center space-x-2">
                     <input type="checkbox" name="available" checked={formData.available} onChange={handleChange} />
                     <span>Disponível</span>
                 </label>
+
+                <label className="flex items-center space-x-2 mb-4">
+                    <input
+                        type="checkbox"
+                        checked={showExtras}
+                        onChange={(e) => setShowExtras(e.target.checked)}
+                    />
+                    <span>Complementos e adicionais</span>
+
+                </label>
+
+                {showExtras && (
+                    <>
+                        {/* Complementos */}
+                        <div className="mb-4">
+                            <h3 className="text-lg font-semibold">Complementos</h3>
+                            <p className="text-sm text-gray-500 mb-2">Máximo de complementos</p>
+                            <input
+                                type="number"
+                                name="maxComplementos"
+                                placeholder="Máximo de complementos"
+                                value={formData.maxComplementos}
+                                onChange={handleChange}
+                                className="w-full p-2 border rounded mb-4"
+                            />
+                            <AddonCheckboxGroup
+                                title=""
+                                addons={complementos}
+                                selectedAddons={selectedComplementos}
+                                setSelectedAddons={setSelectedComplementos}
+                            />
+                        </div>
+
+                        {/* Adicionais */}
+                        <div className="mb-4">
+                            <h3 className="text-lg font-semibold">Adicionais</h3>
+                            <p className="text-sm text-gray-500 mb-2">Máximo de adicionais</p>
+                            <input
+                                type="number"
+                                name="maxAdicionais"
+                                placeholder="Máximo de adicionais"
+                                value={formData.maxAdicionais}
+                                onChange={handleChange}
+                                className="w-full p-2 border rounded mb-4"
+                            />
+                            <AddonCheckboxGroup
+                                title=""
+                                addons={adicionais}
+                                selectedAddons={selectedAdicionais}
+                                setSelectedAddons={setSelectedAdicionais}
+                                showPriceField={true}
+                            />
+                        </div>
+                    </>
+                )}
+
+
                 <button type="submit" className="px-4 py-2 bg-blue-400 hover:bg-blue-500 text-white rounded">Salvar</button>
             </form>
             {responseMsg && <p className="text-center text-sm text-gray-600">{responseMsg}</p>}
