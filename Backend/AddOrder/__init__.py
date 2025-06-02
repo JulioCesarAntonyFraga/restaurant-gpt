@@ -19,7 +19,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         return func.HttpResponse("Invalid JSON", status_code=400)
     
     required_fields = [
-        "phone_number", "items",
+        "phone_number", "items", "name",
         "is_delivery", "payment_method"
     ]
     
@@ -96,6 +96,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     try:
         save_order(
+            name=data.get("name", ""),
             phone_number=data.get("phone_number", ""),
             items=items,
             total=float(total),
@@ -117,4 +118,3 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         status_code=201,
         mimetype="application/json"
     )
-#trigger vercel test
