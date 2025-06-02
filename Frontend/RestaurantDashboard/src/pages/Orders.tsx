@@ -92,7 +92,7 @@ const Orders = () => {
                 </div>
             </div>
 
-        {/* Grid de Pedidos */}
+            {/* Grid de Pedidos */}
             <div className="orders-container grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 overflow-y-auto">
                 {filteredOrders.map((order) => (
                     <OrderCard key={order.id} order={order} />
