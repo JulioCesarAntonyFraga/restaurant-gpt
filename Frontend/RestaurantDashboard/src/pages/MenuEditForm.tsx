@@ -254,24 +254,52 @@ const MenuEditForm = () => {
                     <span>Adicionar complementos e adicionais</span>
                 </label>
         
-          {showExtras && (
+         {showExtras && (
                     <>
-                        <AddonCheckboxGroup
-                            title="Complementos"
-                            addons={complementos}
-                            selectedAddons={selectedComplementos}
-                            setSelectedAddons={setSelectedComplementos}
-                        />
+                        {/* Complementos */}
+                        <div className="mb-4">
+                            <h3 className="text-lg font-semibold">Complementos</h3>
+                            <p className="text-sm text-gray-500 mb-2">Máximo de complementos</p>
+                            <input
+                                type="number"
+                                name="maxComplementos"
+                                placeholder="Máximo de complementos"
+                                value={formData.maxComplementos}
+                                onChange={handleChange}
+                                className="w-full p-2 border rounded mb-4"
+                            />
+                            <AddonCheckboxGroup
+                                title=""
+                                addons={complementos}
+                                selectedAddons={selectedComplementos}
+                                setSelectedAddons={setSelectedComplementos}
+                            />
+                        </div>
 
-                        <AddonCheckboxGroup
-                            title="Adicionais"
-                            addons={adicionais}
-                            selectedAddons={selectedAdicionais}
-                            setSelectedAddons={setSelectedAdicionais}
-                            showPriceField={true}
-                        />
+                        {/* Adicionais */}
+                        <div className="mb-4">
+                            <h3 className="text-lg font-semibold">Adicionais</h3>
+                            <p className="text-sm text-gray-500 mb-2">Máximo de adicionais</p>
+                            <input
+                                type="number"
+                                name="maxAdicionais"
+                                placeholder="Máximo de adicionais"
+                                value={formData.maxAdicionais}
+                                onChange={handleChange}
+                                className="w-full p-2 border rounded mb-4"
+                            />
+                            <AddonCheckboxGroup
+                                title=""
+                                addons={adicionais}
+                                selectedAddons={selectedAdicionais}
+                                setSelectedAddons={setSelectedAdicionais}
+                                showPriceField={true}
+                            />
+                        </div>
                     </>
                 )}
+
+
 
         <button
           type="submit"
