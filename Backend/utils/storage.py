@@ -110,6 +110,7 @@ def get_active_conversation(phone_number: str):
     return None, None
 
 def save_order(
+    name: str,
     phone_number: str,
     items: list,
     total: float,
@@ -124,6 +125,7 @@ def save_order(
     ordered_at: time = time.time(),
 ):
     order_data = {
+        "name": name,
         "order_number": get_last_order_number() + 1 if get_last_order_number() else 1,
         "phone_number": phone_number,
         "total": total,
