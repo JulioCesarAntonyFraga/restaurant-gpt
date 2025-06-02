@@ -59,7 +59,7 @@ const MenuForm = () => {
                 body: JSON.stringify({
                     ...formData,
                     complementos: Object.keys(selectedComplementos),
-                    adicionais: selectedAdicionais,
+                    adicionais: Object.keys(selectedAdicionais),
 
                 }),
             });

@@ -8,6 +8,7 @@ db = firestore.client()
 
 required_fields = ["name", "price", "available", "category"]
 optional_fields = ["description", "imageUrl"]
+extra_fields = ["complementos", "adicionais"]
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     user = verify_token(req)
@@ -32,7 +33,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     existing_data = existing_doc.to_dict()
     updates = {}
 
-    for field in required_fields + optional_fields:
+    for field in required_fields + optional_fields + extra_fields:
         if field in menu_item and menu_item[field] != existing_data.get(field):
             updates[field] = menu_item[field]
 

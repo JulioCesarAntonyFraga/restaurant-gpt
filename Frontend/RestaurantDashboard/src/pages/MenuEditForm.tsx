@@ -6,7 +6,7 @@ import { uploadImage } from "../utils/firebase";
 import AddonCheckboxGroup from "../components/AddonCheckBoxGroup";
 
 type MenuItem = {
-  id: string
+  id: string;
   name: string;
   price: number;
   available: boolean;
@@ -15,7 +15,10 @@ type MenuItem = {
   imageUrl?: string;
   maxComplementos?: number;
   maxAdicionais?: number;
+  complementos?: string[];
+  adicionais?: string[];
 };
+
 
 const MenuEditForm = () => {
   const { id } = useParams<{ id: string }>();
@@ -59,14 +62,36 @@ const MenuEditForm = () => {
 
         if (data) {
           setFormData({
-            id: id,
+            id,
             name: data.name || "",
             price: data.price || 0,
             available: data.available ?? true,
             category: data.category || "",
             description: data.description || "",
             imageUrl: data.imageUrl || "",
+            maxComplementos: data.maxComplementos ?? 0,
+            maxAdicionais: data.maxAdicionais ?? 0,
+            complementos: data.complementos || [],
+            adicionais: data.adicionais || [],
           });
+
+          if ((data.complementos && data.complementos.length > 0) || (data.adicionais && data.adicionais.length > 0)) {
+            setShowExtras(true);
+          }
+
+          setSelectedComplementos(
+            (data.complementos || []).reduce((acc, nome) => {
+              acc[nome] = 1;
+              return acc;
+            }, {} as { [key: string]: number })
+          );
+
+          setSelectedAdicionais(
+            (data.adicionais || []).reduce((acc, nome) => {
+              acc[nome] = 1;
+              return acc;
+            }, {} as { [key: string]: number })
+          );
         } else {
           alert("Nenhum dado encontrado para o item.");
         }
@@ -112,6 +137,8 @@ const MenuEditForm = () => {
       const updatedData = {
         ...formData,
         imageUrl,
+        complementos: Object.keys(selectedComplementos),
+        adicionais: Object.keys(selectedAdicionais),
       };
 
       await apiFetch(`/edit-menu-item`, token ?? "", {
