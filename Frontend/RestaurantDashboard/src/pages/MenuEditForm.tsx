@@ -138,9 +138,8 @@ const MenuEditForm = () => {
         ...formData,
         imageUrl,
         complementos: Object.keys(selectedComplementos),
-        adicionais: selectedAdicionais,
+        adicionais: Object.keys(selectedAdicionais),
       };
-
 
       await apiFetch(`/edit-menu-item`, token ?? "", {
         method: "PUT",
