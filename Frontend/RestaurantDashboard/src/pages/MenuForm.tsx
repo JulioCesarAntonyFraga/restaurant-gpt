@@ -33,7 +33,6 @@ const MenuForm = () => {
     const [selectedAdicionais, setSelectedAdicionais] = useState<{ [key: string]: number }>({});
     const complementos = ["Ketchup", "Mostarda", "Maionase"];
     const adicionais = ["Morango", "Creme de leite", "Leite condensado"];
-
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [responseMsg, setResponseMsg] = useState("");
@@ -63,7 +62,6 @@ const MenuForm = () => {
                     adicionais: selectedAdicionais,
 
                 }),
-
             });
 
             const data = await res.json();
@@ -197,6 +195,7 @@ const MenuForm = () => {
                                 onChange={handleChange}
                                 className="w-full p-2 border rounded mb-4"
                             />
+
                             <AddonCheckboxGroup
                                 title=""
                                 addons={adicionais}
@@ -207,7 +206,6 @@ const MenuForm = () => {
                         </div>
                     </>
                 )}
-
 
                 <button type="submit" className="px-4 py-2 bg-blue-400 hover:bg-blue-500 text-white rounded">Salvar</button>
             </form>
