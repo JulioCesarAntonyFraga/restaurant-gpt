@@ -73,6 +73,15 @@ def add_topping(topping: dict) -> dict:
     db.collection("toppings").document(topping["id"]).set(topping)
     return topping
 
+def add_additional(additional: dict) -> dict:
+    additional["id"] = str(uuid.uuid4())
+    additional["created_at"] = int(time.time())
+    additional["updated_at"] = int(time.time())
+    additional["price"] = float(additional["price"])
+
+    db.collection("additionals").document(additional["id"]).set(additional)
+    return additional
+
 def get_menu(get_all: bool = True) -> list:
     menu_ref = db.collection("menu")
     if menu_ref and not get_all:
