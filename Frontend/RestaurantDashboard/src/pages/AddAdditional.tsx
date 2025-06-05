@@ -53,7 +53,7 @@ export default function AdicionaisPage() {
         return;
       try {
 
-        const response = await apiFetch("/retrieve-additionals", token);
+        const response = await apiFetch("/retrieve-additionals", token ? token : "");
         const data: Adicional[] = await response.json();
         setAdicionais(data);
       } catch (error) {
