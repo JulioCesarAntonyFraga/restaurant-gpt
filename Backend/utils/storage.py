@@ -92,6 +92,26 @@ def get_menu(get_all: bool = True) -> list:
         for doc in menu_ref.stream()
     ]
 
+def get_toppings(get_all: bool = True) -> list:
+    toppings_ref = db.collection("toppings")
+    if toppings_ref and not get_all:
+        toppings_ref = toppings_ref.where("available", "==", True)
+
+    return [
+        {**doc.to_dict(), "id": doc.id}
+        for doc in toppings_ref.stream()
+    ]
+
+def get_additionals(get_all: bool = True) -> list:
+    additionals_ref = db.collection("additionals")
+    if additionals_ref and not get_all:
+        additionals_ref = additionals_ref.where("available", "==", True)
+
+    return [
+        {**doc.to_dict(), "id": doc.id}
+        for doc in additionals_ref.stream()
+    ]
+
 def add_message(phone_number: str, conversation_id: str, role: str, content: str):
     doc_ref = db.collection("conversations").document(phone_number).collection("chats").document(conversation_id)
     doc = doc_ref.get()
