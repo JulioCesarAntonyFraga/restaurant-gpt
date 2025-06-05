@@ -49,6 +49,8 @@ export default function AdicionaisPage() {
 
   useEffect(() => {
     const fetchAdicionais = async () => {
+      if (!token)
+        return;
       try {
 
         const response = await apiFetch("/retrieve-additionals", token);
