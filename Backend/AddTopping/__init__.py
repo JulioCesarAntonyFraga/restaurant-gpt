@@ -3,7 +3,7 @@ from utils.storage import add_topping
 import azure.functions as func
 from utils.auth import verify_token
 
-required_fields = ["name"]
+required_fields = ["name", "available"]
 optional_fields = ["description"]
 def main(req: func.HttpRequest) -> func.HttpResponse:
     user = verify_token(req)
