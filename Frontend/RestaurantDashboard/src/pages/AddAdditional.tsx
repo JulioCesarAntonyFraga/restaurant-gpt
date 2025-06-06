@@ -83,8 +83,7 @@ export default function AdicionaisPage() {
   };
 
   const updateAdicional = async (item: Adicional) => {
-    if (!token)
-      return;
+    if (!token) return;
 
     try {
       const response = await apiFetch("/edit-additional/", token, {
@@ -92,15 +91,17 @@ export default function AdicionaisPage() {
         body: JSON.stringify(item),
       });
 
-
-      if (response.ok) {
-        fetchAdicionais();
-        setMessage("✅ Atualizado!");
+      if (!response.ok) {
+        throw new Error("Erro ao atualizar adicional");
       }
+
+      setMessage("✅ Atualizado!");
     } catch (error) {
-      console.error("Erro ao atualizar adicional", error);
+      console.error("Erro ao atualizar adicional:", error);
+      throw error; // relança o erro para capturar no checkbox
     }
   };
+
 
   const deleteAdicional = async (id: string) => {
     if (!token)
@@ -238,8 +239,11 @@ export default function AdicionaisPage() {
                   type="checkbox"
                   checked={item.available}
                   onChange={async (e) => {
-                    const updatedItem = { ...item, available: e.target.checked };
+                    const isChecked = e.target.checked;
 
+                    const previousItem = { ...item };
+
+                    const updatedItem = { ...item, available: isChecked };
                     setAdicionais((prev) =>
                       prev.map((i) => (i.id === updatedItem.id ? updatedItem : i))
                     );
@@ -248,16 +252,15 @@ export default function AdicionaisPage() {
                       await updateAdicional(updatedItem);
                     } catch (error) {
                       console.error("Erro ao atualizar adicional:", error);
-                      // Se quiser, reverter a alteração local em caso de erro
+                      
                       setAdicionais((prev) =>
-                        prev.map((i) => (i.id === item.id ? item : i))
+                        prev.map((i) => (i.id === previousItem.id ? previousItem : i))
                       );
                     }
                   }}
                 />
                 Disponível
               </label>
-
             </div>
           </li>
         ))}
