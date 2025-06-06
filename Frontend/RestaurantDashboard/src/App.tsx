@@ -21,7 +21,7 @@ import { PrivateRoute } from "./components/PrivateRoute";
 import { signOut } from "firebase/auth";
 import { auth } from "./utils/firebase";
 import MenuEditForm from "./pages/MenuEditForm";
-import AddAdditional from "./pages/AddAdditional";
+import AdicionaisPage from "./pages/AddAdditional";
 
 export default function App() {
   const navigate = useNavigate();
@@ -200,26 +200,11 @@ export default function App() {
                     path="/adicionais"
                     element={
                       <PrivateRoute>
-                        <AddAdditional />
+                        <AdicionaisPage />
                       </PrivateRoute>
                     }
                   />
-                  <Route
-                    path="/adicionais/novo"
-                    element={
-                      <PrivateRoute>
-                        <AddAdditional />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route
-                    path="/adicionais/editar/:id"
-                    element={
-                      <PrivateRoute>
-                        <AddAdditional />
-                      </PrivateRoute>
-                    }
-                  />
+
                 </Routes>
               </div>
             </div>

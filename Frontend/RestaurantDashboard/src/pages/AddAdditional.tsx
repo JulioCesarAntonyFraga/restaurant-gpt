@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { apiFetch } from "../utils/apiHelper";
 import { useAuth } from "../utils/authContext";
+import React from "react";
 
 type Adicional = {
   id: string;
@@ -46,23 +47,76 @@ export default function AdicionaisPage() {
       }));
     }
   };
+  const fetchAdicionais = async () => {
+    if (!token)
+      return;
+    try {
 
+      const response = await apiFetch("/retrieve-additionals", token);
+      const data: Adicional[] = await response.json();
+      setAdicionais(data);
+    } catch (error) {
+      console.error("Erro ao buscar adicionais:", error);
+    }
+  };
   useEffect(() => {
-    const fetchAdicionais = async () => {
-      if (!token)
-        return;
-      try {
-
-        const response = await apiFetch("/retrieve-additionals", token ? token : "");
-        const data: Adicional[] = await response.json();
-        setAdicionais(data);
-      } catch (error) {
-        console.error("Erro ao buscar adicionais:", error);
-      }
-    };
 
     fetchAdicionais();
   }, [token]);
+
+  const createAdicional = async (item: Omit<Adicional, "id">) => {
+    if (!token)
+      return;
+    try {
+      const response = await apiFetch("/add-additional", token, {
+        method: "POST",
+        body: JSON.stringify(item),
+      });
+
+      if (response.ok) {
+        fetchAdicionais();
+        setMessage("✅ Criado!");
+      }
+    } catch (error) {
+      console.error("Erro ao adicionar adicional:", error);
+    }
+  };
+
+  const updateAdicional = async (item: Adicional) => {
+    if (!token)
+      return;
+
+    try {
+      const response = await apiFetch("/edit-additional/", token, {
+        method: "PUT",
+        body: JSON.stringify(item),
+      });
+
+
+      if (response.ok) {
+        fetchAdicionais();
+        setMessage("✅ Atualizado!");
+      }
+    } catch (error) {
+      console.error("Erro ao atualizar adicional", error);
+    }
+  };
+
+  const deleteAdicional = async (id: string) => {
+    if (!token)
+      return;
+    try {
+      const response = await apiFetch(`/delete-additional/${id}`, token, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        fetchAdicionais();
+      }
+    } catch (error) {
+      console.error("Erro ao excluir adicional:", error)
+    }
+  };
 
   const handleEdit = (item: Adicional) => {
     setForm({
@@ -75,35 +129,44 @@ export default function AdicionaisPage() {
     setEditId(item.id);
   };
 
-  const handleDelete = (id: string) => {
-    const filtered = adicionais.filter((a) => a.id !== id);
-    setAdicionais(filtered);
+  const handleDelete = async (id: string) => {
+    await deleteAdicional(id); // <-- Chamar API
     if (editId === id) {
-      setForm({ name: "", price: "", description: "", available: true, });
+      setForm({ name: "", price: "", description: "", available: true });
       setEditId(null);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const newItem: Adicional = {
-      id: editId || crypto.randomUUID(),
+    // Crie um objeto sem o id para criação
+    const newItem = {
       name: form.name.trim(),
       price: parseFloat(form.price),
       ...(form.description && { description: form.description.trim() }),
       available: form.available,
     };
 
-    const updated = editId
-      ? adicionais.map((item) => (item.id === editId ? newItem : item))
-      : [...adicionais, newItem];
+    if (editId) {
+      // Para edição, crie um objeto do tipo Adicional incluindo o id
+      const updatedItem: Adicional = {
+        ...newItem,
+        id: editId,
+      };
+      await updateAdicional(updatedItem);
+    } else {
+      // Para criação, envie o objeto sem id
+      await createAdicional(newItem);
+    }
 
-    setAdicionais(updated);
     setForm({ name: "", price: "", description: "", available: true });
     setEditId(null);
-    setMessage(editId ? "✅ Atualizado!" : "✅ Criado!");
   };
+
+
+
 
   return (
     <div className="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-xl shadow">
@@ -173,14 +236,28 @@ export default function AdicionaisPage() {
               <label className="flex items-center gap-2">
                 <input
                   type="checkbox"
-                  name="available"
-                  checked={form.available}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, available: e.target.checked }))
-                  }
+                  checked={item.available}
+                  onChange={async (e) => {
+                    const updatedItem = { ...item, available: e.target.checked };
+
+                    setAdicionais((prev) =>
+                      prev.map((i) => (i.id === updatedItem.id ? updatedItem : i))
+                    );
+
+                    try {
+                      await updateAdicional(updatedItem);
+                    } catch (error) {
+                      console.error("Erro ao atualizar adicional:", error);
+                      // Se quiser, reverter a alteração local em caso de erro
+                      setAdicionais((prev) =>
+                        prev.map((i) => (i.id === item.id ? item : i))
+                      );
+                    }
+                  }}
                 />
                 Disponível
               </label>
+
             </div>
           </li>
         ))}
@@ -188,3 +265,4 @@ export default function AdicionaisPage() {
     </div>
   );
 }
+
