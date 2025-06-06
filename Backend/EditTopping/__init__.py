@@ -6,7 +6,7 @@ from utils.auth import verify_token
 
 db = firestore.client()
 
-required_fields = ["name"]
+required_fields = ["name", "available"]
 optional_fields = ["description"]
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
