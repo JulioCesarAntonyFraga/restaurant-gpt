@@ -1,0 +1,228 @@
+import { useEffect, useState } from "react";
+import { apiFetch } from "../utils/apiHelper";
+import { useAuth } from "../utils/authContext";
+import React from "react";
+
+type Complemento = {
+    id: string;
+    name: string;
+    description?: string;
+    available: boolean;
+};
+
+export default function ComplementosPage() {
+    const { token } = useAuth();
+    const [form, setForm] = useState<{
+        name: string;
+        description: string;
+        available: boolean;
+    }>({
+        name: "",
+        description: "",
+        available: true,
+    });
+
+    const [complementos, setComplementos] = useState<Complemento[]>([]);
+    const [editId, setEditId] = useState<string | null>(null);
+    const [message, setMessage] = useState("");
+
+    const handleChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
+        const { name, value, type } = e.target;
+        if (type === "checkbox") {
+            const checked = (e.target as HTMLInputElement).checked;
+            setForm((prev) => ({
+                ...prev,
+                [name]: checked,
+            }));
+        } else {
+            setForm((prev) => ({
+                ...prev,
+                [name]: value,
+            }));
+        }
+    };
+
+    const fetchComplemntos = async () => {
+        if (!token)
+            return;
+        try {
+            const response = await apiFetch("/retrieve-toppings", token);
+            const data: Complemento[] = await response.json();
+            setComplementos(data);
+        } catch (error) {
+            console.error("Erro ao buscar Complementos:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchComplemntos();
+    }, [token]);
+
+    const createComplemento = async (item: Omit<Complemento, "id">) => {
+        if (!token)
+            return;
+        try {
+            const response = await apiFetch("/add-topping", token, {
+                method: "POST",
+                body: JSON.stringify(item),
+            });
+
+            if (response.ok) {
+                fetchComplemntos();
+                setMessage("✅ Criado!");
+            }
+        } catch (error) {
+            console.error("Erro ao adicionar complemento:", error);
+        }
+    };
+
+    const updateComplemento = async (item: Complemento) => {
+        if (!token) return;
+        try {
+            const response = await apiFetch("/edit-topping/", token, {
+                method: "PUT",
+                body: JSON.stringify(item),
+            });
+            if (!response.ok) {
+                throw new Error("Erro ao atualizar complemento");
+            }
+            setMessage("✅ Atualizado!");
+            await fetchComplemntos();
+        } catch (error) {
+            console.error("Erro ao atualizar complemento:", error);
+            throw error;
+        }
+    };
+
+    const deleteComplemento = async (id: string) => {
+        if (!token)
+            return;
+        try {
+            const response = await apiFetch(`/delete-topping/${id}`, token, {
+                method: "DELETE",
+            });
+            if (response.ok) {
+                fetchComplemntos();
+            }
+        } catch (error) {
+            console.error("Erro ao excluir complemnto:", error)
+        }
+    };
+
+    const handleEdit = (item: Complemento) => {
+        setForm({
+            name: item.name,
+            description: item.description || "",
+            available: item.available,
+        });
+        setEditId(item.id);
+    };
+
+    const handleDelete = async (id: string) => {
+        await deleteComplemento(id);
+        if (editId === id) {
+            setForm({ name: "", description: "", available: true });
+            setEditId(null);
+        }
+    };
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const newItem = {
+            name: form.name.trim(),
+            ...(form.description && { description: form.description.trim() }),
+            available: form.available,
+        };
+        if (editId) {
+            const updatedItem: Complemento = {
+                ...newItem,
+                id: editId,
+            };
+            await updateComplemento(updatedItem);
+        } else {
+            await createComplemento(newItem);
+        }
+        setForm({ name: "", description: "", available: true });
+        setEditId(null);
+    };
+
+    return (
+        <div className="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-xl shadow">
+            <h1 className="text-2xl font-bold mb-4">Gerenciar Complementos</h1>
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <input
+                    type="text"
+                    name="name"
+                    placeholder="Nome"
+                    value={form.name}
+                    onChange={handleChange}
+                    className="w-full p-2 border rounded"
+                    required
+                />
+                <textarea
+                    name="description"
+                    placeholder="Descrição (opcional)"
+                    value={form.description}
+                    onChange={handleChange}
+                    className="w-full p-2 border rounded"
+                />
+                <button
+                    type="submit"
+                    className="bg-blue-600 text-white px-4 py-2 rounded"
+                >
+                    {editId ? "Atualizar" : "Adicionar"}
+                </button>
+                {message && <p>{message}</p>}
+            </form>
+            <hr className="my-6" />
+            <ul className="space-y-2">
+                {complementos.map((item) => (
+                    <li
+                        key={item.id}
+                        className="flex items-center justify-between p-2 border rounded">
+                        <div className="flex flex-col flex-1">
+                            <p className="font-semibold">{item.name}</p>
+                            {item.description && <p className="text-sm text-gray-600">{item.description}</p>}
+                        </div>
+                        <div className="space-x-2">
+                            <button
+                                onClick={() => handleEdit(item)}
+                                className="bg-yellow-500 text-white px-3 py-1 rounded">
+                                Editar
+                            </button>
+                            <button
+                                onClick={() => handleDelete(item.id)}
+                                className="bg-red-600 text-white px-3 py-1 rounded">
+                                Excluir
+                            </button>
+                            <label className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    checked={item.available}
+                                    onChange={async (e) => {
+                                        const isChecked = e.target.checked;
+                                        const previousItem = { ...item };
+                                        const updatedItem = { ...item, available: isChecked };
+                                        setComplementos((prev) =>
+                                            prev.map((i) => (i.id === updatedItem.id ? updatedItem : i)));
+                                        try {
+                                            await updateComplemento(updatedItem);
+                                        } catch (error) {
+                                            console.error("Erro ao atualizar adicional:", error);
+                                            setComplementos((prev) =>
+                                                prev.map((i) => (i.id === previousItem.id ? previousItem : i)));
+                                        }
+                                    }}
+                                />
+                                Disponível
+                            </label>
+                        </div>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
+}
+

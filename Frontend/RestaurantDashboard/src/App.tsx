@@ -22,6 +22,7 @@ import { signOut } from "firebase/auth";
 import { auth } from "./utils/firebase";
 import MenuEditForm from "./pages/MenuEditForm";
 import AdicionaisPage from "./pages/AddAdditional";
+import ComplementosPage from "./pages/AddTopping";
 
 export default function App() {
   const navigate = useNavigate();
@@ -104,6 +105,13 @@ export default function App() {
                         className="flex items-center gap-2 p-2 text-sm rounded hover:bg-white/20 transition">
                         <PlusCircle size={16} />
                         Criar Adicional
+                      </Link>
+
+                       <Link
+                        to="/complementos"
+                        className="flex items-center gap-2 p-2 text-sm rounded hover:bg-white/20 transition">
+                        <PlusCircle size={16} />
+                        Criar Complementos
                       </Link>
 
                     </div>
@@ -201,6 +209,14 @@ export default function App() {
                     element={
                       <PrivateRoute>
                         <AdicionaisPage />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/complementos"
+                    element={
+                      <PrivateRoute>
+                        <ComplementosPage />
                       </PrivateRoute>
                     }
                   />
