@@ -24,7 +24,7 @@ async function fetchMenuItems(): Promise<MenuItemType[]> {
     throw new Error("Failed to fetch orders");
   }
 
-  return res.json()
+  return res.json();
 }
 
 const Menu = () => {
@@ -43,12 +43,12 @@ const Menu = () => {
       } finally {
         setLoading(false);
       }
-    }
+    };
     getItems();
   }, []);
 
   if (loading) {
-    return <p className="text-center mt-8">Carregando cardápio...</p>
+    return <p className="text-center mt-8">Carregando cardápio...</p>;
   }
 
   const categories = ["Todos", ...Array.from(new Set(menuItems.map(item => item.category)))];

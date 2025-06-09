@@ -13,6 +13,7 @@ type MenuItem = {
   available: boolean;
   category: string;
   description?: string;
+  maxComplementos?: number;  
 };
 
 
