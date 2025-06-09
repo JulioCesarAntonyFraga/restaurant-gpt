@@ -96,12 +96,13 @@ export default function AdicionaisPage() {
       }
 
       setMessage("✅ Atualizado!");
+      await fetchAdicionais();
+
     } catch (error) {
       console.error("Erro ao atualizar adicional:", error);
       throw error; // relança o erro para capturar no checkbox
     }
   };
-
 
   const deleteAdicional = async (id: string) => {
     if (!token)
@@ -138,11 +139,8 @@ export default function AdicionaisPage() {
     }
   };
 
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    // Crie um objeto sem o id para criação
     const newItem = {
       name: form.name.trim(),
       price: parseFloat(form.price),
@@ -151,23 +149,17 @@ export default function AdicionaisPage() {
     };
 
     if (editId) {
-      // Para edição, crie um objeto do tipo Adicional incluindo o id
       const updatedItem: Adicional = {
         ...newItem,
         id: editId,
       };
       await updateAdicional(updatedItem);
     } else {
-      // Para criação, envie o objeto sem id
       await createAdicional(newItem);
     }
-
     setForm({ name: "", price: "", description: "", available: true });
     setEditId(null);
   };
-
-
-
 
   return (
     <div className="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-xl shadow">
@@ -201,21 +193,17 @@ export default function AdicionaisPage() {
         />
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded"
-        >
+          className="bg-blue-600 text-white px-4 py-2 rounded">
           {editId ? "Atualizar" : "Adicionar"}
         </button>
         {message && <p>{message}</p>}
       </form>
-
       <hr className="my-6" />
-
       <ul className="space-y-2">
         {adicionais.map((item) => (
           <li
             key={item.id}
-            className="flex items-center justify-between p-2 border rounded"
-          >
+            className="flex items-center justify-between p-2 border rounded">
             <div>
               <strong>{item.name}</strong> - R$ {item.price.toFixed(2)}
               {item.description && <p className="text-sm">{item.description}</p>}
@@ -223,39 +211,30 @@ export default function AdicionaisPage() {
             <div className="space-x-2">
               <button
                 onClick={() => handleEdit(item)}
-                className="bg-yellow-500 text-white px-3 py-1 rounded"
-              >
+                className="bg-yellow-500 text-white px-3 py-1 rounded">
                 Editar
               </button>
               <button
                 onClick={() => handleDelete(item.id)}
-                className="bg-red-600 text-white px-3 py-1 rounded"
-              >
+                className="bg-red-600 text-white px-3 py-1 rounded">
                 Excluir
               </button>
-
               <label className="flex items-center gap-2">
                 <input
                   type="checkbox"
                   checked={item.available}
                   onChange={async (e) => {
                     const isChecked = e.target.checked;
-
                     const previousItem = { ...item };
-
                     const updatedItem = { ...item, available: isChecked };
                     setAdicionais((prev) =>
-                      prev.map((i) => (i.id === updatedItem.id ? updatedItem : i))
-                    );
-
+                      prev.map((i) => (i.id === updatedItem.id ? updatedItem : i)));
                     try {
                       await updateAdicional(updatedItem);
                     } catch (error) {
                       console.error("Erro ao atualizar adicional:", error);
-                      
                       setAdicionais((prev) =>
-                        prev.map((i) => (i.id === previousItem.id ? previousItem : i))
-                      );
+                        prev.map((i) => (i.id === previousItem.id ? previousItem : i)));
                     }
                   }}
                 />
