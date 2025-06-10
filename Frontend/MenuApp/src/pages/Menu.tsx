@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import MenuItem from "../components/MenuItem";
+import MenuItem, { Additional, Topping } from "../components/MenuItem";
 
 type MenuItemType = {
   id: string;
@@ -9,6 +9,9 @@ type MenuItemType = {
   category: string;
   description?: string;
   imageUrl?: string;
+  maxComplementos: number;
+  complementos: Topping[];
+  adicionais: Additional[];
 };
 
 async function fetchMenuItems(): Promise<MenuItemType[]> {
@@ -105,6 +108,9 @@ const Menu = () => {
             category={item.category}
             description={item.description}
             imageUrl={item.imageUrl}
+            maxComplementos={item.maxComplementos}
+            toppings={item.complementos}
+            additionals={item.adicionais}
           />
         ))}
       </div>

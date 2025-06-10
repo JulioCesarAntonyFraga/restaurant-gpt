@@ -9,39 +9,60 @@ export type MenuItemProps = {
   category: string;
   description?: string;
   imageUrl?: string;
+  maxComplementos?: number;
+  toppings: Topping[];
+  additionals: Additional[];
 };
 
-type Topping = {
+export type Topping = {
   name: string;
   available: boolean;
   description?: string;
 };
 
-type ComplementGroup = {
+export type ComplementGroup = {
   name: string;
   max: number;
   toppings: Topping[];
 };
 
-type Additional = {
+export type Additional = {
   name: string;
   price: number;
   available: boolean;
   description?: string;
 };
 
-const MenuItem = ({ id, name, price, description, imageUrl }: MenuItemProps) => {
+const MenuItem = ({
+  id,
+  name,
+  price,
+  description,
+  imageUrl,
+  maxComplementos,
+  toppings,
+  additionals,
+}: MenuItemProps) => {
   const { addToCart } = useCart();
+
   const [showModal, setShowModal] = useState(false);
   const [observation, setObservation] = useState("");
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [selectedAdditionals, setSelectedAdditionals] = useState<string[]>([]);
   const [complementGroups, setComplementGroups] = useState<ComplementGroup[]>([]);
-  const [additionals, setAdditionals] = useState<Additional[]>([]);
 
-  const handleCheckboxChange = (option: string) => {
+  const handleCheckboxChange = (group: ComplementGroup, option: string) => {
+    const selectedInGroup = group.toppings.filter(opt =>
+      selectedOptions.includes(opt.name)
+    ).length;
+
+    const alreadySelected = selectedOptions.includes(option);
+    const canSelectMore = selectedInGroup < group.max || alreadySelected;
+
+    if (!canSelectMore) return;
+
     setSelectedOptions((prev) =>
-      prev.includes(option)
+      alreadySelected
         ? prev.filter((item) => item !== option)
         : [...prev, option]
     );
@@ -82,43 +103,15 @@ const MenuItem = ({ id, name, price, description, imageUrl }: MenuItemProps) => 
   };
 
   useEffect(() => {
-    if (showModal) {
-      const apiUrl = import.meta.env.VITE_API_BASE_URL;
-
-      const fetchToppings = async () => {
-        try {
-          const res = await fetch(`${apiUrl}/retrieve-toppings`);
-          if (!res.ok) throw new Error("Erro ao buscar opções");
-          const data = await res.json();
-          const groups: ComplementGroup[] = [
-            {
-              name: "Complementos",
-              max: 2,
-              toppings: data.filter((item: Topping) => item.available),
-            },
-          ];
-          setComplementGroups(groups);
-        } catch (error) {
-          console.error(error);
-        }
-      };
-
-      const fetchAdditionals = async () => {
-        try {
-          const res = await fetch(`${apiUrl}/retrieve-additionals`);
-          if (!res.ok) throw new Error("Erro ao buscar adicionais");
-          const data = await res.json();
-          const availableAdditionals = data.filter((item: Additional) => item.available);
-          setAdditionals(availableAdditionals);
-        } catch (error) {
-          console.error(error);
-        }
-      };
-
-      fetchToppings();
-      fetchAdditionals();
-    }
-  }, [showModal]);
+    if (!showModal) return;
+    setComplementGroups([
+      {
+        name: "Complementos",
+        max: maxComplementos ?? 0,
+        toppings: toppings,
+      },
+    ]);
+  }, [showModal, maxComplementos]);
 
   return (
     <div className="bg-white shadow rounded-lg p-4 flex flex-col relative">
@@ -158,15 +151,14 @@ const MenuItem = ({ id, name, price, description, imageUrl }: MenuItemProps) => 
                     return (
                       <label
                         key={option.name}
-                        className={`flex items-center gap-2 p-2 border rounded-md hover:bg-gray-100 text-sm ${
-                          !canSelectMore && !isSelected ? "opacity-50 cursor-not-allowed" : ""
-                        }`}
+                        className={`flex items-center gap-2 p-2 border rounded-md hover:bg-gray-100 text-sm 
+                          ${!canSelectMore && !isSelected ? "opacity-50 cursor-not-allowed" : ""}`}
                       >
                         <input
                           type="checkbox"
                           checked={isSelected}
                           disabled={!canSelectMore && !isSelected}
-                          onChange={() => handleCheckboxChange(option.name)}
+                          onChange={() => handleCheckboxChange(group, option.name)}
                         />
                         <span>{option.name}</span>
                       </label>
@@ -189,7 +181,7 @@ const MenuItem = ({ id, name, price, description, imageUrl }: MenuItemProps) => 
                     onChange={() => handleAdditionalChange(item.name)}
                   />
                   <span>
-                    {item.name} (+ R$ {item.price.toFixed(2)})
+                    {item.name} (R$ {item.price.toFixed(2)})
                   </span>
                 </label>
               ))}
