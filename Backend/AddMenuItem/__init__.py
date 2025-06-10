@@ -4,7 +4,7 @@ import azure.functions as func
 from utils.auth import verify_token
 
 required_fields = ["name", "price", "available", "category"]
-optional_fields = ["description", "imageUrl", "complementos", "adicionais", "maxComplementos", "maxAdicionais"]
+optional_fields = ["description", "imageUrl", "toppings", "additionals", "max_toppings", "max_additionals"]
 def main(req: func.HttpRequest) -> func.HttpResponse:
     user = verify_token(req)
     if not user:
