@@ -65,6 +65,24 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         menu_item = valid_item_ids[item_id]
         item_total_price = menu_item["price"] * quantity
 
+        toppings_input = item.get("toppings", [])
+        additionals_input = item.get("additionals", [])
+
+        max_toppings = menu_item.get("max_toppings", 99)
+        max_additionals = menu_item.get("max_additionals", 99)
+
+        if len(toppings_input) > max_toppings:
+            return func.HttpResponse(
+                f"O item '{menu_item['name']}' permite no máximo {max_toppings} toppings.",
+                status_code=400
+            )
+
+        if len(additionals_input) > max_additionals:
+            return func.HttpResponse(
+                f"O item '{menu_item['name']}' permite no máximo {max_additionals} adicionais.",
+                status_code=400
+            )
+
         toppings = []
         for topping_id in item.get("toppings", []):
             if topping_id not in valid_topping_ids:
