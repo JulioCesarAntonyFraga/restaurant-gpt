@@ -6,7 +6,7 @@ from utils.auth import verify_token
 
 db = firestore.client()
 
-required_fields = ["name", "price", "available", "category"]
+required_fields = ["name", "price", "available", "category", "maxComplementos", "maxAdicionais"]
 optional_fields = ["description", "imageUrl"]
 extra_fields = ["complementos", "adicionais"]
 
