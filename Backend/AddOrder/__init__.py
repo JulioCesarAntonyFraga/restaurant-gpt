@@ -1,7 +1,7 @@
 import azure.functions as func
 import json
 from firebase_admin import firestore
-from utils.storage import save_order, get_menu
+from utils.storage import save_order, get_menu, get_toppings, get_additionals
 
 db = firestore.client()
 
@@ -17,101 +17,104 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         data = req.get_json()
     except:
         return func.HttpResponse("Invalid JSON", status_code=400)
-    
-    required_fields = [
-        "phone_number", "items", "name",
-        "is_delivery", "payment_method"
-    ]
-    
+
+    # Campos obrigatórios
+    required_fields = ["phone_number", "items", "name", "is_delivery", "payment_method"]
+
     if "is_delivery" not in data:
-        return func.HttpResponse(
-            "is_delivery field is required", status_code=400
-        )
-    
-    if data["is_delivery"] == True:
-        required_fields.append("rua")
-        required_fields.append("cep")
-        required_fields.append("bairro")
-        required_fields.append("numero")
-        required_fields.append("cidade")
+        return func.HttpResponse("is_delivery field is required", status_code=400)
+
+    if data["is_delivery"] is True:
+        required_fields += ["rua", "cep", "bairro", "numero", "cidade"]
 
     for field in required_fields:
         if field not in data:
             return func.HttpResponse(f"Missing field: {field}", status_code=400)
 
     if data["payment_method"] not in payment_methods:
-        return func.HttpResponse(
-            f"Invalid payment method: {data['payment_method']}",
-            status_code=400
-        )
+        return func.HttpResponse(f"Invalid payment method: {data['payment_method']}", status_code=400)
 
-    items = data["items"]
-    if not isinstance(items, list) or not items:
+    if not isinstance(data["items"], list) or not data["items"]:
         return func.HttpResponse("Items must be a non-empty list", status_code=400)
 
-    # Validar os itens com base no menu
-    available_menu = get_menu(False)
-    available_ids = {item["id"] for item in available_menu}
+    # Dados do banco
+    menu = get_menu(False)
+    toppings_db = [t for t in get_toppings() if t["available"]]
+    additionals_db = [a for a in get_additionals() if a["available"]]
 
-    items_required_fields = ["id", "quantity"]
+    valid_item_ids = {i["id"]: i for i in menu}
+    valid_topping_ids = {t["id"]: t for t in toppings_db}
+    valid_additional_ids = {a["id"]: a for a in additionals_db}
 
-    for filed in items_required_fields:
-        for item in items:
-            if filed not in item:
-                return func.HttpResponse(
-                    f"Missing field: {filed} in item {available_menu.get('name', '')}",
-                    status_code=400
-                )
+    processed_items = []
+    total = 0.0
 
-    for item in items:
-        if item["id"] not in available_ids:
-            return func.HttpResponse(
-                f"Item {item.get('name', '')} não está disponível ou não existe",
-                status_code=400
-            )
+    for item in data["items"]:
+        if "id" not in item or "quantity" not in item:
+            return func.HttpResponse("Each item must have 'id' and 'quantity'", status_code=400)
 
-    for item in items:
-        if item["quantity"] <= 0:
-            return func.HttpResponse(
-                f"Item {item.get('name', '')} deve ter quantidade maior que 0",
-                status_code=400
-            )
-
-    total = 0
-
-    for item in items:
         item_id = item["id"]
-        item_quantity = item["quantity"]
+        quantity = item["quantity"]
+        observation = item["observation"]
 
-        # Obter o preço do item do menu
-        menu_item = next((menu_item for menu_item in available_menu if menu_item["id"] == item_id), None)
-        if menu_item:
-            item_price = menu_item["price"]
-            total += item_price * item_quantity
-        else:
-            return func.HttpResponse(
-                f"Item {item.get('name', '')} não encontrado no menu",
-                status_code=400
-            )
+        if item_id not in valid_item_ids:
+            return func.HttpResponse(f"Item ID '{item_id}' is invalid or not available", status_code=400)
+        if not isinstance(quantity, int) or quantity <= 0:
+            return func.HttpResponse(f"Item '{item_id}' has invalid quantity", status_code=400)
+
+        menu_item = valid_item_ids[item_id]
+        item_total_price = menu_item["price"] * quantity
+
+        toppings = []
+        for topping_id in item.get("toppings", []):
+            if topping_id not in valid_topping_ids:
+                return func.HttpResponse(f"Topping ID '{topping_id}' is invalid or not available", status_code=400)
+            topping = valid_topping_ids[topping_id]
+            toppings.append({"id": topping["id"], "name": topping["name"]})
+
+        additionals = []
+        for add_id in item.get("additionals", []):
+            if add_id not in valid_additional_ids:
+                return func.HttpResponse(f"Additional ID '{add_id}' is invalid or not available", status_code=400)
+            additional = valid_additional_ids[add_id]
+            additionals.append({"id": additional["id"], "name": additional["name"], "price": additional["price"]})
+            item_total_price += additional["price"] * quantity
+
+        processed_items.append({
+            "id": item_id,
+            "name": menu_item["name"],
+            "price": menu_item["price"],
+            "amount": quantity,
+            "toppings": toppings,
+            "additionals": additionals,
+            "observation": observation
+        })
+
+        total += item_total_price
+
+    # Preparar dados para salvar
+    order_data = {
+        "name": data["name"],
+        "phone_number": data["phone_number"],
+        "is_delivery": data["is_delivery"],
+        "payment_method": data["payment_method"],
+        "items": processed_items,
+        "total": round(total, 2),
+    }
+
+    if data["is_delivery"]:
+        order_data.update({
+            "rua": data["rua"],
+            "cep": data["cep"],
+            "bairro": data["bairro"],
+            "numero": data["numero"],
+            "cidade": data["cidade"]
+        })
 
     try:
-        save_order(
-            name=data.get("name", ""),
-            phone_number=data.get("phone_number", ""),
-            items=items,
-            total=float(total),
-            is_delivery=bool(data.get("is_delivery", False)),
-            cep=str(data.get("cep", "")),
-            rua=str(data.get("rua", "")),
-            bairro=str(data.get("bairro", "")),
-            numero=str(data.get("numero", "")),
-            cidade=str(data.get("cidade", "")),
-            payment_method=data.get("payment_method", "")
-        )
+        save_order(**order_data)
     except Exception as e:
-        return func.HttpResponse(
-            f"Erro ao salvar pedido: {str(e)}", status_code=500
-        )
+        return func.HttpResponse(f"Erro ao salvar pedido: {str(e)}", status_code=500)
 
     return func.HttpResponse(
         json.dumps({"success": True, "message": "Pedido registrado com sucesso!"}),
