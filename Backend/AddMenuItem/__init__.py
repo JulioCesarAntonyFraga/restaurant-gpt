@@ -7,9 +7,9 @@ required_fields = ["name", "price", "available", "category"]
 optional_fields = ["description", "imageUrl", "toppings", "additionals", "max_toppings", "max_additionals"]
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
-    # user = verify_token(req)
-    # if not user:
-    #     return func.HttpResponse("Unauthorized", status_code=401)
+    user = verify_token(req)
+    if not user:
+        return func.HttpResponse("Unauthorized", status_code=401)
 
     try:
         menu_item = req.get_json()
