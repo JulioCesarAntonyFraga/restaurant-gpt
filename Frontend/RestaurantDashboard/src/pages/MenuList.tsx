@@ -13,6 +13,7 @@ type MenuItem = {
   available: boolean;
   category: string;
   description?: string;
+  max_toppings?: number;
 };
 
 
@@ -22,28 +23,28 @@ type SortField = "name" | "price" | "category";
 const MenuList = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const {token} = useAuth();
+  const { token } = useAuth();
 
   async function fetchMenuItems(): Promise<MenuItem[]> {
-      const res = await apiFetch(`/retrieve-menu-items`, token ?? "",{
-          method: "GET",
-      });
-      if (!res.ok) {
-          throw new Error("Failed to fetch orders");
-      }
-      return res.json()
+    const res = await apiFetch(`/retrieve-menu-items`, token ?? "", {
+      method: "GET",
+    });
+    if (!res.ok) {
+      throw new Error("Failed to fetch orders");
+    }
+    return res.json()
   }
 
   useEffect(() => {
     const getItems = async () => {
-        try {
-            const data = await fetchMenuItems();
-            setMenuItems(data);
-        } catch (error) {
-            console.error("Erro ao buscar itens do menu:", error);
-        } finally {
-            setLoading(false);
-        }
+      try {
+        const data = await fetchMenuItems();
+        setMenuItems(data);
+      } catch (error) {
+        console.error("Erro ao buscar itens do menu:", error);
+      } finally {
+        setLoading(false);
+      }
     }
     getItems();
   }, [token]);
@@ -53,7 +54,7 @@ const MenuList = () => {
   const [sortBy, setSortBy] = useState<SortField>("name");
 
   const navigate = useNavigate();
-  
+
   if (loading) {
     return <p className="text-center mt-8">Carregando pedidos...</p>
   }
@@ -64,19 +65,19 @@ const MenuList = () => {
       item.available = !item.available;
 
       apiFetch(`/edit-menu-item`, token ?? "", {
-          method: "PUT",
-          body: JSON.stringify(item)
+        method: "PUT",
+        body: JSON.stringify(item)
       }).then((res) => {
         console.log("res", res);
-          if (!res.ok) {
-              alert("Erro ao atualizar a disponibilidade do item");
-          } else {
-              setMenuItems((prev) =>
-                  prev.map((prevItem) =>
-                      prevItem.id === id ? { ...prevItem, available: item.available } : prevItem
-                  )
-              );
-          }
+        if (!res.ok) {
+          alert("Erro ao atualizar a disponibilidade do item");
+        } else {
+          setMenuItems((prev) =>
+            prev.map((prevItem) =>
+              prevItem.id === id ? { ...prevItem, available: item.available } : prevItem
+            )
+          );
+        }
       });
     }
   };
@@ -166,11 +167,18 @@ const MenuList = () => {
                     Descrição: {item.description}
                   </p>
                 )}
+
+                {typeof item.max_toppings === "number" && (
+                  <p className="text-gray-700 text-sm mb-1">
+                    Máximo de  complementos: {item.max_toppings}
+                  </p>
+                )}
+
                 <div className="flex items-center gap-2 mt-2">
                   <span className="text-sm text-gray-700">Disponível:</span>
                   <Switch
                     checked={item.available}
-                    onChange={() => toggleAvailability(item.id)} 
+                    onChange={() => toggleAvailability(item.id)}
                     className={`${item.available ? "bg-green-500" : "bg-gray-300"
                       } relative inline-flex h-6 w-11 items-center rounded-full transition-colors`}
                   >
@@ -194,7 +202,7 @@ const MenuList = () => {
                 {/* Botão de Remover */}
                 <button
                   className="flex items-center gap-1 text-sm bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"
-                  onClick={() => removeMenuItem(item.id)} 
+                  onClick={() => removeMenuItem(item.id)}
                 >
                   <Trash2 size={16} />
                   Remover

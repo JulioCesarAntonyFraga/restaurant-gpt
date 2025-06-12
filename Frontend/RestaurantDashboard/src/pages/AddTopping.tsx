@@ -22,7 +22,7 @@ export default function ComplementosPage() {
         available: true,
     });
 
-    const [complementos, setComplementos] = useState<Complemento[]>([]);
+    const [toppings, setComplementos] = useState<Complemento[]>([]);
     const [editId, setEditId] = useState<string | null>(null);
     const [message, setMessage] = useState("");
 
@@ -178,7 +178,7 @@ export default function ComplementosPage() {
             </form>
             <hr className="my-6" />
             <ul className="space-y-2">
-                {complementos.map((item) => (
+                {toppings.map((item) => (
                     <li
                         key={item.id}
                         className="flex items-center justify-between p-2 border rounded">

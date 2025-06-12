@@ -25,7 +25,7 @@ export default function AdicionaisPage() {
     available: true,
   });
 
-  const [adicionais, setAdicionais] = useState<Adicional[]>([]);
+  const [additionals, setAdicionais] = useState<Adicional[]>([]);
   const [editId, setEditId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
 
@@ -200,7 +200,7 @@ export default function AdicionaisPage() {
       </form>
       <hr className="my-6" />
       <ul className="space-y-2">
-        {adicionais.map((item) => (
+        {additionals.map((item) => (
           <li
             key={item.id}
             className="flex items-center justify-between p-2 border rounded">
