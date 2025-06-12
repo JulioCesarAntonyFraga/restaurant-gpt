@@ -5,7 +5,7 @@ import { apiFetch } from "../utils/apiHelper";
 import { uploadImage } from "../utils/firebase";
 import AddonCheckboxGroup, { Addon } from "../components/AddonCheckBoxGroup";
 
-type Adicional = {
+type Additionals = {
   id: string;
   name: string;
   price: number;
@@ -13,7 +13,7 @@ type Adicional = {
   available: boolean;
 };
 
-type Complemento = {
+type Toppings = {
   id: string;
   name: string;
   available: boolean;
@@ -27,9 +27,10 @@ type MenuItem = {
   category: string;
   description?: string;
   imageUrl?: string;
-  max_toppings?: number;
   toppings?: string[];
+  max_toppings?: number;  
   additionals?: string[];
+  max_additionals: 0;
 };
 
 const MenuEditForm = () => {
@@ -45,19 +46,20 @@ const MenuEditForm = () => {
     category: "",
     description: "",
     imageUrl: "",
-    max_toppings: 0,
-    toppings: [],
+     toppings: [],
+    max_toppings: 0,    
     additionals: [],
+    max_additionals: 0,
   });
 
-  const [toppings, setComplementos] = useState<Complemento[]>([]);
-  const [additionals, setAdicionais] = useState<Adicional[]>([]);
-  const [selectedComplementos, setSelectedComplementos] = useState<{ [key: string]: number }>({});
-  const [selectedAdicionais, setSelectedAdicionais] = useState<{ [key: string]: number }>({});
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [showExtras, setShowExtras] = useState(false);
-
+  const [toppings, setToppings] = useState<Toppings[]>([]);
+    const [additionals, setAdditionals] = useState<Additionals[]>([]);
+    const [selectedToppings, setSelectedToppings] = useState<{ [key: string]: number }>({});
+    const [selectedAdditionals, setSelectedAdditionals] = useState<{ [key: string]: number }>({});
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [showExtras, setShowExtras] = useState(false);
+    
   useEffect(() => {
     if (!id || !token) return;
 
@@ -75,19 +77,20 @@ const MenuEditForm = () => {
           category: data.category || "",
           description: data.description || "",
           imageUrl: data.imageUrl || "",
-          max_toppings: data.max_toppings ?? 0,
-          toppings: data.toppings || [],
+           toppings: data.toppings || [],
+          max_toppings: data.max_toppings ?? 0,          
           additionals: data.additionals || [],
+          max_additionals: data.max_additionals ?? 0,
         });
 
-        setSelectedComplementos(
+        setSelectedToppings(
           (data.toppings || []).reduce((acc, compId) => {
             acc[compId] = 1;
             return acc;
           }, {} as { [key: string]: number })
         );
 
-        setSelectedAdicionais(
+        setSelectedAdditionals(
           (data.additionals || []).reduce((acc, addId) => {
             acc[addId] = 1;
             return acc;
@@ -108,8 +111,8 @@ const MenuEditForm = () => {
         const compRes = await apiFetch("/retrieve-toppings", token, { method: "GET" });
         const addRes = await apiFetch("/retrieve-additionals", token, { method: "GET" });
 
-        if (compRes.ok) setComplementos(await compRes.json());
-        if (addRes.ok) setAdicionais(await addRes.json());
+        if (compRes.ok) setToppings(await compRes.json());
+        if (addRes.ok) setAdditionals(await addRes.json());
       } catch (err) {
         console.error("Erro ao buscar complementos/adicionais:", err);
       }
@@ -151,8 +154,8 @@ const MenuEditForm = () => {
       const updatedData: MenuItem = {
         ...formData,
         imageUrl,
-        toppings: Object.keys(selectedComplementos),
-        additionals: Object.keys(selectedAdicionais),
+        toppings: Object.keys(selectedToppings),
+        additionals: Object.keys(selectedAdditionals),
       };
 
       const response = await apiFetch("/edit-menu-item", token, {
@@ -163,7 +166,9 @@ const MenuEditForm = () => {
         body: JSON.stringify(updatedData),
       });
 
-      if (!response.ok) throw new Error("Erro ao salvar alterações.");
+      if (!response.ok) {
+        console.error(response);
+      }
 
       navigate("/menu");
     } catch (err) {
@@ -277,7 +282,7 @@ const MenuEditForm = () => {
             checked={showExtras}
             onChange={(e) => setShowExtras(e.target.checked)}
           />
-          <span>Adicionar complementos e adicionais</span>
+          <span>Complementos e adicionais</span>
         </label>
 
         {showExtras && (
@@ -295,18 +300,26 @@ const MenuEditForm = () => {
               <AddonCheckboxGroup
                 title="Complementos"
                 addons={toppingsParaAddons}
-                selectedAddons={selectedComplementos}
-                setSelectedAddons={setSelectedComplementos}
+                selectedAddons={selectedToppings}
+                setSelectedAddons={setSelectedToppings}
               />
             </div>
 
             <div>
               <h3 className="text-lg font-semibold">Adicionais</h3>
+              <input
+                type="number"
+                name="max_additionals"
+                placeholder="Máximo de adicionais"
+                value={formData.max_additionals}
+                onChange={handleChange}
+                className="w-full p-2 border rounded mb-2"
+              />             
               <AddonCheckboxGroup
-                title="Adicionais"  // comentário aqui
+                title="Adicionais"  
                 addons={additionals}
-                selectedAddons={selectedAdicionais}
-                setSelectedAddons={setSelectedAdicionais}
+                selectedAddons={selectedAdditionals}
+                setSelectedAddons={setSelectedAdditionals}
               />
             </div>
           </>

@@ -3,7 +3,7 @@ import { apiFetch } from "../utils/apiHelper";
 import { useAuth } from "../utils/authContext";
 import React from "react";
 
-type Complemento = {
+type Toppings = {
     id: string;
     name: string;
     description?: string;
@@ -22,7 +22,7 @@ export default function ComplementosPage() {
         available: true,
     });
 
-    const [toppings, setComplementos] = useState<Complemento[]>([]);
+    const [toppings, setToppings] = useState<Toppings[]>([]);
     const [editId, setEditId] = useState<string | null>(null);
     const [message, setMessage] = useState("");
 
@@ -49,8 +49,8 @@ export default function ComplementosPage() {
             return;
         try {
             const response = await apiFetch("/retrieve-toppings", token);
-            const data: Complemento[] = await response.json();
-            setComplementos(data);
+            const data: Toppings[] = await response.json();
+            setToppings(data);
         } catch (error) {
             console.error("Erro ao buscar Complementos:", error);
         }
@@ -60,7 +60,7 @@ export default function ComplementosPage() {
         fetchComplemntos();
     }, [token]);
 
-    const createComplemento = async (item: Omit<Complemento, "id">) => {
+    const createComplemento = async (item: Omit<Toppings, "id">) => {
         if (!token)
             return;
         try {
@@ -78,7 +78,7 @@ export default function ComplementosPage() {
         }
     };
 
-    const updateComplemento = async (item: Complemento) => {
+    const updateComplemento = async (item: Toppings) => {
         if (!token) return;
         try {
             const response = await apiFetch("/edit-topping/", token, {
@@ -111,7 +111,7 @@ export default function ComplementosPage() {
         }
     };
 
-    const handleEdit = (item: Complemento) => {
+    const handleEdit = (item: Toppings) => {
         setForm({
             name: item.name,
             description: item.description || "",
@@ -136,7 +136,7 @@ export default function ComplementosPage() {
             available: form.available,
         };
         if (editId) {
-            const updatedItem: Complemento = {
+            const updatedItem: Toppings = {
                 ...newItem,
                 id: editId,
             };
@@ -205,13 +205,13 @@ export default function ComplementosPage() {
                                         const isChecked = e.target.checked;
                                         const previousItem = { ...item };
                                         const updatedItem = { ...item, available: isChecked };
-                                        setComplementos((prev) =>
+                                        setToppings((prev) =>
                                             prev.map((i) => (i.id === updatedItem.id ? updatedItem : i)));
                                         try {
                                             await updateComplemento(updatedItem);
                                         } catch (error) {
                                             console.error("Erro ao atualizar adicional:", error);
-                                            setComplementos((prev) =>
+                                            setToppings((prev) =>
                                                 prev.map((i) => (i.id === previousItem.id ? previousItem : i)));
                                         }
                                     }}
