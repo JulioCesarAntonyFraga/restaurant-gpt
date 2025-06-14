@@ -3,7 +3,7 @@ import { apiFetch } from "../utils/apiHelper";
 import { useAuth } from "../utils/authContext";
 import React from "react";
 
-type Adicional = {
+type Additionals = {
   id: string;
   name: string;
   price: number;
@@ -25,7 +25,7 @@ export default function AdicionaisPage() {
     available: true,
   });
 
-  const [additionals, setAdicionais] = useState<Adicional[]>([]);
+  const [additionals, setAdicionais] = useState<Additionals[]>([]);
   const [editId, setEditId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
 
@@ -53,7 +53,7 @@ export default function AdicionaisPage() {
     try {
 
       const response = await apiFetch("/retrieve-additionals", token);
-      const data: Adicional[] = await response.json();
+      const data: Additionals[] = await response.json();
       setAdicionais(data);
     } catch (error) {
       console.error("Erro ao buscar adicionais:", error);
@@ -64,7 +64,7 @@ export default function AdicionaisPage() {
     fetchAdicionais();
   }, [token]);
 
-  const createAdicional = async (item: Omit<Adicional, "id">) => {
+  const createAdicional = async (item: Omit<Additionals, "id">) => {
     if (!token)
       return;
     try {
@@ -82,7 +82,7 @@ export default function AdicionaisPage() {
     }
   };
 
-  const updateAdicional = async (item: Adicional) => {
+  const updateAdicional = async (item: Additionals) => {
     if (!token) return;
 
     try {
@@ -120,7 +120,7 @@ export default function AdicionaisPage() {
     }
   };
 
-  const handleEdit = (item: Adicional) => {
+  const handleEdit = (item: Additionals) => {
     setForm({
       name: item.name,
       price: item.price.toString(),
@@ -149,7 +149,7 @@ export default function AdicionaisPage() {
     };
 
     if (editId) {
-      const updatedItem: Adicional = {
+      const updatedItem: Additionals = {
         ...newItem,
         id: editId,
       };

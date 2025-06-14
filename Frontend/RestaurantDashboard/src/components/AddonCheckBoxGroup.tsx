@@ -28,15 +28,15 @@ const AddonCheckboxGroup: React.FC<Props> = ({
         <div key={item.id} className="flex items-center space-x-2 mb-2">
           <input
             type="checkbox"
-            checked={item.name in selectedAddons}
+            checked={item.id in selectedAddons}
             onChange={(e) => {
               const checked = e.target.checked;
               setSelectedAddons((prev) => {
                 const newState = { ...prev };
                 if (checked) {
-                  newState[item.name] = 0;
+                  newState[item.id] = 0;
                 } else {
-                  delete newState[item.name];
+                  delete newState[item.id];
                 }
                 return newState;
               });
@@ -48,14 +48,14 @@ const AddonCheckboxGroup: React.FC<Props> = ({
               type="number"
               placeholder="Preço (R$)"
               className="w-24 p-1 border rounded"
-              value={selectedAddons[item.name] ?? ""}
+              value={selectedAddons[item.id] ?? ""}
               onChange={(e) =>
                 setSelectedAddons((prev) => ({
                   ...prev,
-                  [item.name]: parseFloat(e.target.value),
+                  [item.id]: parseFloat(e.target.value),
                 }))
               }
-              disabled={!Object.prototype.hasOwnProperty.call(selectedAddons, item.name)}
+              disabled={!Object.prototype.hasOwnProperty.call(selectedAddons, item.id)}
             />
           )}
         </div>

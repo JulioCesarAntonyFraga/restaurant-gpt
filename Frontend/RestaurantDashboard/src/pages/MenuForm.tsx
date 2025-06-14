@@ -4,7 +4,8 @@ import { useAuth } from "../utils/authContext";
 import { uploadImage } from "../utils/firebase";
 import AddonCheckboxGroup from "../components/AddonCheckBoxGroup";
 
-type Adicional = {
+
+type Additionals = {
   id: string;
   name: string;
   price: number;
@@ -12,7 +13,7 @@ type Adicional = {
   available: boolean;
 };
 
-type Complemento = {
+type Toppings = {
   id: string;
   name: string;
   available: boolean;
@@ -25,11 +26,13 @@ type MenuItem = {
   category: string;
   description?: string;
   imageUrl?: string;
+  toppings: string[];
   max_toppings?: number;
-
+  additionals: string[];
+  max_additionals?: number;
 };
 
-const MenuForm = () => {
+const MenuForm: React.FC = () => {
   const { token } = useAuth();
 
   const [formData, setFormData] = useState<MenuItem>({
@@ -39,60 +42,58 @@ const MenuForm = () => {
     category: "",
     description: "",
     imageUrl: "",
+    toppings: [],
     max_toppings: 0,
-
+    additionals: [],
+    max_additionals: 0,
   });
 
-  const [toppings, setComplementos] = useState<Complemento[]>([]);
-  const [additionals, setAdicionais] = useState<Adicional[]>([]);
-
-  const [selectedComplementos, setSelectedComplementos] = useState<{ [key: string]: number }>({});
-  const [selectedAdicionais, setSelectedAdicionais] = useState<{ [key: string]: number }>({});
+  const [toppings, setToppings] = useState<Toppings[]>([]);
+  const [additionals, setAdditionals] = useState<Additionals[]>([]);
+  const [selectedToppings, setSelectedToppings] = useState<{ [key: string]: number }>({});
+  const [selectedAdditionals, setSelectedAdditionals] = useState<{ [key: string]: number }>({});
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [showExtras, setShowExtras] = useState(false);
   const [responseMsg, setResponseMsg] = useState("");
 
   useEffect(() => {
-    console.log("Enviando formData:", { ...formData, toppings: Object.keys(selectedComplementos), adicionais: Object.keys(selectedAdicionais) });
+    if (!token) return;
 
-    const fetchComplementos = async () => {
-      if (!token) return;
+    const fetchToppings = async () => {
       try {
         const response = await apiFetch("/retrieve-toppings", token);
-        const data: Complemento[] = await response.json();
-        setComplementos(data.filter(c => c.available));
+        const data: Toppings[] = await response.json();
+        setToppings(data.filter(c => c.available));
       } catch (error) {
         console.error("Erro ao buscar complementos:", error);
       }
     };
 
-    const fetchAdicionais = async () => {
-      if (!token) return;
+    const fetchAdditionals = async () => {
       try {
         const response = await apiFetch("/retrieve-additionals", token);
-        const data: Adicional[] = await response.json();
-        setAdicionais(data.filter(item => item.available));
+        const data: Additionals[] = await response.json();
+        setAdditionals(data.filter(item => item.available));
       } catch (error) {
         console.error("Erro ao buscar adicionais:", error);
       }
     };
 
-    fetchComplementos();
-    fetchAdicionais();
+    fetchToppings();
+    fetchAdditionals();
   }, [token]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value, type } = e.target;
-
     let val: string | boolean | number = value;
 
     if (type === "checkbox") {
       val = (e.target as HTMLInputElement).checked;
-    } else if (name === "max_toppings" || name === "price") {
-      const parsed = parseInt(value, 10);
+    } else if (name === "max_toppings" || name === "max_additionals" || name === "price") {
+      const parsed = parseFloat(value);
       val = isNaN(parsed) ? 0 : parsed;
     }
 
@@ -102,13 +103,17 @@ const MenuForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    try {
+    try { console.log(JSON.stringify({
+          ...formData,
+          toppings: Object.keys(selectedToppings),
+          additionals: Object.keys(selectedAdditionals)
+        }));
       const res = await apiFetch(`/add-menu-item`, token ?? "", {
         method: "POST",
         body: JSON.stringify({
           ...formData,
-          toppings: Object.keys(selectedComplementos),
-          adicionais: Object.keys(selectedAdicionais),
+          toppings: Object.keys(selectedToppings),
+          additionals: Object.keys(selectedAdditionals),
         }),
       });
 
@@ -134,10 +139,15 @@ const MenuForm = () => {
           category: "",
           description: "",
           imageUrl: "",
+          toppings: [],
           max_toppings: 0,
-
+          additionals: [],
+          max_additionals: 0,
         });
+        setImageFile(null);
         setImagePreview(null);
+        setSelectedToppings({});
+        setSelectedAdditionals({});
       } else {
         setResponseMsg(data || "Erro ao adicionar item.");
       }
@@ -145,15 +155,7 @@ const MenuForm = () => {
       console.error(err);
       setResponseMsg("Erro de conexão com o servidor.");
     }
-  };
-
-  const handleAdicionalCheckbox = (id: string) => {
-    setSelectedAdicionais((prev) =>
-      id in prev
-        ? Object.fromEntries(Object.entries(prev).filter(([key]) => key !== id))
-        : { ...prev, [id]: 1 }
-    );
-  };
+  };  
 
   return (
     <div className="p-6 max-w-xl mx-auto bg-white rounded-xl shadow-md space-y-4">
@@ -219,32 +221,29 @@ const MenuForm = () => {
               <AddonCheckboxGroup
                 title=""
                 addons={toppings}
-                selectedAddons={selectedComplementos}
-                setSelectedAddons={setSelectedComplementos}
+                selectedAddons={selectedToppings}
+                setSelectedAddons={setSelectedToppings}
               />
             </div>
 
             {/* Adicionais */}
             <div>
-              <h3 className="text-lg font-semibold">Adicionais disponíveis</h3>
-              <ul className="space-y-2">
-                {additionals.map((adicional) => (
-                  <li key={adicional.id} className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      id={`adicional-${adicional.id}`}
-                      checked={adicional.id in selectedAdicionais}
-                      onChange={() => handleAdicionalCheckbox(adicional.id)}
-                    />
-                    <label htmlFor={`adicional-${adicional.id}`}>
-                      {adicional.name} - R$ {adicional.price.toFixed(2)}
-                      {adicional.description && (
-                        <span className="text-sm text-gray-600"> ({adicional.description})</span>
-                      )}
-                    </label>
-                  </li>
-                ))}
-              </ul>
+              <h3 className="text-lg font-semibold">Adicionais</h3>
+              <input
+                type="number"
+                name="max_additionals"
+                placeholder="Máximo de adicionais"
+                value={formData.max_additionals}
+                onChange={handleChange}
+                className="w-full p-2 border rounded mb-2"
+              />
+              <AddonCheckboxGroup
+                title=""
+                addons={additionals}
+                selectedAddons={selectedAdditionals}
+                setSelectedAddons={setSelectedAdditionals}
+              />
+              
             </div>
           </>
         )}
