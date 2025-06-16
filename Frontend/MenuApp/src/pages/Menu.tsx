@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import MenuItem, { Additional, Topping } from "../components/MenuItem";
+import MenuItem, { Additionals, Toppings } from "../components/MenuItem";
 
 type MenuItemType = {
   id: string;
@@ -9,9 +9,10 @@ type MenuItemType = {
   category: string;
   description?: string;
   imageUrl?: string;
-  maxComplementos: number;
-  complementos: Topping[];
-  adicionais: Additional[];
+  toppings: Toppings[];
+  max_toppings: number;  
+  additionals: Additionals[];
+  max_additionals: number;
 };
 
 async function fetchMenuItems(): Promise<MenuItemType[]> {
@@ -25,7 +26,7 @@ async function fetchMenuItems(): Promise<MenuItemType[]> {
   });
   if (!res.ok) {
     throw new Error("Failed to fetch orders");
-  }
+  } 
 
   return res.json();
 }
@@ -37,9 +38,10 @@ const Menu = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+
     const getItems = async () => {
       try {
-        const data = await fetchMenuItems();
+        const data = await fetchMenuItems();       
         setMenuItems(data);
       } catch (error) {
         console.error("Erro ao buscar itens do menu:", error);
@@ -108,9 +110,10 @@ const Menu = () => {
             category={item.category}
             description={item.description}
             imageUrl={item.imageUrl}
-            maxComplementos={item.maxComplementos}
-            toppings={item.complementos}
-            additionals={item.adicionais}
+            max_toppings={item.max_toppings}
+            toppings={item.toppings}
+            additionals={item.additionals}
+            max_additionals={item.max_additionals}
           />
         ))}
       </div>
