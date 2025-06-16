@@ -34,8 +34,16 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         
         if "max_toppings" not in menu_item:
             return func.HttpResponse("'max_toppings' is required when 'toppings' is provided", status_code=400)
+        
+        max_toppings = menu_item["max_toppings"]
+        if isinstance(max_toppings, str):
+            if max_toppings.isdigit():
+                menu_item["max_toppings"] = int(max_toppings)
+            else:
+                return func.HttpResponse("'max_toppings' must be an integer", status_code=400)
+        elif not isinstance(max_toppings, int):
+            return func.HttpResponse("'max_toppings' must be an integer", status_code=400)
 
-        # Valida se os toppings existem no banco
         valid_toppings_ids = {t["id"] for t in get_toppings()}
         for topping_id in toppings:
             if topping_id not in valid_toppings_ids:
@@ -49,11 +57,20 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         if "max_additionals" not in menu_item:
             return func.HttpResponse("'max_additionals' is required when 'additionals' is provided", status_code=400)
 
-        # Valida se os additionals existem no banco
+        max_additionals = menu_item["max_additionals"]
+        if isinstance(max_additionals, str):
+            if max_additionals.isdigit():
+                menu_item["max_additionals"] = int(max_additionals)
+            else:
+                return func.HttpResponse("'max_additionals' must be an integer", status_code=400)
+        elif not isinstance(max_additionals, int):
+            return func.HttpResponse("'max_additionals' must be an integer", status_code=400)
+
         valid_additional_ids = {a["id"] for a in get_additionals()}
         for additional_id in additionals:
             if additional_id not in valid_additional_ids:
                 return func.HttpResponse(f"Invalid additional ID: {additional_id}", status_code=400)
+
 
     return func.HttpResponse(
         json.dumps(add_menu_item(menu_item)),
