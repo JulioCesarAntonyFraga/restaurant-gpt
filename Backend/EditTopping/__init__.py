@@ -29,6 +29,18 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     if not existing_doc.exists:
         return func.HttpResponse("topping not found", status_code=404)
 
+    # Validação dos campos inteiros
+    for field_name in ["max_toppings", "max_additionals"]:
+        if field_name in topping:
+            value = topping[field_name]
+            if isinstance(value, str):
+                if value.strip().isdigit():
+                    topping[field_name] = int(value.strip())
+                else:
+                    return func.HttpResponse(f"'{field_name}' must be an integer", status_code=400)
+            elif not isinstance(value, int):
+                return func.HttpResponse(f"'{field_name}' must be an integer", status_code=400)
+
     existing_data = existing_doc.to_dict()
     updates = {}
 
