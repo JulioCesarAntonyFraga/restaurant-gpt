@@ -9,12 +9,14 @@ export type MenuItemProps = {
   category: string;
   description?: string;
   imageUrl?: string;
-  maxComplementos?: number;
-  toppings: Topping[];
-  additionals: Additional[];
+  toppings: Toppings[];
+  max_toppings?: number;
+  additionals: Additionals[];
+  max_additionals?: number;
 };
 
-export type Topping = {
+export type Toppings = {
+  id: string;
   name: string;
   available: boolean;
   description?: string;
@@ -23,10 +25,12 @@ export type Topping = {
 export type ComplementGroup = {
   name: string;
   max: number;
-  toppings: Topping[];
+  toppings: Toppings[];
+
 };
 
-export type Additional = {
+export type Additionals = {
+  id: string;
   name: string;
   price: number;
   available: boolean;
@@ -39,12 +43,12 @@ const MenuItem = ({
   price,
   description,
   imageUrl,
-  maxComplementos,
   toppings,
+  max_toppings,
   additionals,
+  max_additionals,
 }: MenuItemProps) => {
   const { addToCart } = useCart();
-
   const [showModal, setShowModal] = useState(false);
   const [observation, setObservation] = useState("");
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
@@ -65,14 +69,6 @@ const MenuItem = ({
       alreadySelected
         ? prev.filter((item) => item !== option)
         : [...prev, option]
-    );
-  };
-
-  const handleAdditionalChange = (name: string) => {
-    setSelectedAdditionals((prev) =>
-      prev.includes(name)
-        ? prev.filter((item) => item !== name)
-        : [...prev, name]
     );
   };
 
@@ -101,17 +97,26 @@ const MenuItem = ({
     setSelectedOptions([]);
     setSelectedAdditionals([]);
   };
-
   useEffect(() => {
     if (!showModal) return;
-    setComplementGroups([
-      {
-        name: "Complementos",
-        max: maxComplementos ?? 0,
-        toppings: toppings,
-      },
-    ]);
-  }, [showModal, maxComplementos]);
+
+    const groups: ComplementGroup[] = [];
+
+    groups.push({
+      name: "Complementos",
+      max: max_toppings ?? 0,
+      toppings: toppings ?? [],
+    });
+
+    groups.push({
+      name: "Adicionais",
+      max: max_additionals ?? 0,
+      toppings: additionals ?? [],
+    });
+   
+    setComplementGroups(groups);
+  }, [showModal, max_toppings, max_additionals, toppings, additionals]);
+
 
   return (
     <div className="bg-white shadow rounded-lg p-4 flex flex-col relative">
@@ -141,7 +146,7 @@ const MenuItem = ({
                   Escolha até {group.max} complemento{group.max > 1 ? "s" : ""}
                 </p>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {group.toppings.map((option) => {
+                  {group.toppings.map((option, index) => {
                     const isSelected = selectedOptions.includes(option.name);
                     const selectedInGroup = group.toppings.filter((opt) =>
                       selectedOptions.includes(opt.name)
@@ -150,7 +155,7 @@ const MenuItem = ({
 
                     return (
                       <label
-                        key={option.name}
+                        key={index}
                         className={`flex items-center gap-2 p-2 border rounded-md hover:bg-gray-100 text-sm 
                           ${!canSelectMore && !isSelected ? "opacity-50 cursor-not-allowed" : ""}`}
                       >
@@ -168,24 +173,7 @@ const MenuItem = ({
               </div>
             ))}
 
-            <h3 className="text-xl font-bold mb-4 text-gray-800">Adicionais</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-              {additionals.map((item) => (
-                <label
-                  key={item.name}
-                  className="flex items-center gap-2 p-2 border rounded-md hover:bg-gray-100 text-sm"
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedAdditionals.includes(item.name)}
-                    onChange={() => handleAdditionalChange(item.name)}
-                  />
-                  <span>
-                    {item.name} (R$ {item.price.toFixed(2)})
-                  </span>
-                </label>
-              ))}
-            </div>
+
 
             <textarea
               value={observation}

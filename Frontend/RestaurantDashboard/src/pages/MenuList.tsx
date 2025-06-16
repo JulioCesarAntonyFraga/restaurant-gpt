@@ -14,6 +14,7 @@ type MenuItem = {
   category: string;
   description?: string;
   max_toppings?: number;
+  max_additionals?: number;
 };
 
 
@@ -171,6 +172,12 @@ const MenuList = () => {
                 {typeof item.max_toppings === "number" && (
                   <p className="text-gray-700 text-sm mb-1">
                     Máximo de  complementos: {item.max_toppings}
+                  </p>
+                )}
+
+                {typeof item.max_toppings === "number" && (
+                  <p className="text-gray-700 text-sm mb-1">
+                    Máximo de  adicionais: {item.max_additionals}
                   </p>
                 )}
 
