@@ -2,6 +2,7 @@ import azure.functions as func
 import json
 from firebase_admin import firestore
 from utils.storage import save_order, get_menu, get_toppings, get_additionals
+from mercadopago import SDK
 
 db = firestore.client()
 
@@ -17,6 +18,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         data = req.get_json()
     except:
         return func.HttpResponse("Invalid JSON", status_code=400)
+
+    sdk = SDK("YOUR_ACCESS_TOKEN")
 
     # Campos obrigatórios
     required_fields = ["phone_number", "items", "name", "is_delivery", "payment_method"]
@@ -130,12 +133,39 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         })
 
     try:
-        save_order(**order_data)
+        order = save_order(**order_data)
+
+        preference_data = {
+            "items": [
+                {
+                    "title": "Pedido de João",
+                    "quantity": 1,
+                    "currency_id": "BRL",
+                    "unit_price": total  # já calculado
+                }
+            ],
+            "notification_url": "https://<sua-funcao-azure>.azurewebsites.net/api/payment-webhook",
+            "external_reference": order.get("id", ""),  # precisa retornar esse ID de save_order()
+            "payer": {
+                "name": data["name"],
+                "email": "fake@example.com"  # ou algo fixo se não tiver email
+            }
+        }
+
+        preference_response = sdk.preference().create(preference_data)
+        preference = preference_response["response"]
+
+        return func.HttpResponse(
+            json.dumps({
+                "success": True,
+                "message": "Pedido registrado com sucesso!",
+                "payment_url": preference["init_point"],
+                "order_id": order.get("id", ""),
+            }),
+            status_code=201,
+            mimetype="application/json"
+        )
     except Exception as e:
         return func.HttpResponse(f"Erro ao salvar pedido: {str(e)}", status_code=500)
 
-    return func.HttpResponse(
-        json.dumps({"success": True, "message": "Pedido registrado com sucesso!"}),
-        status_code=201,
-        mimetype="application/json"
-    )
+
