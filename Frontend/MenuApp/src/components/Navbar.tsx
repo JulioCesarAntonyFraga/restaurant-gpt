@@ -6,7 +6,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <header className="fixed top-0 left-0 w-full z-50 bg-gradient-to-br from-[#4338db] to-blue-100 shadow-md">
+    <header className="fixed top-0 left-0 w-full z-50 bg-blue-500 to-blue-100 shadow-md">
   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div className="flex justify-between items-center h-16">
       <Link to="/" className="text-white font-bold text-2xl">
