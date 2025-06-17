@@ -125,7 +125,7 @@ function FinalizarPedido() {
 
   return (
     <div className="flex flex-col min-h-screen">      
-      <div className="flex-grow px-4 pt-20 pb-32">
+      <div className="flex-grow px-4 pt-30 pb-32">
         <div className="max-w-md mx-auto p-6 border border-gray-300 rounded-lg font-sans bg-white">
           <h2 className="text-2xl font-semibold mb-6 text-center">Finalizar Pedido</h2>          
           <div className='mb-6'>
