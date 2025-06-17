@@ -120,19 +120,19 @@ const MenuForm: React.FC = () => {
 
         if (imageFile) {
           imageUrl = await uploadImage(imageFile, data.id);
+
+          await apiFetch(`/edit-menu-item`, token ?? "", {
+            method: "PUT",
+            body: JSON.stringify({ 
+              ...formData, 
+              imageUrl, 
+              id: data.id, 
+              toppings: Object.keys(selectedToppings), 
+              additionals: Object.keys(selectedAdditionals) 
+            }),
+          });
         }
-
-        await apiFetch(`/edit-menu-item`, token ?? "", {
-          method: "PUT",
-          body: JSON.stringify({ 
-            ...formData, 
-            imageUrl, 
-            id: data.id, 
-            toppings: Object.keys(selectedToppings), 
-            additionals: Object.keys(selectedAdditionals) 
-          }),
-        });
-
+        
         setResponseMsg("Item adicionado com sucesso!");
         setFormData({
           name: "",
