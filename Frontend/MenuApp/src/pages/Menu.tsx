@@ -101,7 +101,7 @@ const Menu = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-21 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredItems.map((item, index) => (
           <MenuItem
             id={item.id}

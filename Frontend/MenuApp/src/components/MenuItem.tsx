@@ -105,6 +105,7 @@ const MenuItem = ({
   };
 
   useEffect(() => {
+    
     if (!showModal) return;
 
     const groups: ComplementGroup[] = [];
