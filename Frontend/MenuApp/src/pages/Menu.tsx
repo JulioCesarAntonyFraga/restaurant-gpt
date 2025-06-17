@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import MenuItem, { Additionals, Toppings } from "../components/MenuItem";
+import Footer from "../components/Footer";
 
 type MenuItemType = {
   id: string;
@@ -10,7 +11,7 @@ type MenuItemType = {
   description?: string;
   imageUrl?: string;
   toppings: Toppings[];
-  max_toppings: number;  
+  max_toppings: number;
   additionals: Additionals[];
   max_additionals: number;
 };
@@ -26,7 +27,7 @@ async function fetchMenuItems(): Promise<MenuItemType[]> {
   });
   if (!res.ok) {
     throw new Error("Failed to fetch orders");
-  } 
+  }
 
   return res.json();
 }
@@ -41,7 +42,7 @@ const Menu = () => {
 
     const getItems = async () => {
       try {
-        const data = await fetchMenuItems();       
+        const data = await fetchMenuItems();
         setMenuItems(data);
       } catch (error) {
         console.error("Erro ao buscar itens do menu:", error);
@@ -67,7 +68,8 @@ const Menu = () => {
     });
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-6">
+  <div className="flex flex-col min-h-screen">
+    <div className="flex-grow max-w-6xl mx-auto px-4 py-6 pt-20">
       <h1 className="text-2xl font-bold text-gray-800 mb-4">Cardápio</h1>
 
       <div className="flex flex-wrap gap-4 mb-6 items-center">
@@ -99,7 +101,7 @@ const Menu = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-21 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredItems.map((item, index) => (
           <MenuItem
             id={item.id}
@@ -118,7 +120,11 @@ const Menu = () => {
         ))}
       </div>
     </div>
-  );
-};
+
+    <Footer />
+  </div>
+);
+}
+
 
 export default Menu;
