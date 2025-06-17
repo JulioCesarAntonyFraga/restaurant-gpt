@@ -17,7 +17,6 @@ type MenuItem = {
   max_additionals?: number;
 };
 
-
 type AvailabilityFilter = "all" | "available" | "unavailable";
 type SortField = "name" | "price" | "category";
 
@@ -33,7 +32,7 @@ const MenuList = () => {
     if (!res.ok) {
       throw new Error("Failed to fetch orders");
     }
-    return res.json()
+    return res.json();
   }
 
   useEffect(() => {
@@ -46,18 +45,17 @@ const MenuList = () => {
       } finally {
         setLoading(false);
       }
-    }
+    };
     getItems();
   }, [token]);
 
-  const [availabilityFilter, setAvailabilityFilter] =
-    useState<AvailabilityFilter>("all");
+  const [availabilityFilter, setAvailabilityFilter] = useState<AvailabilityFilter>("all");
   const [sortBy, setSortBy] = useState<SortField>("name");
 
   const navigate = useNavigate();
 
   if (loading) {
-    return <p className="text-center mt-8">Carregando pedidos...</p>
+    return <p className="text-center mt-8">Carregando pedidos...</p>;
   }
 
   const toggleAvailability = (id: string) => {
@@ -67,9 +65,8 @@ const MenuList = () => {
 
       apiFetch(`/edit-menu-item`, token ?? "", {
         method: "PUT",
-        body: JSON.stringify(item)
+        body: JSON.stringify(item),
       }).then((res) => {
-        console.log("res", res);
         if (!res.ok) {
           alert("Erro ao atualizar a disponibilidade do item");
         } else {
@@ -171,13 +168,13 @@ const MenuList = () => {
 
                 {typeof item.max_toppings === "number" && (
                   <p className="text-gray-700 text-sm mb-1">
-                    Máximo de  complementos: {item.max_toppings}
+                    Máximo de complementos: {item.max_toppings}
                   </p>
                 )}
 
-                {typeof item.max_toppings === "number" && (
+                {typeof item.max_additionals === "number" && (
                   <p className="text-gray-700 text-sm mb-1">
-                    Máximo de  adicionais: {item.max_additionals}
+                    Máximo de adicionais: {item.max_additionals}
                   </p>
                 )}
 
@@ -186,12 +183,14 @@ const MenuList = () => {
                   <Switch
                     checked={item.available}
                     onChange={() => toggleAvailability(item.id)}
-                    className={`${item.available ? "bg-green-500" : "bg-gray-300"
-                      } relative inline-flex h-6 w-11 items-center rounded-full transition-colors`}
+                    className={`${
+                      item.available ? "bg-green-500" : "bg-gray-300"
+                    } relative inline-flex h-6 w-11 items-center rounded-full transition-colors`}
                   >
                     <span
-                      className={`${item.available ? "translate-x-6" : "translate-x-1"
-                        } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+                      className={`${
+                        item.available ? "translate-x-6" : "translate-x-1"
+                      } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
                     />
                   </Switch>
                 </div>
@@ -206,7 +205,6 @@ const MenuList = () => {
                   Editar
                 </button>
 
-                {/* Botão de Remover */}
                 <button
                   className="flex items-center gap-1 text-sm bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"
                   onClick={() => removeMenuItem(item.id)}
