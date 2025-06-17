@@ -28,9 +28,9 @@ type MenuItem = {
   description?: string;
   imageUrl?: string;
   toppings?: string[];
-  max_toppings?: number;  
+  max_toppings?: number;
   additionals?: string[];
-  max_additionals: 0;
+  max_additionals?: number;
 };
 
 const MenuEditForm = () => {
@@ -46,20 +46,20 @@ const MenuEditForm = () => {
     category: "",
     description: "",
     imageUrl: "",
-     toppings: [],
-    max_toppings: 0,    
+    toppings: [],
+    max_toppings: 0,
     additionals: [],
     max_additionals: 0,
   });
 
   const [toppings, setToppings] = useState<Toppings[]>([]);
-    const [additionals, setAdditionals] = useState<Additionals[]>([]);
-    const [selectedToppings, setSelectedToppings] = useState<{ [key: string]: number }>({});
-    const [selectedAdditionals, setSelectedAdditionals] = useState<{ [key: string]: number }>({});
-    const [imageFile, setImageFile] = useState<File | null>(null);
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
-    const [showExtras, setShowExtras] = useState(false);
-    
+  const [additionals, setAdditionals] = useState<Additionals[]>([]);
+  const [selectedToppings, setSelectedToppings] = useState<{ [key: string]: number }>({});
+  const [selectedAdditionals, setSelectedAdditionals] = useState<{ [key: string]: number }>({});
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [showExtras, setShowExtras] = useState(false);
+
   useEffect(() => {
     if (!id || !token) return;
 
@@ -67,7 +67,11 @@ const MenuEditForm = () => {
       try {
         const res = await apiFetch(`/get-menu-item/${id}`, token, { method: "GET" });
         if (!res.ok) throw new Error("Erro ao buscar item do menu");
-        const data: MenuItem = await res.json();
+
+        const data = (await res.json()) as Omit<MenuItem, "toppings" | "additionals"> & {
+          toppings: Toppings[];
+          additionals: Additionals[];
+        };
 
         setFormData({
           id,
@@ -77,22 +81,22 @@ const MenuEditForm = () => {
           category: data.category || "",
           description: data.description || "",
           imageUrl: data.imageUrl || "",
-           toppings: data.toppings || [],
-          max_toppings: data.max_toppings ?? 0,          
-          additionals: data.additionals || [],
+          toppings: (data.toppings || []).map(t => t.id),
+          max_toppings: data.max_toppings ?? 0,
+          additionals: (data.additionals || []).map(a => a.id),
           max_additionals: data.max_additionals ?? 0,
         });
 
         setSelectedToppings(
-          (data.toppings || []).reduce((acc, compId) => {
-            acc[compId] = 1;
+          (data.toppings || []).reduce((acc, comp) => {
+            acc[comp.id] = 1;
             return acc;
           }, {} as { [key: string]: number })
         );
 
         setSelectedAdditionals(
-          (data.additionals || []).reduce((acc, addId) => {
-            acc[addId] = 1;
+          (data.additionals || []).reduce((acc, add) => {
+            acc[add.id] = 1;
             return acc;
           }, {} as { [key: string]: number })
         );
@@ -129,7 +133,7 @@ const MenuEditForm = () => {
     const newValue =
       type === "checkbox"
         ? (e.target as HTMLInputElement).checked
-        : ["price", "max_toppings"].includes(name)
+        : ["price", "max_toppings", "max_additionals"].includes(name)
           ? parseFloat(value) || 0
           : value;
 
@@ -149,13 +153,19 @@ const MenuEditForm = () => {
       if (imageFile) {
         imageUrl = await uploadImage(imageFile, id);
       }
-      console.log(formData)
 
-      const updatedData: MenuItem = {
-        ...formData,
+      const updatedData = {
+        id: formData.id,
+        name: formData.name,
+        price: formData.price,
+        available: formData.available,
+        category: formData.category,
+        description: formData.description,
         imageUrl,
         toppings: Object.keys(selectedToppings),
         additionals: Object.keys(selectedAdditionals),
+        max_toppings: formData.max_toppings ?? 0,
+        max_additionals: formData.max_additionals ?? 0,
       };
 
       const response = await apiFetch("/edit-menu-item", token, {
@@ -179,13 +189,13 @@ const MenuEditForm = () => {
 
   const toppingsParaAddons: Addon[] = toppings.map(({ id, name, available }) => ({
     id,
-    name: name,
+    name,
     available,
   }));
 
-  additionals.map(({ id, name, price, description, available }) => ({
+  const additionalsParaAddons: Addon[] = additionals.map(({ id, name, price, description, available }) => ({
     id,
-    name: name,
+    name,
     price,
     description,
     available,
@@ -305,7 +315,7 @@ const MenuEditForm = () => {
               />
             </div>
 
-            <div>
+            <div className="mb-4">
               <h3 className="text-lg font-semibold">Adicionais</h3>
               <input
                 type="number"
@@ -314,16 +324,18 @@ const MenuEditForm = () => {
                 value={formData.max_additionals}
                 onChange={handleChange}
                 className="w-full p-2 border rounded mb-2"
-              />             
+              />
               <AddonCheckboxGroup
-                title="Adicionais"  
-                addons={additionals}
+                title="Adicionais"
+                addons={additionalsParaAddons}
                 selectedAddons={selectedAdditionals}
                 setSelectedAddons={setSelectedAdditionals}
               />
             </div>
           </>
-        )}        <button
+        )}
+
+        <button
           type="submit"
           className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded"
         >
