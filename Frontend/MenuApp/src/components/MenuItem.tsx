@@ -154,8 +154,8 @@ const MenuItem = ({
       </button>
 
       {showModal && (
-        <div className="fixed top-16 left-0 right-0 bottom-0 z-40 flex items-center justify-center bg-transparent bg-opacity-40">
-          <div className="bg-white rounded-lg p-6 w-full max-w-3xl max-h-[calc(100vh-64px)] overflow-y-auto shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-xl">
             {/* Título e Preço Total */}
             <div className="mb-4 flex justify-between items-center">
               <h2 className="text-xl font-bold">{name}</h2>
