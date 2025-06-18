@@ -21,15 +21,15 @@ type Toppings = {
 
 type MenuItem = {
   name: string;
-  price: number;
+  price: string | number;
   available: boolean;
   category: string;
   description?: string;
   imageUrl?: string;
   toppings: string[];
-  max_toppings?: number;
+  max_toppings?: string |number;
   additionals: string[];
-  max_additionals?: number;
+  max_additionals?: string |number;
 };
 
 const MenuForm: React.FC = () => {
@@ -37,15 +37,15 @@ const MenuForm: React.FC = () => {
 
   const [formData, setFormData] = useState<MenuItem>({
     name: "",
-    price: 0,
+    price: "",
     available: true,
     category: "",
     description: "",
     imageUrl: "",
     toppings: [],
-    max_toppings: 0,
+    max_toppings: "",
     additionals: [],
-    max_additionals: 0,
+    max_additionals: "",
   });
 
   const [toppings, setToppings] = useState<Toppings[]>([]);
@@ -93,8 +93,9 @@ const MenuForm: React.FC = () => {
     if (type === "checkbox") {
       val = (e.target as HTMLInputElement).checked;
     } else if (name === "max_toppings" || name === "max_additionals" || name === "price") {
-      const parsed = parseFloat(value);
+      const parsed = parseInt(value, 10);
       val = isNaN(parsed) ? 0 : parsed;
+      val = value === "" ? "" : parseFloat(value);
     }
 
     setFormData((prev) => ({ ...prev, [name]: val }));
@@ -134,9 +135,13 @@ const MenuForm: React.FC = () => {
         }
         
         setResponseMsg("Item adicionado com sucesso!");
+        setTimeout(() =>{
+          setResponseMsg("");
+        }, 3000);
+
         setFormData({
           name: "",
-          price: 0,
+          price: "",
           available: true,
           category: "",
           description: "",
