@@ -166,6 +166,9 @@ def save_order(
 
     order_number = get_last_order_number() + 1 if get_last_order_number() else 1
 
+    order_ref = db.collection("orders").document()
+    order_id = order_ref.id
+
     order_data = {
         "id": order_id,
         "order_number": order_number,
@@ -202,9 +205,6 @@ def save_order(
         items_data.append(item_data)
 
     order_data["items"] = items_data
-
-    order_ref = db.collection("orders").document()
-    order_id = order_ref.id
 
     # Salvar com ID fixo
     db.collection("orders").document(order_id).set(order_data)
@@ -291,6 +291,7 @@ def get_previous_status(current_status: str) -> str:
 
 def get_next_status(current_status: str) -> str:
     status_order = [
+        "Pending",
         "In Progress",
         "On the Way to the customer",
         "Ready to take away",

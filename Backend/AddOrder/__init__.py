@@ -1,8 +1,10 @@
+import logging
 import azure.functions as func
 import json
 from firebase_admin import firestore
 from utils.storage import save_order, get_menu, get_toppings, get_additionals
 from mercadopago import SDK
+import os
 
 db = firestore.client()
 
@@ -19,7 +21,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     except:
         return func.HttpResponse("Invalid JSON", status_code=400)
 
-    sdk = SDK("YOUR_ACCESS_TOKEN")
+    sdk = SDK(os.environ.get("MP_ACCESS_TOKEN"))
 
     # Campos obrigatórios
     required_fields = ["phone_number", "items", "name", "is_delivery", "payment_method"]
@@ -132,40 +134,82 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             "cidade": data["cidade"]
         })
 
-    try:
-        order = save_order(**order_data)
+        try:
+            if data["payment_method"] in ["credit_card", "debit_card", "pix"]:
+                order_data["status"] = "Pending"
 
-        preference_data = {
-            "items": [
-                {
-                    "title": "Pedido de João",
-                    "quantity": 1,
-                    "currency_id": "BRL",
-                    "unit_price": total  # já calculado
+            order = save_order(**order_data)
+
+            # Verifica se é pagamento online (usa Mercado Pago)
+            if data["payment_method"] in ["credit_card", "debit_card", "pix"]:
+                preference_data = {
+                    "items": [
+                        {
+                            "title": item["name"],
+                            "quantity": item["amount"],
+                            "currency_id": "BRL",
+                            "unit_price": round(item["price"] + sum(add["price"] for add in item["additionals"]), 2)
+                        }
+                        for item in processed_items
+                    ],
+                    "notification_url": f"https://restaurant-gpt.azurewebsites.net/api/advance-order-status/{order.get('id', '')}",
+                    "external_reference": order.get("id", ""),
+                    "payer": {
+                        "name": data["name"],
+                        "email": data.get("email", "fake@example.com"),  # Caso queira pegar email real do cliente no futuro
+                    },
+                    "back_urls": {
+                        "success": "https://seuapp.com/pedido-sucesso",
+                        "failure": "https://seuapp.com/pedido-falhou",
+                        "pending": "https://seuapp.com/pedido-pendente"
+                    },
+                    "auto_return": "approved"
                 }
-            ],
-            "notification_url": "https://<sua-funcao-azure>.azurewebsites.net/api/payment-webhook",
-            "external_reference": order.get("id", ""),  # precisa retornar esse ID de save_order()
-            "payer": {
-                "name": data["name"],
-                "email": "fake@example.com"  # ou algo fixo se não tiver email
-            }
-        }
 
-        preference_response = sdk.preference().create(preference_data)
-        preference = preference_response["response"]
 
-        return func.HttpResponse(
-            json.dumps({
-                "success": True,
-                "message": "Pedido registrado com sucesso!",
-                "payment_url": preference["init_point"],
-                "order_id": order.get("id", ""),
-            }),
-            status_code=201,
-            mimetype="application/json"
-        )
-    except Exception as e:
-        return func.HttpResponse(f"Erro ao salvar pedido: {str(e)}", status_code=500)
+                preference_response = sdk.preference().create(preference_data)
+
+                # Verifica e loga erro do SDK
+                if preference_response["status"] >= 400:
+                    logging.error("Erro ao criar preferência no Mercado Pago:")
+                    logging.error(json.dumps(preference_response, indent=2))
+                    return func.HttpResponse(
+                        json.dumps({
+                            "success": False,
+                            "message": "Erro ao criar preferência de pagamento.",
+                            "details": preference_response["response"]
+                        }),
+                        status_code=500,
+                        mimetype="application/json"
+                    )
+
+                preference = preference_response["response"]
+                payment_url = preference.get("init_point") or preference.get("sandbox_init_point")
+            else:
+                # Pagamento offline (ex: dinheiro) não precisa de link
+                payment_url = None
+
+            return func.HttpResponse(
+                json.dumps({
+                    "success": True,
+                    "message": "Pedido registrado com sucesso!",
+                    "payment_url": payment_url,
+                    "order_id": order.get("id", ""),
+                }),
+                status_code=201,
+                mimetype="application/json"
+            )
+
+        except Exception as e:
+            logging.exception("Erro ao processar pedido:")
+            return func.HttpResponse(
+                json.dumps({
+                    "success": False,
+                    "message": f"Erro ao salvar pedido: {str(e)}"
+                }),
+                status_code=500,
+                mimetype="application/json"
+            )
+
 
 

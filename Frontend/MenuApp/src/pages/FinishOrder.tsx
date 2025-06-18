@@ -108,14 +108,26 @@ function FinishOrder() {
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok) throw new Error("Erro na requisição");
-
       const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        console.error("Erro na resposta do servidor:", data);
+        alert(data.message || "Erro ao finalizar o pedido. Tente novamente.");
+        return;
+      }
+
       console.log("Pedido finalizado com sucesso:", data);
       alert("Pedido enviado com sucesso!");
+
+      if (data.payment_url && form.payment_method !== "cash") {
+        window.location.href = data.payment_url;
+      } else {
+        clearCart();
+        navigate("/");
+      }
     } catch (error) {
       console.error("Erro ao enviar pedido:", error);
-      alert("Erro ao finalizar pedido");
+      alert("Erro ao finalizar o pedido. Tente novamente.");
     }
 
     clearCart();
