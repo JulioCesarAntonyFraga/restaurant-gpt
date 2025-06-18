@@ -52,11 +52,13 @@ const MenuItem = ({
   const [observation, setObservation] = useState("");
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [selectedAdditionals, setSelectedAdditionals] = useState<string[]>([]);
-  const [complementGroups, setComplementGroups] = useState<ComplementGroup[]>([]);
+  const [complementGroups, setComplementGroups] = useState<ComplementGroup[]>(
+    []
+  );
   const [totalPrice, setTotalPrice] = useState(price);
 
   const handleCheckboxChange = (group: ComplementGroup, option: string) => {
-    const selectedInGroup = group.toppings.filter(opt =>
+    const selectedInGroup = group.toppings.filter((opt) =>
       selectedOptions.includes(opt.name)
     ).length;
 
@@ -79,6 +81,21 @@ const MenuItem = ({
   };
 
   const handleAddToCart = () => {
+    // Pegando os toppings e additionals completos com base no nome selecionado
+    const selectedToppings =
+      complementGroups
+        .find((group) => group.name === "Complementos")
+        ?.toppings.filter((topping) =>
+          selectedOptions.includes(topping.name)
+        ) || [];
+
+    const selectedAdditionalsList =
+      complementGroups
+        .find((group) => group.name === "Adicionais")
+        ?.toppings.filter((additional) =>
+          selectedAdditionals.includes(additional.name)
+        ) || [];
+
     const extras = [];
 
     if (selectedOptions.length) {
@@ -89,13 +106,17 @@ const MenuItem = ({
       extras.push(`Adicionais: ${selectedAdditionals.join(", ")}`);
     }
 
-    const fullObservation = [observation, ...extras].filter(Boolean).join(" | ");
+    const fullObservation = [observation, ...extras]
+      .filter(Boolean)
+      .join(" | ");
 
     addToCart({
       id,
       name,
       price: totalPrice,
       observation: fullObservation,
+      toppings: selectedToppings.map((t) => t.id),
+      additionals: selectedAdditionalsList.map((a) => a.id),
     });
 
     setShowModal(false);
@@ -105,7 +126,6 @@ const MenuItem = ({
   };
 
   useEffect(() => {
-    
     if (!showModal) return;
 
     const groups: ComplementGroup[] = [];
@@ -125,20 +145,25 @@ const MenuItem = ({
     setComplementGroups(groups);
   }, [showModal, max_toppings, max_additionals, toppings, additionals]);
 
-
   useEffect(() => {
     const selectedExtraObjects = additionals.filter((a) =>
       selectedAdditionals.includes(a.name)
     );
 
-    const extrasTotal = selectedExtraObjects.reduce((sum, item) => sum + item.price, 0);
+    const extrasTotal = selectedExtraObjects.reduce(
+      (sum, item) => sum + item.price,
+      0
+    );
     setTotalPrice(price + extrasTotal);
   }, [selectedAdditionals, price, additionals]);
 
   return (
     <div className="bg-white shadow rounded-lg px-2 sm:px-4 py-4 flex flex-col relative">
       <img
-        src={imageUrl || "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png"}
+        src={
+          imageUrl ||
+          "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png"
+        }
         alt={name}
         className="w-full h-40 object-cover rounded mb-4"
       />
@@ -176,18 +201,25 @@ const MenuItem = ({
                     const selectedInGroup = group.toppings.filter((opt) =>
                       selectedOptions.includes(opt.name)
                     ).length;
-                    const canSelectMore = selectedInGroup < group.max || isSelected;
+                    const canSelectMore =
+                      selectedInGroup < group.max || isSelected;
 
-                    const isAdditional = additionals.some(a => a.name === option.name);
+                    const isAdditional = additionals.some(
+                      (a) => a.name === option.name
+                    );
                     const additionalPrice = isAdditional
-                      ? additionals.find(a => a.name === option.name)?.price
+                      ? additionals.find((a) => a.name === option.name)?.price
                       : undefined;
 
                     return (
                       <label
                         key={index}
                         className={`flex flex-col items-start p-2 border rounded-md hover:bg-gray-100 text-sm 
-                          ${!canSelectMore && !isSelected ? "opacity-50 cursor-not-allowed" : ""}`}
+                          ${
+                            !canSelectMore && !isSelected
+                              ? "opacity-50 cursor-not-allowed"
+                              : ""
+                          }`}
                       >
                         <div className="flex items-center justify-between w-full">
                           <div className="flex items-center gap-2">
@@ -195,7 +227,9 @@ const MenuItem = ({
                               type="checkbox"
                               checked={isSelected}
                               disabled={!canSelectMore && !isSelected}
-                              onChange={() => handleCheckboxChange(group, option.name)}
+                              onChange={() =>
+                                handleCheckboxChange(group, option.name)
+                              }
                             />
                             <span className="font-medium">{option.name}</span>
                           </div>
@@ -208,7 +242,9 @@ const MenuItem = ({
                         </div>
 
                         {option.description && (
-                          <span className="text-gray-500 text-xs ml-6 mt-1">{option.description}</span>
+                          <span className="text-gray-500 text-xs ml-6 mt-1">
+                            {option.description}
+                          </span>
                         )}
                       </label>
                     );

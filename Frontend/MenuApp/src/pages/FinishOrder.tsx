@@ -87,6 +87,8 @@ function FinishOrder() {
         id: item.id,
         quantity: item.quantity,
         observation: item.observation || "",
+        toppings: item.toppings || [],
+        additionals: item.additionals || [],
       })),
       is_delivery: form.is_delivery,
       cep: form.cep,
