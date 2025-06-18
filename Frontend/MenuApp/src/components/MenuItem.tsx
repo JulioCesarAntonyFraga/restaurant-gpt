@@ -136,7 +136,7 @@ const MenuItem = ({
   }, [selectedAdditionals, price, additionals]);
 
   return (
-    <div className="bg-white shadow rounded-lg p-4 flex flex-col relative">
+    <div className="bg-white shadow rounded-lg px-2 sm:px-4 py-4 flex flex-col relative">
       <img
         src={imageUrl || "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png"}
         alt={name}

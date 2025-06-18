@@ -53,7 +53,7 @@ const Menu = () => {
   }, []);
 
   if (loading) {
-    return <p className="text-center mt-8">Carregando cardápio...</p>;
+    return <p className="text-center font-bold text-gray-800 mt-24">Carregando cardápio...</p>;
   }
 
   const categories = ["Todos", ...Array.from(new Set(menuItems.map(item => item.category)))];
@@ -68,24 +68,23 @@ const Menu = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      
+
       {/* Banner entre a Navbar e o Cardápio */}
       <div
-  className="pt-20 bg-cover bg-center bg-no-repeat w-full shadow-inner"
-  style={{ backgroundImage: "url('/images/bunner.jpg')" }} // ajuste o caminho
->
-  <div className="bg-transparent bg-opacity-60 w-full h-full">
-    <div className="max-w-6xl mx-auto px-4 py-6 text-center text-white">
-      <h2 className="text-3xl font-bold mb-2">Restaurante Sabor Caseiro</h2>
-      <p className="text-sm sm:text-base">📍 Rua das Flores, 123 – Centro, Cidade Exemplo</p>
-      <p className="text-sm sm:text-base">☎️ (11) 91234-5678</p>
-    </div>
-  </div>
-</div>
-
+        className="pt-20 bg-cover bg-center bg-no-repeat w-full shadow-inner"
+        style={{ backgroundImage: "url('/images/bunner.jpg')" }} // ajuste o caminho
+      >
+        <div className="bg-transparent bg-opacity-60 w-full h-full">
+          <div className="max-w-6xl mx-auto px-4 py-6 text-center text-white">
+            <h2 className="text-3xl font-bold mb-2">Restaurante Sabor Caseiro</h2>
+            <p className="text-sm sm:text-base">📍 Rua das Flores, 123 – Centro, Cidade Exemplo</p>
+            <p className="text-sm sm:text-base">☎️ (11) 91234-5678</p>
+          </div>
+        </div>
+      </div>
 
       {/* Conteúdo do Cardápio */}
-      <div className="flex-grow max-w-6xl mx-auto px-4 py-6">
+      <div className="flex-grow max-w-6xl mx-auto px-2 sm:px-4 py-6">
         <h1 className="text-2xl font-bold text-gray-800 mb-4">Cardápio</h1>
 
         <div className="flex flex-wrap gap-4 mb-6 items-center">
