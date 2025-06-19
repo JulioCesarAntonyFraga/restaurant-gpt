@@ -88,20 +88,32 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 status_code=400
             )
 
+        allowed_topping_ids = menu_item.get("toppings", [])
+        allowed_additional_ids = menu_item.get("additionals", [])
+
         toppings = []
-        for topping_id in item.get("toppings", []):
+        for topping_id in toppings_input:
             if topping_id not in valid_topping_ids:
-                return func.HttpResponse(f"Topping ID '{topping_id}' is invalid or not available", status_code=400)
+                return func.HttpResponse(f"Topping ID '{topping_id}' is inválido ou indisponível.", status_code=400)
+            if topping_id not in allowed_topping_ids:
+                return func.HttpResponse(f"Topping ID '{topping_id}' não é permitido para o item '{menu_item['name']}'", status_code=400)
             topping = valid_topping_ids[topping_id]
             toppings.append({"id": topping["id"], "name": topping["name"]})
 
         additionals = []
-        for add_id in item.get("additionals", []):
+        for add_id in additionals_input:
             if add_id not in valid_additional_ids:
-                return func.HttpResponse(f"Additional ID '{add_id}' is invalid or not available", status_code=400)
+                return func.HttpResponse(f"Additional ID '{add_id}' é inválido ou indisponível.", status_code=400)
+            if add_id not in allowed_additional_ids:
+                return func.HttpResponse(f"Additional ID '{add_id}' não é permitido para o item '{menu_item['name']}'", status_code=400)
             additional = valid_additional_ids[add_id]
-            additionals.append({"id": additional["id"], "name": additional["name"], "price": additional["price"]})
+            additionals.append({
+                "id": additional["id"],
+                "name": additional["name"],
+                "price": additional["price"]
+            })
             item_total_price += additional["price"] * quantity
+
 
         processed_items.append({
             "id": item_id,
