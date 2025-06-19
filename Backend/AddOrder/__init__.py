@@ -153,11 +153,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         }
                         for item in processed_items
                     ],
-                    "notification_url": f"https://restaurant-gpt.azurewebsites.net/api/mp-webhook/{order.get("id", "")}?secret={MP_WEBHOOK_SECRET}",
+                    "notification_url": f"https://restaurant-gpt.azurewebsites.net/api/mp-webhook/{order.get("id", "")}?secret={MP_WEBHOOK_SECRET}&&phone={order_data.get("phone_number", "")}",
                     "external_reference": order.get("id", ""),
                     "payer": {
                         "name": data["name"],
-                        "email": data.get("email", "fake@example.com"),  # Caso queira pegar email real do cliente no futuro
                     },
                     "back_urls": {
                         "success": "https://seuapp.com/pedido-sucesso",
