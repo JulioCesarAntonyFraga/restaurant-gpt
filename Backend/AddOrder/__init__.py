@@ -112,7 +112,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 "name": additional["name"],
                 "price": additional["price"]
             })
-            item_total_price += additional["price"] * quantity
+            item_total_price += additional["price"]
 
 
         processed_items.append({
