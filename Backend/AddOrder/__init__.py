@@ -175,7 +175,14 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         "failure": "https://seuapp.com/pedido-falhou",
                         "pending": "https://seuapp.com/pedido-pendente"
                     },
-                    "auto_return": "approved"
+                    "auto_return": "approved",
+                    "excluded_payment_types": [
+                        {"id": "ticket"},
+                        {"id": "atm"},
+                        {"id": "bank_transfer"}
+                    ],
+                    "excluded_payment_methods": [],
+                    "installments": 1 
                 }
 
 
