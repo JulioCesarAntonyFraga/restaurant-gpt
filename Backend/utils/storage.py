@@ -217,6 +217,22 @@ def get_last_order_number() -> int:
         return order.to_dict()['order_number']
     return None
 
+def get_order(order_id: str) -> dict:
+    
+    order_ref = db.collection("orders").document(order_id)
+
+    # Get the snapshot first
+    order_snapshot = order_ref.get()
+
+    if not order_snapshot.exists:
+        raise ValueError(f"Order with ID {order_id} not found.")
+
+    # Then convert snapshot to dict
+    order = order_snapshot.to_dict()
+    order['id'] = order_id
+
+    return order
+
 def get_orders(order_status: str = None):
     orders_ref = db.collection("orders")
     if order_status:
