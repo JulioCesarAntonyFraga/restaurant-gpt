@@ -152,51 +152,86 @@ def save_order(
     items: list,
     total: float,
     is_delivery: bool,
-    cep: str,
-    rua: str,
-    bairro: str,
-    numero: str,
-    cidade: str,
     payment_method: str,
     status: str = "In Progress",
-    ordered_at: time = time.time(),
+    ordered_at: float = None,
+    cep: str = None,
+    rua: str = None,
+    bairro: str = None,
+    numero: str = None,
+    cidade: str = None
 ):
+    if ordered_at is None:
+        ordered_at = time.time()
+
+    order_number = get_last_order_number() + 1 if get_last_order_number() else 1
+
+    order_ref = db.collection("orders").document()
+    order_id = order_ref.id
+
     order_data = {
+        "id": order_id,
+        "order_number": order_number,
         "name": name,
-        "order_number": get_last_order_number() + 1 if get_last_order_number() else 1,
         "phone_number": phone_number,
-        "total": total,
+        "total": round(total, 2),
         "is_delivery": is_delivery,
-        "cep": cep,
-        "rua": rua,
-        "bairro": bairro,
-        "numero": numero,
-        "cidade": cidade,
-        "ordered_at": ordered_at,
         "payment_method": payment_method,
-        "status": status
+        "status": status,
+        "ordered_at": ordered_at,
     }
 
+    if is_delivery:
+        order_data.update({
+            "cep": cep,
+            "rua": rua,
+            "bairro": bairro,
+            "numero": numero,
+            "cidade": cidade
+        })
+
+    # Preparar itens
     items_data = []
     for item in items:
-        menu_item = get_menu_item(item["id"])
         item_data = {
-            "name": menu_item["name"],
-            "price": menu_item["price"],
-            "quantity": item["quantity"],
-            "observations": item.get("observations", "")
+            "id": item["id"],
+            "name": item["name"],
+            "price": item["price"],
+            "amount": item["amount"],
+            "observation": item.get("observation", ""),
+            "toppings": item.get("toppings", []),        # lista de dicts com id e name
+            "additionals": item.get("additionals", [])   # lista de dicts com id, name, price
         }
         items_data.append(item_data)
-    
+
     order_data["items"] = items_data
 
-    db.collection("orders").add(order_data)
+    # Salvar com ID fixo
+    db.collection("orders").document(order_id).set(order_data)
+
+    return order_data
 
 def get_last_order_number() -> int:
     orders_ref = db.collection("orders").order_by("order_number", direction=firestore.Query.DESCENDING).limit(1).stream()
     for order in orders_ref:
         return order.to_dict()['order_number']
     return None
+
+def get_order(order_id: str) -> dict:
+    
+    order_ref = db.collection("orders").document(order_id)
+
+    # Get the snapshot first
+    order_snapshot = order_ref.get()
+
+    if not order_snapshot.exists:
+        raise ValueError(f"Order with ID {order_id} not found.")
+
+    # Then convert snapshot to dict
+    order = order_snapshot.to_dict()
+    order['id'] = order_id
+
+    return order
 
 def get_orders(order_status: str = None):
     orders_ref = db.collection("orders")
@@ -272,6 +307,7 @@ def get_previous_status(current_status: str) -> str:
 
 def get_next_status(current_status: str) -> str:
     status_order = [
+        "Pending",
         "In Progress",
         "On the Way to the customer",
         "Ready to take away",

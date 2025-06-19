@@ -2,11 +2,13 @@ import { createContext, useContext, useState, ReactNode } from "react";
 import { useNotification } from "./NotificationContext";
 
 type CartItem = {
-  id: string,
+  id: string;
   name: string;
   price: number;
   quantity: number;
   observation?: string;
+  toppings?: string[];
+  additionals?: string[];
 };
 
 type CartContextType = {
