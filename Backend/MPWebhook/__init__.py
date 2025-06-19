@@ -7,7 +7,7 @@ from utils.message_sender import send_whatsapp_message
 
 def format_order_message(order: dict) -> str:
     msg = f"📦 *Pedido #{order.get('id')}*\n"
-    msg += f"👤 Cliente: {order.get('customer_name')}\n"
+    msg += f"👤 Cliente: {order.get('name')}\n"
 
     if order.get("is_delivery"):
         endereco = f"{order.get('rua', '')}, Nº {order.get('numero', '')}, "
