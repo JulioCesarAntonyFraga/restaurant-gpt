@@ -139,6 +139,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 order_data["status"] = "Pending"
 
             order = save_order(**order_data)
+            MP_WEBHOOK_SECRET = os.environ.get("MP_WEBHOOK_SECRET")
 
             # Verifica se é pagamento online (usa Mercado Pago)
             if data["payment_method"] in ["credit_card", "debit_card", "pix"]:
@@ -152,7 +153,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         }
                         for item in processed_items
                     ],
-                    "notification_url": f"https://restaurant-gpt.azurewebsites.net/api/advance-order-status/{order.get('id', '')}",
+                    "notification_url": f"https://restaurant-gpt.azurewebsites.net/api/mp-webhook/{order.get("id", "")}?secret={MP_WEBHOOK_SECRET}",
                     "external_reference": order.get("id", ""),
                     "payer": {
                         "name": data["name"],
