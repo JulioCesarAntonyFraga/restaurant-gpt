@@ -3,7 +3,7 @@ import azure.functions as func
 import json
 import os
 from utils.storage import advance_order_status, get_order
-from utils.message_sender import send_template_message  # trocado aqui
+from utils.message_sender import send_template_message
 
 def build_template_params(order: dict) -> list:
     # Monta endereço completo
@@ -12,11 +12,10 @@ def build_template_params(order: dict) -> list:
         address = f"{order.get('rua', '')}, Nº {order.get('numero', '')}, "
         address += f"{order.get('bairro', '')}, {order.get('cidade', '')} - CEP: {order.get('cep', '')}"
 
-    # Monta a descrição dos itens
     items_text = ""
     for item in order.get("items", []):
         name = item.get("name")
-        quantity = item.get("quantity", 1)
+        quantity = item.get("quantity") or item.get("amount", 1)
         base_price = item.get("price", 0)
         toppings = item.get("toppings", [])
         additionals = item.get("additionals", [])
@@ -24,25 +23,26 @@ def build_template_params(order: dict) -> list:
         item_total = (base_price + additionals_total) * quantity
 
         line = f"{quantity}x {name} - R$ {item_total:.2f}"
-        items_text += line + "\n"
+        items_text += line + "; "
 
         for topping in toppings:
-            items_text += f"  + {topping.get('name')}\n"
+            items_text += f"+ {topping.get('name')}; "
         for extra in additionals:
-            items_text += f"  + {extra.get('name')} (R$ {extra.get('price', 0):.2f})\n"
+            items_text += f"+ {extra.get('name')} (R$ {extra.get('price', 0):.2f}); "
 
-    # Se não tiver troco definido, default para "0"
-    change = order.get("troco", "0")
+    items_text = items_text.strip("; ")
 
-    return [
-        str(order.get("id", "")),
-        order.get("name", ""),
-        address,
-        items_text.strip(),
-        f"R$ {order.get('total', 0):.2f}",
-        order.get("payment_method", ""),
-        str(change)
-    ]
+    change = order.get("change", "0")
+
+    return {
+        "order_id": str(order.get("id", "")),
+        "name": order.get("name", ""),
+        "address": address,
+        "items": items_text.strip(),
+        "total": f"R$ {order.get('total', 0):.2f}",
+        "payment_method": order.get("payment_method", ""),
+        "change": str(change)
+    }
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     secret = req.params.get("secret")
@@ -52,27 +52,26 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         return func.HttpResponse("Unauthorized", status_code=401)
 
     order_id = req.route_params.get("order_id")
-    phone = req.params.get("phone")
 
-    if not order_id or not phone:
+    if not order_id:
         return func.HttpResponse("Missing order_id or phone number", status_code=400)
 
     try:
         order = advance_order_status(order_id)
         full_order = get_order(order_id)
 
-        # Define nome e idioma do template
         template_name = "order_confirmation"
         lang_code = "pt_BR"
 
-        params = build_template_params(full_order)
+        params_dict = build_template_params(full_order)
 
         send_template_message(
-            to_number=phone,
+            to_number=order.get("phone_number"),
             template_name=template_name,
             lang_code=lang_code,
-            params=params
+            params_dict=params_dict
         )
+
 
         return func.HttpResponse(json.dumps(order), mimetype="application/json", status_code=200)
 
