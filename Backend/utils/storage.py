@@ -218,7 +218,6 @@ def get_last_order_number() -> int:
     return None
 
 def get_order(order_id: str) -> dict:
-    
     order_ref = db.collection("orders").document(order_id)
 
     # Get the snapshot first
