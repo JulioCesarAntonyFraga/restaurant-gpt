@@ -3,46 +3,46 @@ import azure.functions as func
 import json
 import os
 from utils.storage import advance_order_status, get_order
-from utils.message_sender import send_whatsapp_message
+from utils.message_sender import send_template_message  # trocado aqui
 
-def format_order_message(order: dict) -> str:
-    msg = f"📦 *Pedido #{order.get('id')}*\n"
-    msg += f"👤 Cliente: {order.get('name')}\n"
-
+def build_template_params(order: dict) -> list:
+    # Monta endereço completo
+    address = "Retirada no local"
     if order.get("is_delivery"):
-        endereco = f"{order.get('rua', '')}, Nº {order.get('numero', '')}, "
-        endereco += f"{order.get('bairro', '')}, {order.get('cidade', '')} - CEP: {order.get('cep', '')}"
-        msg += f"🏠 Entrega: {endereco}\n"
+        address = f"{order.get('rua', '')}, Nº {order.get('numero', '')}, "
+        address += f"{order.get('bairro', '')}, {order.get('cidade', '')} - CEP: {order.get('cep', '')}"
 
-
-    msg += f"\n🧾 *Itens do pedido:*\n"
+    # Monta a descrição dos itens
+    items_text = ""
     for item in order.get("items", []):
         name = item.get("name")
         quantity = item.get("quantity", 1)
         base_price = item.get("price", 0)
-
-        # Toppings
         toppings = item.get("toppings", [])
-
-        # Additionals
         additionals = item.get("additionals", [])
         additionals_total = sum(a.get("price", 0) for a in additionals)
-
         item_total = (base_price + additionals_total) * quantity
 
-        msg += f"• {quantity}x {name} - R$ {item_total:.2f}\n"
+        line = f"{quantity}x {name} - R$ {item_total:.2f}"
+        items_text += line + "\n"
 
         for topping in toppings:
-            msg += f"   + {topping.get('name')}\n"
-
+            items_text += f"  + {topping.get('name')}\n"
         for extra in additionals:
-            msg += f"   + {extra.get('name')} (R$ {extra.get('price', 0):.2f})\n"
+            items_text += f"  + {extra.get('name')} (R$ {extra.get('price', 0):.2f})\n"
 
-    msg += f"\n💰 Total: R$ {order.get('total', 0):.2f}\n"
-    msg += f"💳 Pagamento: {order.get('payment_method')}\n"
+    # Se não tiver troco definido, default para "0"
+    change = order.get("troco", "0")
 
-    return msg
-
+    return [
+        str(order.get("id", "")),
+        order.get("name", ""),
+        address,
+        items_text.strip(),
+        f"R$ {order.get('total', 0):.2f}",
+        order.get("payment_method", ""),
+        str(change)
+    ]
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     secret = req.params.get("secret")
@@ -61,8 +61,18 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         order = advance_order_status(order_id)
         full_order = get_order(order_id)
 
-        message = format_order_message(full_order)
-        send_whatsapp_message(to_number=phone, body=message)
+        # Define nome e idioma do template
+        template_name = "order_confirmation"
+        lang_code = "pt_BR"
+
+        params = build_template_params(full_order)
+
+        send_template_message(
+            to_number=phone,
+            template_name=template_name,
+            lang_code=lang_code,
+            params=params
+        )
 
         return func.HttpResponse(json.dumps(order), mimetype="application/json", status_code=200)
 
