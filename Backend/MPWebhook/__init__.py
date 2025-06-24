@@ -7,52 +7,51 @@ from utils.storage import advance_order_status, get_order
 from utils.message_sender import send_template_message
 import hashlib
 import hmac
-import logging
 import os
+import logging
 import urllib.parse
 
 def verify_mp_signature(req) -> bool:
     try:
-        # Cabeçalhos
         x_signature = req.headers.get("x-signature")
         x_request_id = req.headers.get("x-request-id")
-
         if not x_signature or not x_request_id:
+            logging.warning("Faltando headers obrigatórios.")
             return False
 
-        # Extrai data.id da query string
-        url = req.url
-        query_params = urllib.parse.parse_qs(urllib.parse.urlparse(url).query)
+        # Extrair ts e v1
+        parts = dict(part.strip().split("=", 1) for part in x_signature.split(",") if "=" in part)
+        ts = parts.get("ts")
+        v1 = parts.get("v1")
+
+        if not ts or not v1:
+            logging.warning("x-signature mal formatado.")
+            return False
+
+        # Extrair data.id da query string
+        parsed_url = urllib.parse.urlparse(req.url)
+        query_params = urllib.parse.parse_qs(parsed_url.query)
         data_id = query_params.get("data.id", [""])[0]
 
-        # Extrai ts e v1 do header
-        parts = x_signature.split(",")
-        ts, hash_v1 = None, None
-        for part in parts:
-            if "=" in part:
-                key, value = part.split("=", 1)
-                key, value = key.strip(), value.strip()
-                if key == "ts":
-                    ts = value
-                elif key == "v1":
-                    hash_v1 = value
-
-        if not (ts and hash_v1 and data_id):
+        if not data_id:
+            logging.warning("data.id não encontrado na URL.")
             return False
 
-        # Monta manifest string
+        # Criar manifest string EXATAMENTE como Mercado Pago espera
         manifest = f"id:{data_id};request-id:{x_request_id};ts:{ts};"
 
-        # Chave secreta (defina no Azure)
-        secret = os.getenv("MP_WEBHOOK_SECRET")
+        # Comparar assinatura
+        secret = os.getenv("MP_WEBHOOK_SECRET")  # Defina isso no Azure
+        if not secret:
+            logging.error("Chave secreta do Mercado Pago não configurada.")
+            return False
 
-        # Calcula HMAC-SHA256
-        digest = hmac.new(secret.encode(), msg=manifest.encode(), digestmod=hashlib.sha256).hexdigest()
+        computed_hash = hmac.new(secret.encode(), manifest.encode(), hashlib.sha256).hexdigest()
 
-        return hmac.compare_digest(digest, hash_v1)
+        return hmac.compare_digest(computed_hash, v1)
 
     except Exception as e:
-        logging.error(f"Erro ao verificar assinatura: {e}")
+        logging.error(f"Erro na verificação da assinatura: {e}")
         return False
 
 
