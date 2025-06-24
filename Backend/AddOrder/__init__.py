@@ -165,7 +165,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         }
                         for item in processed_items
                     ],
-                    "notification_url": f'https://restaurant-gpt.azurewebsites.net/api/mp-webhook/{order.get("id", "")}?secret={MP_WEBHOOK_SECRET}',
+                    "notification_url": f'https://restaurant-gpt.azurewebsites.net/api/mp-webhook',
                     "external_reference": order.get("id", ""),
                     "payer": {
                         "name": data["name"],
