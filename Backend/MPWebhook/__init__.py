@@ -5,6 +5,56 @@ import os
 import requests
 from utils.storage import advance_order_status, get_order
 from utils.message_sender import send_template_message
+import hashlib
+import hmac
+import logging
+import os
+import urllib.parse
+
+def verify_mp_signature(req) -> bool:
+    try:
+        # Cabeçalhos
+        x_signature = req.headers.get("x-signature")
+        x_request_id = req.headers.get("x-request-id")
+
+        if not x_signature or not x_request_id:
+            return False
+
+        # Extrai data.id da query string
+        url = req.url
+        query_params = urllib.parse.parse_qs(urllib.parse.urlparse(url).query)
+        data_id = query_params.get("data.id", [""])[0]
+
+        # Extrai ts e v1 do header
+        parts = x_signature.split(",")
+        ts, hash_v1 = None, None
+        for part in parts:
+            if "=" in part:
+                key, value = part.split("=", 1)
+                key, value = key.strip(), value.strip()
+                if key == "ts":
+                    ts = value
+                elif key == "v1":
+                    hash_v1 = value
+
+        if not (ts and hash_v1 and data_id):
+            return False
+
+        # Monta manifest string
+        manifest = f"id:{data_id};request-id:{x_request_id};ts:{ts};"
+
+        # Chave secreta (defina no Azure)
+        secret = os.getenv("MP_WEBHOOK_SIGNATURE_SECRET")
+
+        # Calcula HMAC-SHA256
+        digest = hmac.new(secret.encode(), msg=manifest.encode(), digestmod=hashlib.sha256).hexdigest()
+
+        return hmac.compare_digest(digest, hash_v1)
+
+    except Exception as e:
+        logging.error(f"Erro ao verificar assinatura: {e}")
+        return False
+
 
 def build_template_params(order: dict) -> list:
     address = "Retirada no local"
@@ -45,10 +95,7 @@ def build_template_params(order: dict) -> list:
     }
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
-    secret = req.params.get("secret")
-    expected_secret = os.getenv("MP_WEBHOOK_SECRET")
-
-    if secret != expected_secret:
+    if not verify_mp_signature(req):
         return func.HttpResponse("Unauthorized", status_code=401)
 
     try:
