@@ -44,7 +44,7 @@ def verify_mp_signature(req) -> bool:
         manifest = f"id:{data_id};request-id:{x_request_id};ts:{ts};"
 
         # Chave secreta (defina no Azure)
-        secret = os.getenv("MP_WEBHOOK_SIGNATURE_SECRET")
+        secret = os.getenv("MP_WEBHOOK_SECRET")
 
         # Calcula HMAC-SHA256
         digest = hmac.new(secret.encode(), msg=manifest.encode(), digestmod=hashlib.sha256).hexdigest()
