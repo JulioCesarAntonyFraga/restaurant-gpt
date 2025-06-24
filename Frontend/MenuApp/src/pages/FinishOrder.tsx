@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useCart } from "../utils/CartContext";
 import { useNavigate } from "react-router-dom";
+import PhoneInput from "react-phone-input-2";
+import 'react-phone-input-2/lib/style.css';
 
 function FinishOrder() {
   const navigate = useNavigate();
@@ -117,9 +119,7 @@ function FinishOrder() {
         alert(data.message || "Erro ao finalizar o pedido. Tente novamente.");
         return;
       }
-
-      console.log("Pedido finalizado com sucesso:", data);
-      alert("Pedido enviado com sucesso!");
+     
 
       if (data.payment_url && form.payment_method !== "cash") {
         window.location.href = data.payment_url;
@@ -130,10 +130,7 @@ function FinishOrder() {
     } catch (error) {
       console.error("Erro ao enviar pedido:", error);
       alert("Erro ao finalizar o pedido. Tente novamente.");
-    }
-
-    clearCart();
-    navigate("/");
+    }    
   };
 
   return (
@@ -151,23 +148,22 @@ function FinishOrder() {
               required
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className={`w-full p-2 mb-3 rounded border ${
-                errors.name ? "border-red-800" : "border-gray-300"
-              }`}
+              className={`w-full p-2 mb-3 rounded border ${errors.name ? "border-red-800" : "border-gray-300"
+                }`}
             />
 
-            <input
-              type="tel"
-              placeholder="Telefone"
-              required
+            <PhoneInput
+              country={'br'}
               value={form.phone_number}
-              onChange={(e) =>
-                setForm({ ...form, phone_number: e.target.value })
-              }
-              className={`w-full p-2 mb-3 rounded border ${
-                errors.phone_number ? "border-red-800" : "border-gray-300"
-              }`}
+              onChange={(phone) => setForm({ ...form, phone_number: phone })}
+              inputProps={{
+                name: 'phone',
+                required: true,
+                className: `w-full p-2 mb-3 rounded border ${errors.phone_number ? "border-red-800" : "border-gray-300"
+                  }`
+              }}
             />
+
           </div>
 
           {/* Tipo de entrega */}
@@ -209,44 +205,39 @@ function FinishOrder() {
                 value={form.cep}
                 onChange={(e) => setForm({ ...form, cep: e.target.value })}
                 onBlur={() => searchByCEP(form.cep)}
-                className={`w-full p-2 mb-3 rounded border ${
-                  errors.cep ? "border-red-800" : "border-gray-300"
-                }`}
+                className={`w-full p-2 mb-3 rounded border ${errors.cep ? "border-red-800" : "border-gray-300"
+                  }`}
               />
 
               <input
                 value={form.rua}
                 onChange={(e) => setForm({ ...form, rua: e.target.value })}
                 placeholder="Rua"
-                className={`w-full p-2 mb-3 rounded border ${
-                  errors.rua ? "border-red-800" : "border-gray-300"
-                }`}
+                className={`w-full p-2 mb-3 rounded border ${errors.rua ? "border-red-800" : "border-gray-300"
+                  }`}
               />
               <input
                 value={form.numero}
                 onChange={(e) => setForm({ ...form, numero: e.target.value })}
                 placeholder="Número"
-                className={`w-full p-2 mb-3 rounded border ${
-                  errors.numero ? "border-red-800" : "border-gray-300"
-                }`}
+                className={`w-full p-2 mb-3 rounded border ${errors.numero ? "border-red-800" : "border-gray-300"
+                  }`}
               />
 
               <input
                 value={form.bairro}
                 onChange={(e) => setForm({ ...form, bairro: e.target.value })}
                 placeholder="Bairro"
-                className={`w-full p-2 mb-3 rounded border ${
-                  errors.bairro ? "border-red-800" : "border-gray-300"
-                }`}
+                className={`w-full p-2 mb-3 rounded border ${errors.bairro ? "border-red-800" : "border-gray-300"
+                  }`}
               />
 
               <input
                 value={form.cidade}
                 onChange={(e) => setForm({ ...form, cidade: e.target.value })}
                 placeholder="Cidade"
-                className={`w-full p-2 mb-3 rounded border ${
-                  errors.cidade ? "border-red-800" : "border-gray-300"
-                }`}
+                className={`w-full p-2 mb-3 rounded border ${errors.cidade ? "border-red-800" : "border-gray-300"
+                  }`}
               />
             </>
           )}
