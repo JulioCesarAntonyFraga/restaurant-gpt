@@ -31,7 +31,16 @@ def verify_mp_signature(req) -> bool:
         # Extrair data.id da query string
         parsed_url = urllib.parse.urlparse(req.url)
         query_params = urllib.parse.parse_qs(parsed_url.query)
-        data_id = query_params.get("data.id", [""])[0]
+        data_id = query_params.get("data.id", [None])[0]
+
+        # Se não veio na query, tenta do body
+        if not data_id:
+            try:
+                body = req.get_json()
+                data_id = body.get("data", {}).get("id")
+            except Exception as e:
+                logging.warning(f"Erro ao tentar extrair data.id do body: {e}")
+                data_id = None
 
         if not data_id:
             logging.warning("data.id não encontrado na URL.")
