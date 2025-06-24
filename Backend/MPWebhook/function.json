@@ -7,7 +7,7 @@
       "direction": "in",
       "name": "req",
       "methods": [ "post" ],
-      "route": "mp-webhook/{order_id}"
+      "route": "mp-webhook"
     },
     {
       "type": "http",
