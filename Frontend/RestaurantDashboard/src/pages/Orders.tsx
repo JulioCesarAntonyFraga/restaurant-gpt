@@ -5,15 +5,17 @@ import { apiFetch } from "../utils/apiHelper";
 import { useAuth } from "../utils/authContext";
 
 const statusOptions = [
-    { value: "In Progress", label: "Em Andamento" },
-    { value: "On the Way to the customer", label: "A caminho do cliente" },
-    { value: "Ready to take away", label: "Pronto para retirada" },
-    { value: "Delivered/Picked up", label: "Entregue/Coletado" },
+    { value: 0, label: "Pendente" },
+    { value: 1, label: "Aceito" },
+    { value: 2, label: "Em andamento" },
+    { value: 3, label: "Pronto para coleta/entrega" },
+    { value: 4, label: "A caminho do cliente" },
+    { value: 5, label: "Coletado/Entregue" },
 ];
 
 const Orders = () => {
     const [orders, setOrders] = useState<Order[]>([]);
-    const [statusFilter, setStatusFilter] = useState<{ value: string; label: string }[]>([]);
+    const [statusFilter, setStatusFilter] = useState<{ value: number; label: string }[]>([]);
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
     const { token } = useAuth();
 
@@ -71,7 +73,7 @@ const Orders = () => {
                         isMulti
                         options={statusOptions}
                         value={statusFilter}
-                        onChange={(selected) => setStatusFilter(selected as { value: string; label: string }[])}
+                        onChange={(selected) => setStatusFilter(selected as { value: number; label: string }[])}
                         placeholder="Selecione o status..."
                         className="text-sm"
                     />

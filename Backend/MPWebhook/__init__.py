@@ -4,7 +4,7 @@ import json
 import os
 import requests
 from utils.storage import advance_order_status, get_order
-from utils.message_sender import send_template_message
+from utils.message_sender import build_order_confirmation_template_params, send_template_message
 import hashlib
 import hmac
 import os
@@ -65,45 +65,6 @@ def verify_mp_signature(req) -> bool:
         logging.error(f"Erro na verificação da assinatura: {e}")
         return False
 
-
-def build_template_params(order: dict) -> list:
-    address = "Retirada no local"
-    if order.get("is_delivery"):
-        address = f"{order.get('rua', '')}, Nº {order.get('numero', '')}, "
-        address += f"{order.get('bairro', '')}, {order.get('cidade', '')} - CEP: {order.get('cep', '')}"
-
-    items_text = ""
-    for item in order.get("items", []):
-        name = item.get("name")
-        quantity = item.get("quantity") or item.get("amount", 1)
-        base_price = item.get("price", 0)
-        toppings = item.get("toppings", [])
-        additionals = item.get("additionals", [])
-        additionals_total = sum(a.get("price", 0) for a in additionals)
-        item_total = (base_price + additionals_total) * quantity
-
-        line = f"{quantity}x {name} - R$ {item_total:.2f}"
-        items_text += line + "; "
-
-        for topping in toppings:
-            items_text += f"+ {topping.get('name')}; "
-        for extra in additionals:
-            items_text += f"+ {extra.get('name')} (R$ {extra.get('price', 0):.2f}); "
-
-    items_text = items_text.strip("; ")
-
-    change = order.get("change", "0")
-
-    return {
-        "order_id": str(order.get("id", "")),
-        "name": order.get("name", ""),
-        "address": address,
-        "items": items_text.strip(),
-        "total": f"R$ {order.get('total', 0):.2f}",
-        "payment_method": order.get("payment_method", ""),
-        "change": str(change)
-    }
-
 def main(req: func.HttpRequest) -> func.HttpResponse:
     if not verify_mp_signature(req):
         return func.HttpResponse("Unauthorized", status_code=401)
@@ -145,7 +106,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
         template_name = "order_confirmation"
         lang_code = "pt_BR"
-        params_dict = build_template_params(full_order)
+        params_dict = build_order_confirmation_template_params(full_order)
 
         send_template_message(
             to_number=order.get("phone_number"),

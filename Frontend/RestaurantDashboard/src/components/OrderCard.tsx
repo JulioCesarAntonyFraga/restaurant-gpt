@@ -12,7 +12,7 @@ export interface Order {
   phone_number: string;
   is_delivery: boolean;
   ordered_at: number;
-  status: string;
+  status: number;
   cep: string;
   rua: string;
   numero: string;
@@ -63,10 +63,10 @@ const OrderCard = ({ order: initialOrder }: OrderProps) => {
   }
 
   const statusColors = {
-    "In Progress": "bg-yellow-100",
-    "On the Way to the customer": "bg-blue-100",
-    "Ready to take away": "bg-green-100",
-    "Delivered/Picked up": "bg-gray-300",
+    2: "bg-yellow-100",
+    3: "bg-blue-100",
+    4: "bg-green-100",
+    5: "bg-gray-300",
   };
 
   return (

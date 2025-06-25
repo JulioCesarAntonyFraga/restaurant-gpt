@@ -244,77 +244,62 @@ def get_orders(order_status: str = None):
 
 def advance_order_status(order_id: str) -> dict:
     order_ref = db.collection("orders").document(order_id)
-
-    # Get the snapshot first
     order_snapshot = order_ref.get()
 
     if not order_snapshot.exists:
         raise ValueError(f"Order with ID {order_id} not found.")
 
-    # Then convert snapshot to dict
     order = order_snapshot.to_dict()
     order['id'] = order_id
 
     current_status = order.get("status")
     next_status = get_next_status(current_status)
 
-    # Update in Firestore
-    order_ref.update({"status": next_status})
+    if next_status is None:
+        raise ValueError("Status já está no último estágio.")
 
-    # Update local copy to reflect the change
+    order_ref.update({"status": next_status})
     order['status'] = next_status
 
     return order
 
 def regress_order_status(order_id: str) -> dict:
     order_ref = db.collection("orders").document(order_id)
-
-    # Get the snapshot first
     order_snapshot = order_ref.get()
 
     if not order_snapshot.exists:
         raise ValueError(f"Order with ID {order_id} not found.")
 
-    # Then convert snapshot to dict
     order = order_snapshot.to_dict()
     order['id'] = order_id
 
     current_status = order.get("status")
-    next_status = get_previous_status(current_status)
+    previous_status = get_previous_status(current_status)
 
-    # Update in Firestore
-    order_ref.update({"status": next_status})
+    if previous_status is None:
+        raise ValueError("Status já está no primeiro estágio.")
 
-    # Update local copy to reflect the change
-    order['status'] = next_status
+    order_ref.update({"status": previous_status})
+    order['status'] = previous_status
 
     return order
 
-def get_previous_status(current_status: str) -> str:
-    status_order = [
-        "In Progress",
-        "On the Way to the customer",
-        "Ready to take away",
-        "Delivered/Picked up"
-    ]
-    try:
-        current_index = status_order.index(current_status)
-        previous_index = (current_index - 1) % len(status_order)
-        return status_order[previous_index]
-    except ValueError:
-        return None
 
-def get_next_status(current_status: str) -> str:
-    status_order = [
-        "Pending",
-        "In Progress",
-        "On the Way to the customer",
-        "Ready to take away",
-        "Delivered/Picked up"
-    ]
-    try:
-        current_index = status_order.index(current_status)
-        next_index = (current_index + 1) % len(status_order)
-        return status_order[next_index]
-    except ValueError:
-        return None
+status_order = {
+    0: "Pendente",
+    1: "Aceito",
+    2: "Em andamento",
+    3: "Pronto para coleta/entrega",
+    4: "A caminho do cliente",
+    5: "Coletado/Entregue",
+}
+
+def get_next_status(current_status: int) -> int | None:
+    if current_status < max(status_order.keys()):
+        return current_status + 1
+    return None
+
+def get_previous_status(current_status: int) -> int | None:
+    if current_status > min(status_order.keys()):
+        return current_status - 1
+    return None

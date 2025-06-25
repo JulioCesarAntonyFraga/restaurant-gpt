@@ -23,8 +23,10 @@ function FinishOrder() {
     bairro: "",
     cidade: "",
     is_delivery: true,
-    payment_method: "", // credit_card, debit_card, pix, cash
+    payment_method: "", // online, on_pickup, cash_on_delivery
+    change_to: "",
   });
+
 
   const [errors, setErrors] = useState<{ [key: string]: boolean }>({});
 
@@ -66,6 +68,13 @@ function FinishOrder() {
     if (!form.name.trim()) newErrors.name = true;
     if (!form.phone_number.trim()) newErrors.phone_number = true;
     if (!form.payment_method.trim()) newErrors.payment_method = true;
+    if (form.payment_method === "cash_on_delivery") {
+      const change = Number(form.change_to);
+      if (!form.change_to || isNaN(change) || change <= total) {
+        alert("O valor do troco deve ser maior que o total do pedido.");
+        newErrors.change_to = true;
+      }
+    }
 
     if (form.is_delivery) {
       if (!form.cep.trim()) newErrors.cep = true;
@@ -78,7 +87,7 @@ function FinishOrder() {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length > 0) {
-      alert("Preencha todos os campos");
+      alert("Preencha todos os campos corretamente.");
       return;
     }
 
@@ -99,7 +108,8 @@ function FinishOrder() {
       bairro: form.bairro,
       cidade: form.cidade,
       payment_method: form.payment_method,
-    };
+      change_to: form.payment_method === "cash_on_delivery" ? form.change_to : null,
+  };
 
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -249,50 +259,46 @@ function FinishOrder() {
             <label className="flex items-center gap-2 mb-2">
               <input
                 type="radio"
-                value="credit_card"
-                checked={form.payment_method === "credit_card"}
-                onChange={() =>
-                  setForm({ ...form, payment_method: "credit_card" })
-                }
+                value="online"
+                checked={form.payment_method === "online"}
+                onChange={() => setForm({ ...form, payment_method: "online" })}
                 className="form-radio"
               />
-              Cartão de crédito
+              Pagamento Online (Pix / Cartão)
             </label>
 
             <label className="flex items-center gap-2 mb-2">
               <input
                 type="radio"
-                value="debit_card"
-                checked={form.payment_method === "debit_card"}
-                onChange={() =>
-                  setForm({ ...form, payment_method: "debit_card" })
-                }
+                value="on_pickup"
+                checked={form.payment_method === "on_pickup"}
+                onChange={() => setForm({ ...form, payment_method: "on_pickup" })}
                 className="form-radio"
               />
-              Cartão de débito
+              Pagamento na retirada
             </label>
 
             <label className="flex items-center gap-2 mb-2">
               <input
                 type="radio"
-                value="pix"
-                checked={form.payment_method === "pix"}
-                onChange={() => setForm({ ...form, payment_method: "pix" })}
+                value="cash_on_delivery"
+                checked={form.payment_method === "cash_on_delivery"}
+                onChange={() => setForm({ ...form, payment_method: "cash_on_delivery" })}
                 className="form-radio"
               />
-              Pix
+              Dinheiro na entrega
             </label>
-
-            <label className="flex items-center gap-2">
+            {form.payment_method === "cash_on_delivery" && (
               <input
-                type="radio"
-                value="cash"
-                checked={form.payment_method === "cash"}
-                onChange={() => setForm({ ...form, payment_method: "cash" })}
-                className="form-radio"
+                type="number"
+                min={total + 0.01}
+                step="0.01"
+                value={form.change_to}
+                onChange={(e) => setForm({ ...form, change_to: e.target.value })}
+                placeholder="Troco para quanto?"
+                className={`w-full p-2 mb-3 rounded border ${errors.change_to ? "border-red-800" : "border-gray-300"}`}
               />
-              Dinheiro
-            </label>
+            )}
           </div>
 
           {/* Exibe o total do pedido */}
