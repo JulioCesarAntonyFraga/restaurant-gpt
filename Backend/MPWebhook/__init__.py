@@ -43,7 +43,7 @@ def verify_mp_signature(req) -> bool:
                 data_id = None
 
         if not data_id:
-            logging.warning("data.id não encontrado na URL.")
+            logging.warning("data.id não encontrado.")
             return False
 
         # Criar manifest string EXATAMENTE como Mercado Pago espera
