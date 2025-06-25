@@ -137,7 +137,7 @@ function FinishOrder() {
 
       const data = await response.json();
 
-      if (!response.ok || !data.success) {
+      if (!response.ok) {
         console.error("Erro na resposta do servidor:", data);
         alert(data.message || "Erro ao finalizar o pedido. Tente novamente.");
         return;
