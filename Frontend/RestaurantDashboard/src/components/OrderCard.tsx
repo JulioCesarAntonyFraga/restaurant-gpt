@@ -8,6 +8,7 @@ import { useAuth } from "../utils/authContext";
 export interface Order {
   id: string;
   order_number: number;
+  name: string;
   items: { name: string; quantity: number; observation: string }[];
   phone_number: string;
   is_delivery: boolean;
@@ -30,9 +31,13 @@ const OrderCard = ({ order: initialOrder }: OrderProps) => {
 
   async function advanceOrderStatus(orderId: string) {
     try {
-      const updatedOrder = await apiFetch(`/advance-order-status/${orderId}`, token ?? "",{
-        method: "PUT",
-      });
+      const updatedOrder = await apiFetch(
+        `/advance-order-status/${orderId}`,
+        token ?? "",
+        {
+          method: "PUT",
+        }
+      );
       const data = await updatedOrder.json();
       setOrder(data as Order);
     } catch (error: unknown) {
@@ -47,9 +52,13 @@ const OrderCard = ({ order: initialOrder }: OrderProps) => {
 
   async function regressOrderStatus(orderId: string) {
     try {
-      const updatedOrder = await apiFetch(`/regress-order-status/${orderId}`, token ?? "",{
-        method: "PUT",
-      });
+      const updatedOrder = await apiFetch(
+        `/regress-order-status/${orderId}`,
+        token ?? "",
+        {
+          method: "PUT",
+        }
+      );
       const data = await updatedOrder.json();
       setOrder(data as Order);
     } catch (error: unknown) {
@@ -81,10 +90,16 @@ const OrderCard = ({ order: initialOrder }: OrderProps) => {
 
       <OrderItemList items={order.items} />
       <OrderInfo
+        name={order.name}
         phone={order.phone_number}
-        isDelivery={order.is_delivery}
-        orderedAt={order.ordered_at}
+        is_delivery={order.is_delivery}
+        ordered_at={order.ordered_at}
         status={order.status}
+        cep={order.cep}
+        rua={order.rua}
+        numero={order.numero}
+        bairro={order.bairro}
+        cidade={order.cidade}
       />
 
       <OrderActions
