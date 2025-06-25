@@ -153,6 +153,7 @@ def save_order(
     total: float,
     is_delivery: bool,
     payment_method: str,
+    change_to: float = None,
     status: str = "In Progress",
     ordered_at: float = None,
     cep: str = None,
@@ -177,6 +178,7 @@ def save_order(
         "total": round(total, 2),
         "is_delivery": is_delivery,
         "payment_method": payment_method,
+        "change_to": change_to,
         "status": status,
         "ordered_at": ordered_at,
     }

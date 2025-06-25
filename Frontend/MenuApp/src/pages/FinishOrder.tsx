@@ -22,7 +22,7 @@ function FinishOrder() {
     bairro: "",
     cidade: "",
     is_delivery: true,
-    payment_method: "", // online, on_pickup, cash_on_delivery
+    payment_method: "", // online, on_pickup, cash_on_delivery, card_or_pix_on_delivery
     change_to: "",
   });
 
@@ -81,7 +81,7 @@ function FinishOrder() {
     if (!form.payment_method.trim()) newErrors.payment_method = true;
     if (form.payment_method === "cash_on_delivery") {
       const change = Number(form.change_to);
-      if (!form.change_to || isNaN(change) || change <= total) {
+      if (form.change_to && !isNaN(change) && change <= total) {
         alert("O valor do troco deve ser maior que o total do pedido.");
         newErrors.change_to = true;
       }
@@ -137,14 +137,13 @@ function FinishOrder() {
 
       const data = await response.json();
 
-      if (!response.ok || !data.success) {
+      if (!response.ok) {
         console.error("Erro na resposta do servidor:", data);
         alert(data.message || "Erro ao finalizar o pedido. Tente novamente.");
         return;
       }
 
-
-      if (data.payment_url && form.payment_method !== "cash") {
+      if (data.payment_url && form.payment_method === "online") {
         window.location.href = data.payment_url;
       } else {
         clearCart();
@@ -281,27 +280,45 @@ function FinishOrder() {
               Pagamento Online (Pix / Cartão)
             </label>
 
-            <label className="flex items-center gap-2 mb-2">
-              <input
-                type="radio"
-                value="on_pickup"
-                checked={form.payment_method === "on_pickup"}
-                onChange={() => setForm({ ...form, payment_method: "on_pickup" })}
-                className="form-radio"
-              />
-              Pagamento na retirada
-            </label>
+            {!form.is_delivery && (
+              <label className="flex items-center gap-2 mb-2">
+                <input
+                  type="radio"
+                  value="on_pickup"
+                  checked={form.payment_method === "on_pickup"}
+                  onChange={() => setForm({ ...form, payment_method: "on_pickup" })}
+                  className="form-radio"
+                />
+                Pagamento na retirada (PIX, Cartão ou Dinheiro)
+              </label>
+            )}
+            
+            {form.is_delivery && (
+              <label className="flex items-center gap-2 mb-2">
+                <input
+                  type="radio"
+                  value="cash_on_delivery"
+                  checked={form.payment_method === "cash_on_delivery"}
+                  onChange={() => setForm({ ...form, payment_method: "cash_on_delivery" })}
+                  className="form-radio"
+                />
+                Dinheiro na entrega
+              </label>
+            )}
 
-            <label className="flex items-center gap-2 mb-2">
-              <input
-                type="radio"
-                value="cash_on_delivery"
-                checked={form.payment_method === "cash_on_delivery"}
-                onChange={() => setForm({ ...form, payment_method: "cash_on_delivery" })}
-                className="form-radio"
-              />
-              Dinheiro na entrega
-            </label>
+            {form.is_delivery && (
+              <label className="flex items-center gap-2 mb-2">
+                <input
+                  type="radio"
+                  value="card_or_pix_on_delivery"
+                  checked={form.payment_method === "card_or_pix_on_delivery"}
+                  onChange={() => setForm({ ...form, payment_method: "card_or_pix_on_delivery" })}
+                  className="form-radio"
+                />
+                Cartão ou PIX na entrega
+              </label>
+            )}
+            
             {form.payment_method === "cash_on_delivery" && (
               <input
                 type="number"

@@ -5,6 +5,16 @@ import os
 token = os.getenv("WHATSAPP_API_TOKEN")
 phone_number_id = os.getenv("WHATSAPP_PHONE_NUMBER_ID")
 
+def get_payment_method(metodo):
+    traducoes = {
+        "online": "Pagamento online",
+        "on_pickup": "Pagamento na retirada | Cartão, PIX ou dinheiro",
+        "cash_on_delivery": "Pagamento na entrega",
+        "card_or_pix_on_delivery": "Pagamento com cartão ou PIX na entrega",
+    }
+    return traducoes.get(metodo, "Método desconhecido")
+
+
 def build_order_confirmation_template_params(order: dict) -> list:
     address = "Retirada no local"
     if order.get("is_delivery"):
@@ -31,7 +41,7 @@ def build_order_confirmation_template_params(order: dict) -> list:
 
     items_text = items_text.strip("; ")
 
-    change = order.get("change", "0")
+    change = order.get("change_to", None)
 
     return {
         "order_id": str(order.get("id", "")),
@@ -39,8 +49,8 @@ def build_order_confirmation_template_params(order: dict) -> list:
         "address": address,
         "items": items_text.strip(),
         "total": f"R$ {order.get('total', 0):.2f}",
-        "payment_method": order.get("payment_method", ""),
-        "change": str(change)
+        "payment_method": get_payment_method(order.get("payment_method", "")),
+        "change": "Troco para: R$ " + str(change) if change else "Troco: ❌ Não é necessário"
     }
 
 def send_template_message(to_number, template_name, lang_code, params_dict, api_version="v22.0"):

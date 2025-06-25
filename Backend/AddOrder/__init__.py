@@ -8,7 +8,7 @@ from utils.storage import save_order, get_menu, get_toppings, get_additionals
 from mercadopago import SDK
 
 db = firestore.client()
-payment_methods = ["online", "on_pickup", "cash_on_delivery"]
+payment_methods = ["online", "on_pickup", "cash_on_delivery", "card_or_pix_on_delivery"]
 
 
 def validate_order_data(data):
@@ -20,15 +20,12 @@ def validate_order_data(data):
     if data["is_delivery"]:
         required_fields += ["rua", "cep", "bairro", "numero", "cidade"]
 
-    if data["payment_method"] not in payment_methods:
-        raise ValueError(f"Invalid payment method: {data['payment_method']}")
-
-    if data["payment_method"] == "cash_on_delivery":
-        required_fields.append("change_to")
-
     for field in required_fields:
         if field not in data:
             raise ValueError(f"Missing field: {field}")
+        
+    if data["payment_method"] not in payment_methods:
+        raise ValueError(f"Invalid payment method: {data['payment_method']}")
 
     if not isinstance(data["items"], list) or not data["items"]:
         raise ValueError("Items must be a non-empty list")
@@ -154,6 +151,7 @@ def assemble_order_object(data, processed_items, total):
         "is_delivery": data["is_delivery"],
         "payment_method": data["payment_method"],
         "items": processed_items,
+        "change_to": data.get("change_to", None),
         "total": total,
         "status": 0
     }
@@ -188,6 +186,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         else:
             order_data["status"] = 1
             order = save_order(**order_data)
+            order_data = order.copy()
             payment_url = None
 
             template_name = "order_confirmation"
@@ -203,10 +202,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
         return func.HttpResponse(
             json.dumps({
-                "success": True,
-                "message": "Pedido registrado com sucesso!",
                 "payment_url": payment_url,
-                "order_id": order.get("id", ""),
+                "order": order_data,
             }),
             status_code=201,
             mimetype="application/json"
@@ -218,11 +215,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         logging.error("Erro ao criar preferência de pagamento:")
         logging.error(str(re))
         return func.HttpResponse(
-            json.dumps({
-                "success": False,
-                "message": "Erro ao criar preferência de pagamento.",
-                "details": str(re)
-            }),
+            f"Erro ao criar preferência de pagamento: {str(re)}",
             status_code=500,
             mimetype="application/json"
         )
