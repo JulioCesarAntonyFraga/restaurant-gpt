@@ -188,6 +188,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         else:
             order_data["status"] = 1
             order = save_order(**order_data)
+            order_data = order.copy()
             payment_url = None
 
             template_name = "order_confirmation"
@@ -203,10 +204,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
         return func.HttpResponse(
             json.dumps({
-                "success": True,
-                "message": "Pedido registrado com sucesso!",
                 "payment_url": payment_url,
-                "order_id": order.get("id", ""),
+                "order": order_data,
             }),
             status_code=201,
             mimetype="application/json"
@@ -218,11 +217,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         logging.error("Erro ao criar preferência de pagamento:")
         logging.error(str(re))
         return func.HttpResponse(
-            json.dumps({
-                "success": False,
-                "message": "Erro ao criar preferência de pagamento.",
-                "details": str(re)
-            }),
+            f"Erro ao criar preferência de pagamento: {str(re)}",
             status_code=500,
             mimetype="application/json"
         )
