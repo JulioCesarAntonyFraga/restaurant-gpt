@@ -143,8 +143,7 @@ function FinishOrder() {
         return;
       }
 
-
-      if (data.payment_url && form.payment_method !== "cash") {
+      if (data.payment_url && form.payment_method === "online") {
         window.location.href = data.payment_url;
       } else {
         clearCart();
