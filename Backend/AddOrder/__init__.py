@@ -151,6 +151,7 @@ def assemble_order_object(data, processed_items, total):
         "is_delivery": data["is_delivery"],
         "payment_method": data["payment_method"],
         "items": processed_items,
+        "change_to": data.get("change_to", None),
         "total": total,
         "status": 0
     }
