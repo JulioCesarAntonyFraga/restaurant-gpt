@@ -81,7 +81,7 @@ function FinishOrder() {
     if (!form.payment_method.trim()) newErrors.payment_method = true;
     if (form.payment_method === "cash_on_delivery") {
       const change = Number(form.change_to);
-      if (!form.change_to || isNaN(change) || change <= total) {
+      if (form.change_to && !isNaN(change) && change <= total) {
         alert("O valor do troco deve ser maior que o total do pedido.");
         newErrors.change_to = true;
       }
