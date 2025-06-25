@@ -22,7 +22,7 @@ function FinishOrder() {
     bairro: "",
     cidade: "",
     is_delivery: true,
-    payment_method: "", // online, on_pickup, cash_on_delivery
+    payment_method: "", // online, on_pickup, cash_on_delivery, card_or_pix_on_delivery
     change_to: "",
   });
 
@@ -280,27 +280,45 @@ function FinishOrder() {
               Pagamento Online (Pix / Cartão)
             </label>
 
-            <label className="flex items-center gap-2 mb-2">
-              <input
-                type="radio"
-                value="on_pickup"
-                checked={form.payment_method === "on_pickup"}
-                onChange={() => setForm({ ...form, payment_method: "on_pickup" })}
-                className="form-radio"
-              />
-              Pagamento na retirada
-            </label>
+            {!form.is_delivery && (
+              <label className="flex items-center gap-2 mb-2">
+                <input
+                  type="radio"
+                  value="on_pickup"
+                  checked={form.payment_method === "on_pickup"}
+                  onChange={() => setForm({ ...form, payment_method: "on_pickup" })}
+                  className="form-radio"
+                />
+                Pagamento na retirada (PIX, Cartão ou Dinheiro)
+              </label>
+            )}
+            
+            {form.is_delivery && (
+              <label className="flex items-center gap-2 mb-2">
+                <input
+                  type="radio"
+                  value="cash_on_delivery"
+                  checked={form.payment_method === "cash_on_delivery"}
+                  onChange={() => setForm({ ...form, payment_method: "cash_on_delivery" })}
+                  className="form-radio"
+                />
+                Dinheiro na entrega
+              </label>
+            )}
 
-            <label className="flex items-center gap-2 mb-2">
-              <input
-                type="radio"
-                value="cash_on_delivery"
-                checked={form.payment_method === "cash_on_delivery"}
-                onChange={() => setForm({ ...form, payment_method: "cash_on_delivery" })}
-                className="form-radio"
-              />
-              Dinheiro na entrega
-            </label>
+            {form.is_delivery && (
+              <label className="flex items-center gap-2 mb-2">
+                <input
+                  type="radio"
+                  value="card_or_pix_on_delivery"
+                  checked={form.payment_method === "card_or_pix_on_delivery"}
+                  onChange={() => setForm({ ...form, payment_method: "card_or_pix_on_delivery" })}
+                  className="form-radio"
+                />
+                Cartão ou PIX na entrega
+              </label>
+            )}
+            
             {form.payment_method === "cash_on_delivery" && (
               <input
                 type="number"

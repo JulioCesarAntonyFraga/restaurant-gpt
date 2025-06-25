@@ -8,8 +8,9 @@ phone_number_id = os.getenv("WHATSAPP_PHONE_NUMBER_ID")
 def get_payment_method(metodo):
     traducoes = {
         "online": "Pagamento online",
-        "on_pickup": "Pagamento na retirada",
-        "cash_on_delivery": "Pagamento na entrega"
+        "on_pickup": "Pagamento na retirada | Cartão, PIX ou dinheiro",
+        "cash_on_delivery": "Pagamento na entrega",
+        "card_or_pix_on_delivery": "Pagamento com cartão ou PIX na entrega",
     }
     return traducoes.get(metodo, "Método desconhecido")
 

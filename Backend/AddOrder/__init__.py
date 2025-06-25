@@ -8,7 +8,7 @@ from utils.storage import save_order, get_menu, get_toppings, get_additionals
 from mercadopago import SDK
 
 db = firestore.client()
-payment_methods = ["online", "on_pickup", "cash_on_delivery"]
+payment_methods = ["online", "on_pickup", "cash_on_delivery", "card_or_pix_on_delivery"]
 
 
 def validate_order_data(data):
