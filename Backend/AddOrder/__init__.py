@@ -20,15 +20,12 @@ def validate_order_data(data):
     if data["is_delivery"]:
         required_fields += ["rua", "cep", "bairro", "numero", "cidade"]
 
-    if data["payment_method"] not in payment_methods:
-        raise ValueError(f"Invalid payment method: {data['payment_method']}")
-
-    if data["payment_method"] == "cash_on_delivery":
-        required_fields.append("change_to")
-
     for field in required_fields:
         if field not in data:
             raise ValueError(f"Missing field: {field}")
+        
+    if data["payment_method"] not in payment_methods:
+        raise ValueError(f"Invalid payment method: {data['payment_method']}")
 
     if not isinstance(data["items"], list) or not data["items"]:
         raise ValueError("Items must be a non-empty list")
