@@ -3,6 +3,7 @@ import azure.functions as func
 import json
 import os
 from firebase_admin import firestore
+from utils.message_sender import build_order_confirmation_template_params, send_template_message
 from utils.storage import save_order, get_menu, get_toppings, get_additionals
 from mercadopago import SDK
 
@@ -188,6 +189,17 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             order_data["status"] = 1
             order = save_order(**order_data)
             payment_url = None
+
+            template_name = "order_confirmation"
+            lang_code = "pt_BR"
+            params_dict = build_order_confirmation_template_params(order)
+
+            send_template_message(
+                to_number=order.get("phone_number"),
+                template_name=template_name,
+                lang_code=lang_code,
+                params_dict=params_dict
+            )
 
         return func.HttpResponse(
             json.dumps({
