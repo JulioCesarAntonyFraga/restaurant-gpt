@@ -290,13 +290,16 @@ def regress_order_status(order_id: str) -> dict:
 
     return order
 
+status_order = {
+    0: "Pendente",
+    1: "Aceito",
+    2: "Em andamento",
+    3: "Pronto para coleta/entrega",
+    4: "A caminho do cliente",
+    5: "Coletado/Entregue",
+}
+
 def get_previous_status(current_status: str) -> str:
-    status_order = [
-        "In Progress",
-        "On the Way to the customer",
-        "Ready to take away",
-        "Delivered/Picked up"
-    ]
     try:
         current_index = status_order.index(current_status)
         previous_index = (current_index - 1) % len(status_order)
@@ -305,13 +308,6 @@ def get_previous_status(current_status: str) -> str:
         return None
 
 def get_next_status(current_status: str) -> str:
-    status_order = [
-        "Pending",
-        "In Progress",
-        "On the Way to the customer",
-        "Ready to take away",
-        "Delivered/Picked up"
-    ]
     try:
         current_index = status_order.index(current_status)
         next_index = (current_index + 1) % len(status_order)
