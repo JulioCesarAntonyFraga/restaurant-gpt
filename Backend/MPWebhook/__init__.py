@@ -32,11 +32,13 @@ def verify_mp_signature(req) -> bool:
         parsed_url = urllib.parse.urlparse(req.url)
         query_params = urllib.parse.parse_qs(parsed_url.query)
         data_id = query_params.get("data.id", [None])[0]
+        logging.info(f"Query parameters recebidos: {query_params}")
 
         # Se não veio na query, tenta do body
         if not data_id:
             try:
                 body = req.get_json()
+                logging.info(f"Body recebido: {body}")
                 data_id = body.get("data", {}).get("id")
             except Exception as e:
                 logging.warning(f"Erro ao tentar extrair data.id do body: {e}")
@@ -129,7 +131,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
         # Verifica se o pagamento está aprovado
         if payment_info.get("status") != "approved":
-            logging.info(f"Pagamento {data_id} não aprovado. Status: {payment_info.get('status')}")
+            logging.info(f"Pagamento {data_id} não aprovado. Status: {payment_info.get('status')} Message: {payment_info.get('message')}")
             return func.HttpResponse("Pagamento não aprovado", status_code=200)
 
         # Recupera order_id do external_reference
