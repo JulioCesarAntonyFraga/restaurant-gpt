@@ -49,7 +49,7 @@ def build_order_confirmation_template_params(order: dict) -> list:
         "items": items_text.strip(),
         "total": f"R$ {order.get('total', 0):.2f}",
         "payment_method": get_payment_method(order.get("payment_method", "")),
-        "change": "Troco para: R$ " + str(change) if change is not None else "Troco: ❌ Não é necessário"
+        "change": "Troco para: R$ " + str(change) if change else "Troco: ❌ Não é necessário"
     }
 
 def send_template_message(to_number, template_name, lang_code, params_dict, api_version="v22.0"):
