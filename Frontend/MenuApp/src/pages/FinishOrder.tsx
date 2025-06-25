@@ -4,15 +4,14 @@ import { useNavigate } from "react-router-dom";
 import PhoneInput from "react-phone-input-2";
 import 'react-phone-input-2/lib/style.css';
 
+const DELIVERY_FEE = 5.00;
+
 function FinishOrder() {
   const navigate = useNavigate();
 
   const { clearCart, cartItems } = useCart();
 
-  const total = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+
 
   const [form, setForm] = useState({
     name: "",
@@ -26,6 +25,13 @@ function FinishOrder() {
     payment_method: "", // online, on_pickup, cash_on_delivery
     change_to: "",
   });
+
+  const subtotal = cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+
+  const total = form.is_delivery ? subtotal + DELIVERY_FEE : subtotal;
 
 
   const [errors, setErrors] = useState<{ [key: string]: boolean }>({});
@@ -55,6 +61,11 @@ function FinishOrder() {
         alert("Erro ao buscar CEP");
       }
     }
+  };
+
+  const formatCep = (value: string): string => {
+    const cepLimpo = value.replace(/\D/g, "").slice(0, 8);
+    return cepLimpo.replace(/^(\d{5})(\d{0,3})$/, "$1-$2");
   };
 
   const handleSubmit = async () => {
@@ -109,7 +120,9 @@ function FinishOrder() {
       cidade: form.cidade,
       payment_method: form.payment_method,
       change_to: form.payment_method === "cash_on_delivery" ? form.change_to : null,
-  };
+      total: total,
+      delivery_free: form.is_delivery ? DELIVERY_FEE : 0,
+    };
 
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -129,7 +142,7 @@ function FinishOrder() {
         alert(data.message || "Erro ao finalizar o pedido. Tente novamente.");
         return;
       }
-     
+
 
       if (data.payment_url && form.payment_method !== "cash") {
         window.location.href = data.payment_url;
@@ -140,7 +153,7 @@ function FinishOrder() {
     } catch (error) {
       console.error("Erro ao enviar pedido:", error);
       alert("Erro ao finalizar o pedido. Tente novamente.");
-    }    
+    }
   };
 
   return (
@@ -213,12 +226,13 @@ function FinishOrder() {
                 type="text"
                 placeholder="CEP"
                 value={form.cep}
-                onChange={(e) => setForm({ ...form, cep: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, cep: formatCep(e.target.value) })
+                }
                 onBlur={() => searchByCEP(form.cep)}
                 className={`w-full p-2 mb-3 rounded border ${errors.cep ? "border-red-800" : "border-gray-300"
                   }`}
               />
-
               <input
                 value={form.rua}
                 onChange={(e) => setForm({ ...form, rua: e.target.value })}
@@ -303,6 +317,11 @@ function FinishOrder() {
 
           {/* Exibe o total do pedido */}
           <div className="text-right font-bold text-lg">
+            {form.is_delivery && (
+              <p className="text-sm text-gray-600">
+                subtotal: R$ {subtotal.toFixed(2)} + Entrega: R$ {DELIVERY_FEE.toFixed(2)}
+              </p>
+            )}
             <p>Total: R$ {total.toFixed(2)}</p>
           </div>
 
