@@ -25,18 +25,6 @@ const OrderInfo = ({
   bairro,
   cidade,
 }: OrderInfoProps) => {
-   console.log("📦 Dados recebidos em <OrderInfo />:", {
-    name,
-    phone,
-    is_delivery,
-    ordered_at,
-    status,
-    cep,
-    rua,
-    numero,
-    bairro,
-    cidade,
-  });
   const statusOptions = [
     { value: 0, label: "Pendente" },
     { value: 1, label: "Aceito" },

@@ -81,9 +81,8 @@ const OrderCard = ({ order: initialOrder }: OrderProps) => {
   return (
     <div
       key={order.id}
-      className={`rounded-xl p-4 shadow-md border border-yellow-300 ${
-        statusColors[order.status as keyof typeof statusColors] || ""
-      } font-hand text-lg`}
+      className={`rounded-xl p-4 shadow-md border border-yellow-300 ${statusColors[order.status as keyof typeof statusColors] || ""
+        } font-hand text-lg`}
       style={{ fontFamily: '"Patrick Hand", cursive' }}
     >
       <h2 className="text-xl font-bold mb-2">Order #{order.order_number}</h2>
