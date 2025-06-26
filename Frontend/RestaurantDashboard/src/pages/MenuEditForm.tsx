@@ -4,6 +4,7 @@ import { useAuth } from "../utils/authContext";
 import { apiFetch } from "../utils/apiHelper";
 import { uploadImage } from "../utils/firebase";
 import AddonCheckboxGroup, { Addon } from "../components/AddonCheckBoxGroup";
+import Footer from "../components/Footer";
 
 type Additionals = {
   id: string;
@@ -202,148 +203,156 @@ const MenuEditForm = () => {
   }));
 
   return (
-    <div className="p-6 max-w-xl mx-auto bg-white rounded-xl shadow-md space-y-4">
-      <h2 className="text-xl font-bold">Editar Item do Menu</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          name="name"
-          placeholder="Nome"
-          value={formData.name}
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-          required
-        />
-        <input
-          type="number"
-          name="price"
-          placeholder="Preço"
-          value={formData.price}
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-          required
-        />
-        <input
-          type="text"
-          name="category"
-          placeholder="Categoria"
-          value={formData.category}
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-          required
-        />
-        <textarea
-          name="description"
-          placeholder="Descrição (opcional)"
-          value={formData.description}
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-        />
-
-        <label htmlFor="image-upload" className="block text-sm font-medium text-gray-700">
-          Imagem
-        </label>
-
-        <div className="flex items-center space-x-4">
-          <label
-            htmlFor="image-upload"
-            className="cursor-pointer px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded"
-          >
-            📷 Selecionar imagem
-          </label>
-          {imageFile && <span className="text-sm text-gray-600">{imageFile.name}</span>}
-        </div>
-
-        <input
-          id="image-upload"
-          type="file"
-          accept="image/*"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) {
-              setImageFile(file);
-              setImagePreview(URL.createObjectURL(file));
-            }
-          }}
-          className="hidden"
-        />
-
-        {(imagePreview || formData.imageUrl) && (
-          <img
-            src={imagePreview || formData.imageUrl}
-            alt="Pré-visualização"
-            className="mt-2 h-32 w-32 object-cover rounded border"
-          />
-        )}
-
-        <label className="flex items-center space-x-2">
+  <div className="min-h-screen flex flex-col">
+    <main className="flex-grow p-6">
+      <div className="max-w-xl mx-auto bg-white rounded-xl shadow-md space-y-4">
+        <h2 className="text-xl font-bold">Editar Item do Menu</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input
-            type="checkbox"
-            name="available"
-            checked={formData.available}
+            type="text"
+            name="name"
+            placeholder="Nome"
+            value={formData.name}
             onChange={handleChange}
+            className="cursor-pointer w-full p-2 border rounded"
+            required
           />
-          <span>Disponível</span>
-        </label>
-
-        <label className="flex items-center space-x-2 mb-4">
           <input
-            type="checkbox"
-            checked={showExtras}
-            onChange={(e) => setShowExtras(e.target.checked)}
+            type="number"
+            name="price"
+            placeholder="Preço"
+            value={formData.price}
+            onChange={handleChange}
+            className="cursor-pointer w-full p-2 border rounded"
+            required
           />
-          <span>Complementos e adicionais</span>
-        </label>
+          <input
+            type="text"
+            name="category"
+            placeholder="Categoria"
+            value={formData.category}
+            onChange={handleChange}
+            className="cursor-pointer w-full p-2 border rounded"
+            required
+          />
+          <textarea
+            name="description"
+            placeholder="Descrição (opcional)"
+            value={formData.description}
+            onChange={handleChange}
+            className="cursor-pointer w-full p-2 border rounded"
+          />
 
-        {showExtras && (
-          <>
-            <div className="mb-4">
-              <h3 className="text-lg font-semibold">Complementos</h3>
-              <input
-                type="number"
-                name="max_toppings"
-                placeholder="Máximo de complementos"
-                value={formData.max_toppings}
-                onChange={handleChange}
-                className="w-full p-2 border rounded mb-2"
-              />
-              <AddonCheckboxGroup
-                title="Complementos"
-                addons={toppingsParaAddons}
-                selectedAddons={selectedToppings}
-                setSelectedAddons={setSelectedToppings}
-              />
-            </div>
+          <label htmlFor="image-upload" className="block text-sm font-medium text-gray-700">
+            Imagem
+          </label>
 
-            <div className="mb-4">
-              <h3 className="text-lg font-semibold">Adicionais</h3>
-              <input
-                type="number"
-                name="max_additionals"
-                placeholder="Máximo de adicionais"
-                value={formData.max_additionals}
-                onChange={handleChange}
-                className="w-full p-2 border rounded mb-2"
-              />
-              <AddonCheckboxGroup
-                title="Adicionais"
-                addons={additionalsParaAddons}
-                selectedAddons={selectedAdditionals}
-                setSelectedAddons={setSelectedAdditionals}
-              />
-            </div>
-          </>
-        )}
+          <div className="flex items-center space-x-4">
+            <label
+              htmlFor="image-upload"
+              className="cursor-pointer px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded"
+            >
+              📷 Selecionar imagem
+            </label>
+            {imageFile && <span className="text-sm text-gray-600">{imageFile.name}</span>}
+          </div>
 
-        <button
-          type="submit"
-          className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded"
-        >
-          Salvar
-        </button>
-      </form>
-    </div>
-  );
+          <input
+            id="image-upload"
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                setImageFile(file);
+                setImagePreview(URL.createObjectURL(file));
+              }
+            }}
+            className="hidden"
+          />
+
+          {(imagePreview || formData.imageUrl) && (
+            <img
+              src={imagePreview || formData.imageUrl}
+              alt="Pré-visualização"
+              className="mt-2 h-32 w-32 object-cover rounded border"
+            />
+          )}
+
+          <label className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              name="available"
+              checked={formData.available}
+              className="cursor-pointer "
+              onChange={handleChange}
+            />
+            <span>Disponível</span>
+          </label>
+
+          <label className="flex items-center space-x-2 mb-4">
+            <input
+              type="checkbox"
+              checked={showExtras}
+              className="cursor-pointer "
+              onChange={(e) => setShowExtras(e.target.checked)}
+            />
+            <span>Complementos e adicionais</span>
+          </label>
+
+          {showExtras && (
+            <>
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold">Complementos</h3>
+                <input
+                  type="number"
+                  name="max_toppings"
+                  placeholder="Máximo de complementos"
+                  value={formData.max_toppings}
+                  onChange={handleChange}
+                  className="cursor-pointer w-full p-2 border rounded mb-2"
+                />
+                <AddonCheckboxGroup
+                  title="Complementos"
+                  addons={toppingsParaAddons}
+                  selectedAddons={selectedToppings}
+                  setSelectedAddons={setSelectedToppings}
+                />
+              </div>
+
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold">Adicionais</h3>
+                <input
+                  type="number"
+                  name="max_additionals"
+                  placeholder="Máximo de adicionais"
+                  value={formData.max_additionals}
+                  onChange={handleChange}
+                  className="cursor-pointer w-full p-2 border rounded mb-2"
+                />
+                <AddonCheckboxGroup
+                  title="Adicionais"
+                  addons={additionalsParaAddons}
+                  selectedAddons={selectedAdditionals}
+                  setSelectedAddons={setSelectedAdditionals}
+                />
+              </div>
+            </>
+          )}
+
+          <button
+            type="submit"
+            className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded"
+          >
+            Salvar
+          </button>
+        </form>
+      </div>
+    </main>
+
+    <Footer />
+  </div>
+);
 };
 
 export default MenuEditForm;
