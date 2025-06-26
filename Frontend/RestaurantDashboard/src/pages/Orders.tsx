@@ -3,6 +3,7 @@ import Select from "react-select";
 import OrderCard, {Order} from "../components/OrderCard";
 import { apiFetch } from "../utils/apiHelper";
 import { useAuth } from "../utils/authContext";
+import Footer from "../components/Footer";
 
 const statusOptions = [
     { value: 0, label: "Pendente" },
@@ -63,45 +64,65 @@ const Orders = () => {
 
 
     return (
-        <div className="p-6">
-            {/* Filtros */}
-            <div className="filters flex flex-wrap gap-6 items-start mb-6">
-                {/* MULTISELECT */}
-                <div className="w-64">
-                    <label className="block font-semibold mb-2">Filtrar Por Status</label>
-                    <Select
-                        isMulti
-                        options={statusOptions}
-                        value={statusFilter}
-                        onChange={(selected) => setStatusFilter(selected as { value: number; label: string }[])}
-                        placeholder="Selecione o status..."
-                        className="text-sm"
-                    />
-                </div>
-
-                <div>
-                    <label className="block font-semibold mb-2">Ordernar Por Horário</label>
-                    <select
-                        value={sortOrder}
-                        onChange={(e) =>
-                            setSortOrder(e.target.value as "asc" | "desc")
-                        }
-                        className="rounded-md border border-gray-300 px-3 py-2"
-                    >
-                        <option value="desc">Mais Recente</option>
-                        <option value="asc">Mais Antigo</option>
-                    </select>
-                </div>
-            </div>
-
-            {/* Grid de Pedidos */}
-            <div className="orders-container grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 overflow-y-auto">
-                {filteredOrders.map((order) => (
-                    <OrderCard key={order.id} order={order} />
-                ))}
-            </div>
+  <div className="min-h-screen flex flex-col">
+    <main className="flex-grow p-6">
+      {/* Filtros */}
+      <div className="filters flex flex-wrap gap-6 items-start mb-6">
+        <div className="w-64">
+          <label className="block font-semibold mb-2">Filtrar Por Status</label>
+          <Select
+            isMulti
+            options={statusOptions}
+            value={statusFilter}            
+            onChange={(selected) =>
+              setStatusFilter(selected as { value: number; label: string }[])
+            }
+            placeholder="Selecione o status..."
+            className="text-sm"
+  styles={{
+    control: (base) => ({
+      ...base,
+      cursor: "pointer", 
+    }),
+    option: (base) => ({
+      ...base,
+      cursor: "pointer", 
+    }),
+    multiValueRemove: (base) => ({
+      ...base,
+      cursor: "pointer", 
+    }),
+  }}
+/>
         </div>
-    );
+
+        <div>
+          <label className="block font-semibold mb-2">Ordernar Por Horário</label>
+          <select
+            value={sortOrder}
+            onChange={(e) =>
+              setSortOrder(e.target.value as "asc" | "desc")
+            }
+            className=" rounded-md border border-gray-300 px-3 py-2 cursor-pointer"
+          >
+            <option value="desc">Mais Recente</option>
+            <option value="asc">Mais Antigo</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Grid de Pedidos */}
+      <div className="orders-container grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 overflow-y-auto">
+        {filteredOrders.map((order) => (
+          <OrderCard key={order.id} order={order} />
+        ))}
+      </div>
+    </main>
+
+    {/* Rodapé */}
+    <Footer />
+  </div>
+);
 };
 
 export default Orders;
