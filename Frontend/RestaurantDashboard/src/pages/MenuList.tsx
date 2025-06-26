@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import { Switch } from "@headlessui/react";
 import React from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../utils/apiHelper";
 import { useAuth } from "../utils/authContext";
+import Footer from "../components/Footer";
 
 type MenuItem = {
   id: string;
@@ -106,7 +107,16 @@ const MenuList = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Itens do Cardápio</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Itens do Cardápio</h1>
+        <button
+        className="cursor-pointer bg-green-600 hover:bg-green-700 text-white px-12 py-3 rounded"
+          onClick={() => navigate("/menu/novo")}
+          
+        >
+          + Adicionar Item
+        </button>
+      </div>
 
       <div className="flex flex-wrap gap-4 mb-6">
         <div>
@@ -116,7 +126,7 @@ const MenuList = () => {
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
               setAvailabilityFilter(e.target.value as AvailabilityFilter)
             }
-            className="ml-2 p-2 border rounded"
+            className="cursor-pointer ml-2 p-2 border rounded"
           >
             <option value="all">Todos</option>
             <option value="available">Disponíveis</option>
@@ -131,7 +141,7 @@ const MenuList = () => {
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
               setSortBy(e.target.value as SortField)
             }
-            className="ml-2 p-2 border rounded"
+            className="cursor-pointer ml-2 p-2 border rounded"
           >
             <option value="name">Nome</option>
             <option value="price">Preço</option>
@@ -178,12 +188,14 @@ const MenuList = () => {
                   <Switch
                     checked={item.available}
                     onChange={() => toggleAvailability(item.id)}
-                    className={`${item.available ? "bg-green-500" : "bg-gray-300"
-                      } relative inline-flex h-6 w-11 items-center rounded-full transition-colors`}
+                    className={`${
+                      item.available ? "cursor-pointer bg-green-500" : "bg-gray-300"
+                    } relative inline-flex h-6 w-11 items-center rounded-full transition-colors`}
                   >
                     <span
-                      className={`${item.available ? "translate-x-6" : "translate-x-1"
-                        } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+                      className={`${
+                        item.available ? "translate-x-6" : "translate-x-1"
+                      } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
                     />
                   </Switch>
                 </div>
@@ -191,7 +203,7 @@ const MenuList = () => {
 
               <div className="flex flex-col items-end gap-2">
                 <button
-                  className="flex items-center gap-1 text-sm bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
+                  className="cursor-pointer flex items-center gap-1 text-sm bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
                   onClick={() => navigate(`/menu/editar/${item.id}`)}
                 >
                   <Pencil size={16} />
@@ -199,7 +211,7 @@ const MenuList = () => {
                 </button>
 
                 <button
-                  className="flex items-center gap-1 text-sm bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"
+                  className="cursor-pointer flex items-center gap-1 text-sm bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"
                   onClick={() => removeMenuItem(item.id)}
                 >
                   <Trash2 size={16} />
@@ -210,6 +222,7 @@ const MenuList = () => {
           </div>
         ))}
       </div>
+      <Footer />
     </div>
   );
 };

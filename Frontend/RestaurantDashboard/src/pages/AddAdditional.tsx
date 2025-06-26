@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { apiFetch } from "../utils/apiHelper";
 import { useAuth } from "../utils/authContext";
 import React from "react";
+import Footer from "../components/Footer";
 
 type Additionals = {
   id: string;
@@ -160,90 +161,96 @@ export default function AdicionaisPage() {
     setEditId(null);
   };
 
-  return (
-    <div className="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-xl shadow">
-      <h1 className="text-2xl font-bold mb-4">Gerenciar Adicionais</h1>
+ return (
+    <>
+      <div className="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-xl shadow">
+        <h1 className="text-2xl font-bold mb-4">Gerenciar Adicionais</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          name="name"
-          placeholder="Nome"
-          value={form.name}
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-          required
-        />
-        <input
-          type="number"
-          name="price"
-          placeholder="Preço"
-          value={form.price}
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-          required
-        />
-        <textarea
-          name="description"
-          placeholder="Descrição (opcional)"
-          value={form.description}
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-        />
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded">
-          {editId ? "Atualizar" : "Adicionar"}
-        </button>
-        {message && <p>{message}</p>}
-      </form>
-      <hr className="my-6" />
-      <ul className="space-y-2">
-        {additionals.map((item) => (
-          <li
-            key={item.id}
-            className="flex items-center justify-between p-2 border rounded">
-            <div>
-              <strong>{item.name}</strong> - R$ {item.price.toFixed(2)}
-              {item.description && <p className="text-sm">{item.description}</p>}
-            </div>
-            <div className="space-x-2">
-              <button
-                onClick={() => handleEdit(item)}
-                className="bg-yellow-500 text-white px-3 py-1 rounded">
-                Editar
-              </button>
-              <button
-                onClick={() => handleDelete(item.id)}
-                className="bg-red-600 text-white px-3 py-1 rounded">
-                Excluir
-              </button>
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={item.available}
-                  onChange={async (e) => {
-                    const isChecked = e.target.checked;
-                    const previousItem = { ...item };
-                    const updatedItem = { ...item, available: isChecked };
-                    setAdicionais((prev) =>
-                      prev.map((i) => (i.id === updatedItem.id ? updatedItem : i)));
-                    try {
-                      await updateAdicional(updatedItem);
-                    } catch (error) {
-                      console.error("Erro ao atualizar adicional:", error);
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="text"
+            name="name"
+            placeholder="Nome"
+            value={form.name}
+            onChange={handleChange}
+            className="cursor-pointer w-full p-2 border rounded"
+            required
+          />
+          <input
+            type="number"
+            name="price"
+            placeholder="Preço"
+            value={form.price}
+            onChange={handleChange}
+            className="cursor-pointer w-full p-2 border rounded"
+            required
+          />
+          <textarea
+            name="description"
+            placeholder="Descrição (opcional)"
+            value={form.description}
+            onChange={handleChange}
+            className="cursor-pointer w-full p-2 border rounded"
+          />
+          <button
+            type="submit"
+            className="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded">
+            {editId ? "Atualizar" : "Adicionar"}
+          </button>
+          {message && <p>{message}</p>}
+        </form>
+
+        <hr className="my-6" />
+
+        <ul className="space-y-2">
+          {additionals.map((item) => (
+            <li
+              key={item.id}
+              className="flex items-center justify-between p-2 border rounded">
+              <div>
+                <strong>{item.name}</strong> - R$ {item.price.toFixed(2)}
+                {item.description && <p className="text-sm">{item.description}</p>}
+              </div>
+              <div className="space-x-2">
+                
+                <button
+                  onClick={() => handleEdit(item)}
+                  className="cursor-pointer bg-yellow-500 text-white px-3 py-1 rounded">
+                  Editar
+                </button>
+                <button
+                  onClick={() => handleDelete(item.id)}
+                  className="cursor-pointer bg-red-600 text-white px-3 py-1 rounded">
+                  Excluir
+                </button>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={item.available}
+                    className="cursor-pointer"
+                    onChange={async (e) => {
+                      const isChecked = e.target.checked;
+                      const previousItem = { ...item };
+                      const updatedItem = { ...item, available: isChecked };
                       setAdicionais((prev) =>
-                        prev.map((i) => (i.id === previousItem.id ? previousItem : i)));
-                    }
-                  }}
-                />
-                Disponível
-              </label>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </div>
+                        prev.map((i) => (i.id === updatedItem.id ? updatedItem : i)));
+                      try {
+                        await updateAdicional(updatedItem);
+                      } catch (error) {
+                        console.error("Erro ao atualizar adicional:", error);
+                        setAdicionais((prev) =>
+                          prev.map((i) => (i.id === previousItem.id ? previousItem : i)));
+                      }
+                    }}
+                  />
+                  Disponível
+                </label>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>      
+      <Footer />
+    </>
   );
 }
-
