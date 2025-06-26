@@ -26,9 +26,9 @@ type MenuItem = {
   category: string;
   description?: string | undefined;
   imageUrl?: string | undefined;
-  toppings?: string[] | undefined;
+  toppings?: string[];
   max_toppings?: number | undefined;
-  additionals?: string[] | undefined;
+  additionals?: string[];
   max_additionals?: number | undefined;
 };
 
@@ -42,9 +42,9 @@ const MenuForm: React.FC = () => {
     category: "",
     description: undefined,
     imageUrl: undefined,
-    toppings: undefined,
+    toppings: [],
     max_toppings: undefined,
-    additionals: undefined,
+    additionals: [],
     max_additionals: undefined,
   });
 
@@ -113,8 +113,8 @@ const MenuForm: React.FC = () => {
       method: "POST",
       body: JSON.stringify({
         ...formData,
-        toppings: Object.keys(selectedToppings).length > 0 ? Object.keys(selectedToppings) : undefined,
-        additionals: Object.keys(selectedAdditionals).length > 0 ? Object.keys(selectedAdditionals) : undefined,
+        toppings: Object.keys(selectedToppings),
+        additionals: Object.keys(selectedAdditionals),
       }),
     });
 
