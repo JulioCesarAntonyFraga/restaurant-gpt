@@ -32,7 +32,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         if not isinstance(toppings, list) or not all(isinstance(t, str) for t in toppings):
             return func.HttpResponse("Field 'toppings' must be a list of strings", status_code=400)
         
-        if "max_toppings" not in menu_item:
+        if "max_toppings" not in menu_item and len(toppings) > 0:
             return func.HttpResponse("'max_toppings' is required when 'toppings' is provided", status_code=400)
         
         max_toppings = menu_item["max_toppings"]
@@ -54,7 +54,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         if not isinstance(additionals, list) or not all(isinstance(a, str) for a in additionals):
             return func.HttpResponse("Field 'additionals' must be a list of strings", status_code=400)
 
-        if "max_additionals" not in menu_item:
+        if "max_additionals" not in menu_item and len(additionals) > 0:
             return func.HttpResponse("'max_additionals' is required when 'additionals' is provided", status_code=400)
 
         max_additionals = menu_item["max_additionals"]
