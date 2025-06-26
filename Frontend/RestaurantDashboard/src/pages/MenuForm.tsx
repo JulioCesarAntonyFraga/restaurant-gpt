@@ -98,6 +98,13 @@ const MenuForm: React.FC = () => {
 
     if (type === "checkbox") {
       val = (e.target as HTMLInputElement).checked;
+
+      if (name === "showExtras") {
+        setShowExtras(val as boolean);
+        setSelectedToppings({});
+        setSelectedAdditionals({});
+        return;
+      }
     } else if (name === "max_toppings" || name === "max_additionals" || name === "price") {
       const parsed = parseInt(value, 10);
       val = isNaN(parsed) ? 0 : parsed;
@@ -210,7 +217,7 @@ const MenuForm: React.FC = () => {
         </label>
 
         <label className="flex items-center space-x-2 mb-4">
-          <input type="checkbox" checked={showExtras} onChange={(e) => setShowExtras(e.target.checked)} />
+          <input name="showExtras" type="checkbox" checked={showExtras} onChange={handleChange} />
           <span>Complementos e adicionais</span>
         </label>
 

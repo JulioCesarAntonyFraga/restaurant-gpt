@@ -141,6 +141,12 @@ const MenuEditForm = () => {
           ? parseFloat(value) || 0
           : value;
 
+    if (name === "showExtras") {
+      setShowExtras(newValue as boolean);
+      setSelectedToppings({});
+      setSelectedAdditionals({});
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: newValue,
@@ -289,9 +295,10 @@ const MenuEditForm = () => {
 
         <label className="flex items-center space-x-2 mb-4">
           <input
+            name="showExtras"
             type="checkbox"
             checked={showExtras}
-            onChange={(e) => setShowExtras(e.target.checked)}
+            onChange={handleChange}
           />
           <span>Complementos e adicionais</span>
         </label>
