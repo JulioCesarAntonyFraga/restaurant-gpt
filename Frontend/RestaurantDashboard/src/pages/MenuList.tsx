@@ -30,21 +30,19 @@ const MenuList = () => {
       method: "GET",
     });
     if (!res.ok) {
-      throw new Error("Failed to fetch orders");
+      const errorData = await res.text();
+      console.error("Erro ao buscar itens do menu:", errorData);
+
+      return [];
     }
     return res.json();
   }
 
   useEffect(() => {
     const getItems = async () => {
-      try {
         const data = await fetchMenuItems();
         setMenuItems(data);
-      } catch (error) {
-        console.error("Erro ao buscar itens do menu:", error);
-      } finally {
         setLoading(false);
-      }
     };
     getItems();
   }, [token]);
@@ -81,18 +79,15 @@ const MenuList = () => {
   };
 
   const removeMenuItem = async (id: string) => {
-    try {
-      const res = await apiFetch(`/delete-menu-item/${id}`, token ?? "", {
-        method: "DELETE",
-      });
+    const res = await apiFetch(`/delete-menu-item/${id}`, token ?? "", {
+      method: "DELETE",
+    });
 
-      if (!res.ok) {
-        throw new Error("Erro ao remover o item do menu");
-      }
-
+    if (!res.ok) {
+      console.error("Erro ao remover item do menu:", await res.text());
+    }
+    else {
       setMenuItems((prevItems) => prevItems.filter((item) => item.id !== id));
-    } catch (error) {
-      console.error("Erro ao remover item:", error);
     }
   };
 
