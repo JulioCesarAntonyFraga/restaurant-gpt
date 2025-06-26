@@ -1,13 +1,14 @@
 import { useState } from "react";
 import {
   Menu,
+  ShoppingBag,
+  ClipboardList,
   ChevronLeft,
   ChevronRight,
+  PlusCircle,
+  List,
+  ChevronDown,
   LogOut,
-  Sandwich,
-  Layers,
-  BookOpenText,
-  ReceiptText,
 } from "lucide-react";
 import { Routes, Route, Link, useNavigate } from "react-router-dom";
 
@@ -31,14 +32,16 @@ export default function App() {
   };
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
     <div className="flex overflow-hidden h-screen text-gray-800 bg-white">
       <AuthProvider>
+        {/* Sidebar */}
         <PrivateRoute>
           <aside
             className={`transition-all duration-300 ${isSidebarOpen ? "w-64" : "w-16"
-              } bg-gradient-to-br bg-blue-500 text-white`}
+              } bg-gradient-to-br from-[#88e5fc] to-blue-100 shadow-lg text-white`}
           >
             <div className="h-full flex flex-col justify-between">
               <div>
@@ -62,43 +65,63 @@ export default function App() {
                     to="/pedidos"
                     className="flex items-center gap-2 p-2 rounded hover:bg-white/20 transition"
                   >
-                    <ReceiptText />
+                    <ShoppingBag size={20} />
                     {isSidebarOpen && "Pedidos"}
                   </Link>
 
-                  {/* Todos os links do Cardápio sem submenu */}
-                  
-                  <Link
-                    to="/menu"
-                    className="flex items-center gap-2 p-2 rounded hover:bg-white/20 transition"
+                  <button
+                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    className="flex items-center gap-2 w-full text-left p-2 rounded hover:bg-white/20 transition"
                   >
-                    <BookOpenText />
-                    {isSidebarOpen && "Cardápio"}
-                  </Link>
+                    <ClipboardList size={20} />
+                    {isSidebarOpen && (
+                      <>
+                        <span>Cardápio</span>
+                        <span className="ml-auto">
+                          {isMenuOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                        </span>
+                      </>
+                    )}
+                  </button>
 
-                  <Link
-                    to="/adicionais"
-                    className="flex items-center gap-2 p-2 rounded hover:bg-white/20 transition"
-                  >
-                    <Sandwich />
-                    {isSidebarOpen && "Adicionais"}
-                  </Link>
+                  {isSidebarOpen && isMenuOpen && (
+                    <div className="ml-6 space-y-1">
+                      <Link
+                        to="/menu/novo"
+                        className="flex items-center gap-2 p-2 text-sm rounded hover:bg-white/20 transition">
+                        <PlusCircle size={16} />
+                        Criar Item
+                      </Link>
 
-                  <Link
-                    to="/complementos"
-                    className="flex items-center gap-2 p-2 rounded hover:bg-white/20 transition"
-                  >
-                    <Layers />
-                    {isSidebarOpen && "Complementos"}
-                  </Link>
+                      <Link
+                        to="/menu/"
+                        className="flex items-center gap-2 p-2 text-sm rounded hover:bg-white/20 transition">
+                        <List size={16} />
+                        Listar Itens
+                      </Link>
+
+                      <Link
+                        to="/adicionais"
+                        className="flex items-center gap-2 p-2 text-sm rounded hover:bg-white/20 transition">
+                        <PlusCircle size={16} />
+                        Criar Adicional
+                      </Link>
+
+                       <Link
+                        to="/complementos"
+                        className="flex items-center gap-2 p-2 text-sm rounded hover:bg-white/20 transition">
+                        <PlusCircle size={16} />
+                        Criar Complementos
+                      </Link>
+
+                    </div>
+                  )}
                 </nav>
               </div>
 
+              {/* Botão de logout fixado no rodapé */}
               <div className="p-4 border-t border-white/20">
-                <button
-                  className="flex items-center gap-2 w-full p-2 rounded hover:bg-white/20 transition text-white cursor-pointer"
-                  onClick={() => logout()}
-                >
+                <button className="flex items-center gap-2 w-full p-2 rounded hover:bg-white/20 transition text-white cursor-pointer" onClick={() => logout()}>
                   <LogOut size={20} />
                   {isSidebarOpen && "Sair"}
                 </button>
@@ -118,30 +141,89 @@ export default function App() {
           </aside>
         </PrivateRoute>
 
-        {/* Conteúdo Principal */}
+        {/* Main content */}
         <main className="flex-1 flex flex-col bg-white">
-          <header className="h-16 flex items-center justify-center px-6 shadow bg-blue-500 text-white border-b border-white/20">
+          {/* Header */}
+          <header className="h-16 flex items-center px-6 shadow bg-gradient-to-r from-[#88e5fc] to-blue-100 text-white border-b border-white/20">
             <h1 className="text-2xl font-semibold">Restaurant GPT</h1>
           </header>
 
+          {/* Page content */}
           <div className="flex-1 p-6 overflow-y-auto">
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/logout" element={
-                <button
-                  onClick={() => logout()}
-                  className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
-                >
-                  Sair
-                </button>} />
-              <Route path="/pedidos" element={<PrivateRoute><Orders /></PrivateRoute>} />
-              <Route path="/menu" element={<PrivateRoute><MenuList /></PrivateRoute>} />
-              <Route path="/menu/novo" element={<PrivateRoute><MenuForm /></PrivateRoute>} />
-              <Route path="/menu/editar/:id" element={<PrivateRoute><MenuEditForm /></PrivateRoute>} />
-              <Route path="/adicionais" element={<PrivateRoute><AdicionaisPage /></PrivateRoute>} />
-              <Route path="/complementos" element={<PrivateRoute><ComplementosPage /></PrivateRoute>} />
-              <Route path="*" element={<PrivateRoute><Orders /></PrivateRoute>} />
-            </Routes>
+            <div className="flex">
+              {/* Sidebar etc... */}
+
+              {/* Conteúdo da página */}
+              <div className="flex-1 p-6 overflow-y-auto">
+                <Routes>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/logout" element={
+                    <button
+                      onClick={() => logout()}
+                      className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+                    >
+                      Sair
+                    </button>} />
+                  <Route
+                    path="/pedidos"
+                    element={
+                      <PrivateRoute>
+                        <Orders />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/menu"
+                    element={
+                      <PrivateRoute>
+                        <MenuList />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/menu/novo"
+                    element={
+                      <PrivateRoute>
+                        <MenuForm />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/menu/editar/:id"
+                    element={
+                      <PrivateRoute>
+                        <MenuEditForm />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="*"
+                    element={
+                      <PrivateRoute>
+                        <Orders />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/adicionais"
+                    element={
+                      <PrivateRoute>
+                        <AdicionaisPage />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/complementos"
+                    element={
+                      <PrivateRoute>
+                        <ComplementosPage />
+                      </PrivateRoute>
+                    }
+                  />
+
+                </Routes>
+              </div>
+            </div>
           </div>
         </main>
       </AuthProvider>

@@ -46,11 +46,12 @@ const OrderInfo = ({
       <p><strong>Situação:</strong> {statusLabel}</p>
 
       {is_delivery && (
-        <div className="mt-2 space-y-1">
+        <div className="mt-2">
           {cep && <p><strong>CEP:</strong> {cep}</p>}
           {(rua || numero) && (
             <p>
-              <strong>Endereço:</strong> {rua ?? "?"}, {numero ?? "?"}</p>
+              <strong>Endereço:</strong> {rua ?? "?"}, {numero ?? "?"}
+            </p>
           )}
           {bairro && <p><strong>Bairro:</strong> {bairro}</p>}
           {cidade && <p><strong>Cidade:</strong> {cidade}</p>}
