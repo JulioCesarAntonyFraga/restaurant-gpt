@@ -24,12 +24,12 @@ type MenuItem = {
   price: string | number;
   available: boolean;
   category: string;
-  description?: string;
-  imageUrl?: string;
-  toppings: string[];
-  max_toppings?: string |number;
-  additionals: string[];
-  max_additionals?: string |number;
+  description?: string | undefined;
+  imageUrl?: string | undefined;
+  toppings?: string[] | undefined;
+  max_toppings?: number | undefined;
+  additionals?: string[] | undefined;
+  max_additionals?: number | undefined;
 };
 
 const MenuForm: React.FC = () => {
@@ -40,12 +40,12 @@ const MenuForm: React.FC = () => {
     price: "",
     available: true,
     category: "",
-    description: "",
-    imageUrl: "",
-    toppings: [],
-    max_toppings: "",
-    additionals: [],
-    max_additionals: "",
+    description: undefined,
+    imageUrl: undefined,
+    toppings: undefined,
+    max_toppings: undefined,
+    additionals: undefined,
+    max_additionals: undefined,
   });
 
   const [toppings, setToppings] = useState<Toppings[]>([]);
@@ -61,22 +61,28 @@ const MenuForm: React.FC = () => {
     if (!token) return;
 
     const fetchToppings = async () => {
-      try {
-        const response = await apiFetch("/retrieve-toppings", token);
-        const data: Toppings[] = await response.json();
+      const response = await apiFetch("/retrieve-toppings", token);
+
+      if (response.ok) {
+          const data: Toppings[] = await response.json();
         setToppings(data.filter(c => c.available));
-      } catch (error) {
-        console.error("Erro ao buscar complementos:", error);
+      }
+      else {
+        const errorData = await response.text();
+        console.error("Erro ao buscar complementos:", errorData);
       }
     };
 
     const fetchAdditionals = async () => {
-      try {
-        const response = await apiFetch("/retrieve-additionals", token);
+      const response = await apiFetch("/retrieve-additionals", token);
+
+      if (response.ok) {
         const data: Additionals[] = await response.json();
         setAdditionals(data.filter(item => item.available));
-      } catch (error) {
-        console.error("Erro ao buscar adicionais:", error);
+      }
+      else {
+        const errorData = await response.text();
+        console.error("Erro ao buscar adicionais:", errorData);
       }
     };
 
@@ -103,64 +109,60 @@ const MenuForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const res = await apiFetch(`/add-menu-item`, token ?? "", {
+      method: "POST",
+      body: JSON.stringify({
+        ...formData,
+        toppings: Object.keys(selectedToppings).length > 0 ? Object.keys(selectedToppings) : undefined,
+        additionals: Object.keys(selectedAdditionals).length > 0 ? Object.keys(selectedAdditionals) : undefined,
+      }),
+    });
 
-    try { 
-      const res = await apiFetch(`/add-menu-item`, token ?? "", {
-        method: "POST",
-        body: JSON.stringify({
-          ...formData,
-          toppings: Object.keys(selectedToppings),
-          additionals: Object.keys(selectedAdditionals),
-        }),
-      });
-
+    if (res.ok) {
       const data = await res.json();
+      
+      let imageUrl = formData.imageUrl;
 
-      if (res.ok) {
-        let imageUrl = formData.imageUrl;
+      if (imageFile) {
+        imageUrl = await uploadImage(imageFile, data.id);
 
-        if (imageFile) {
-          imageUrl = await uploadImage(imageFile, data.id);
-
-          await apiFetch(`/edit-menu-item`, token ?? "", {
-            method: "PUT",
-            body: JSON.stringify({ 
-              ...formData, 
-              imageUrl, 
-              id: data.id, 
-              toppings: Object.keys(selectedToppings), 
-              additionals: Object.keys(selectedAdditionals) 
-            }),
-          });
-        }
-        
-        setResponseMsg("Item adicionado com sucesso!");
-        setTimeout(() =>{
-          setResponseMsg("");
-        }, 3000);
-
-        setFormData({
-          name: "",
-          price: "",
-          available: true,
-          category: "",
-          description: "",
-          imageUrl: "",
-          toppings: [],
-          max_toppings: 0,
-          additionals: [],
-          max_additionals: 0,
+        await apiFetch(`/edit-menu-item`, token ?? "", {
+          method: "PUT",
+          body: JSON.stringify({ 
+            ...formData, 
+            imageUrl, 
+            id: data.id, 
+            toppings: selectedToppings && Object.keys(selectedToppings || undefined), 
+            additionals: selectedAdditionals && Object.keys(selectedAdditionals) 
+          }),
         });
-        setImageFile(null);
-        setImagePreview(null);
-        setSelectedToppings({});
-        setSelectedAdditionals({});
-      } else {
-        setResponseMsg(data || "Erro ao adicionar item.");
       }
-    } catch (err) {
-      console.error(err);
-      setResponseMsg("Erro de conexão com o servidor.");
+      
+      setResponseMsg("Item adicionado com sucesso!");
+      setTimeout(() =>{
+        setResponseMsg("");
+      }, 3000);
+
+      setFormData({
+        name: "",
+        price: "",
+        available: true,
+        category: "",
+        description: "",
+        imageUrl: "",
+        toppings: [],
+        max_toppings: 0,
+        additionals: [],
+        max_additionals: 0,
+      });
+      setImageFile(null);
+      setImagePreview(null);
+      setSelectedToppings({});
+      setSelectedAdditionals({});
+    } else {
+      const data = await res.text();
+      console.error("Erro ao adicionar item:", data);
+      setResponseMsg(data || "Erro ao adicionar item.");
     }
   };  
 
