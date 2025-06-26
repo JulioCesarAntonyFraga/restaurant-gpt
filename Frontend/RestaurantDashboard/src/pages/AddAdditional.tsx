@@ -51,73 +51,72 @@ export default function AdicionaisPage() {
   const fetchAdicionais = async () => {
     if (!token)
       return;
-    try {
-
-      const response = await apiFetch("/retrieve-additionals", token);
+    const response = await apiFetch("/retrieve-additionals", token);
+    if (response.ok) {
       const data: Additionals[] = await response.json();
       setAdicionais(data);
-    } catch (error) {
-      console.error("Erro ao buscar adicionais:", error);
+    }
+    else {
+      const data = await response.text();
+      console.error("Erro ao buscar adicionais:", data);
     }
   };
   useEffect(() => {
-
     fetchAdicionais();
   }, [token]);
 
   const createAdicional = async (item: Omit<Additionals, "id">) => {
     if (!token)
       return;
-    try {
-      const response = await apiFetch("/add-additional", token, {
-        method: "POST",
-        body: JSON.stringify(item),
-      });
+    const response = await apiFetch("/add-additional", token, {
+      method: "POST",
+      body: JSON.stringify(item),
+    });
 
-      if (response.ok) {
-        fetchAdicionais();
-        setMessage("✅ Criado!");
-      }
-    } catch (error) {
-      console.error("Erro ao adicionar adicional:", error);
+    if (response.ok) {
+      fetchAdicionais();
+      setMessage("✅ Criado!");
+    }
+    else {
+      const data = await response.text();
+      console.error("Erro ao adicionar adicional:", data);
+      setMessage("❌ Erro ao adicionar adicional.");
     }
   };
 
   const updateAdicional = async (item: Additionals) => {
     if (!token) return;
 
-    try {
-      const response = await apiFetch("/edit-additional/", token, {
-        method: "PUT",
-        body: JSON.stringify(item),
-      });
+    const response = await apiFetch("/edit-additional/", token, {
+      method: "PUT",
+      body: JSON.stringify(item),
+    });
 
-      if (!response.ok) {
-        throw new Error("Erro ao atualizar adicional");
-      }
-
+    if (response.ok) {
       setMessage("✅ Atualizado!");
       await fetchAdicionais();
-
-    } catch (error) {
-      console.error("Erro ao atualizar adicional:", error);
-      throw error; // relança o erro para capturar no checkbox
+    }
+    else {
+      const data = await response.text();
+      console.error("Erro ao atualizar adicional:", data);
+      setMessage("❌ Erro ao atualizar adicional.");
     }
   };
 
   const deleteAdicional = async (id: string) => {
     if (!token)
       return;
-    try {
-      const response = await apiFetch(`/delete-additional/${id}`, token, {
-        method: "DELETE",
-      });
+    const response = await apiFetch(`/delete-additional/${id}`, token, {
+      method: "DELETE",
+    });
 
-      if (response.ok) {
-        fetchAdicionais();
-      }
-    } catch (error) {
-      console.error("Erro ao excluir adicional:", error)
+    if (response.ok) {
+      fetchAdicionais();
+    }
+    else {
+      const data = await response.text();
+      console.error("Erro ao excluir adicional:", data);
+      setMessage("❌ Erro ao excluir adicional.");
     }
   };
 

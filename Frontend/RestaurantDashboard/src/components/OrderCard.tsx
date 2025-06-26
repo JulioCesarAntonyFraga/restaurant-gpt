@@ -30,44 +30,41 @@ const OrderCard = ({ order: initialOrder }: OrderProps) => {
   const { token } = useAuth();
 
   async function advanceOrderStatus(orderId: string) {
-    try {
-      const updatedOrder = await apiFetch(
-        `/advance-order-status/${orderId}`,
-        token ?? "",
-        {
-          method: "PUT",
-        }
-      );
+    const updatedOrder = await apiFetch(
+      `/advance-order-status/${orderId}`,
+      token ?? "",
+      {
+        method: "PUT",
+      }
+    );
+
+    if (updatedOrder.ok) {
       const data = await updatedOrder.json();
       setOrder(data as Order);
-    } catch (error: unknown) {
-      console.error("Erro ao avançar pedido:", error);
-      if (error instanceof Error) {
-        alert(error.message || "Erro ao avançar pedido");
-      } else {
-        alert("Erro ao avançar pedido");
-      }
+    }
+    else {
+      const data = await updatedOrder.text();
+      console.error("Erro ao avançar pedido:", data);
+      alert(data || "Erro ao avançar pedido");
     }
   }
 
   async function regressOrderStatus(orderId: string) {
-    try {
-      const updatedOrder = await apiFetch(
-        `/regress-order-status/${orderId}`,
-        token ?? "",
-        {
-          method: "PUT",
-        }
-      );
+    const updatedOrder = await apiFetch(
+      `/regress-order-status/${orderId}`,
+      token ?? "",
+      {
+        method: "PUT",
+      }
+    );
+    if (updatedOrder.ok) {
       const data = await updatedOrder.json();
       setOrder(data as Order);
-    } catch (error: unknown) {
-      console.error("Erro ao avançar pedido:", error);
-      if (error instanceof Error) {
-        alert(error.message || "Erro ao avançar pedido");
-      } else {
-        alert("Erro ao avançar pedido");
-      }
+    }
+    else {
+      const data = await updatedOrder.text();
+      console.error("Erro ao avançar pedido:", data);
+      alert(data || "Erro ao avançar pedido");
     }
   }
 

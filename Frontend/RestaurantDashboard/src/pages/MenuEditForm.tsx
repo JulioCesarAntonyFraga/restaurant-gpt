@@ -65,10 +65,8 @@ const MenuEditForm = () => {
     if (!id || !token) return;
 
     const fetchData = async () => {
-      try {
-        const res = await apiFetch(`/get-menu-item/${id}`, token, { method: "GET" });
-        if (!res.ok) throw new Error("Erro ao buscar item do menu");
-
+      const res = await apiFetch(`/get-menu-item/${id}`, token, { method: "GET" });
+      if (res.ok) {
         const data = (await res.json()) as Omit<MenuItem, "toppings" | "additionals"> & {
           toppings: Toppings[];
           additionals: Additionals[];
@@ -105,21 +103,27 @@ const MenuEditForm = () => {
         if ((data.toppings?.length ?? 0) > 0 || (data.additionals?.length ?? 0) > 0) {
           setShowExtras(true);
         }
-      } catch (error) {
-        console.error("Erro ao carregar dados:", error);
-        alert(error instanceof Error ? error.message : "Erro ao carregar item.");
+      }
+      else {
+        const errorData = await res.text();
+        console.error("Erro ao carregar item:", errorData);
+        alert("Erro ao carregar item. Verifique o ID e tente novamente.");
       }
     };
 
     const fetchExtras = async () => {
-      try {
-        const compRes = await apiFetch("/retrieve-toppings", token, { method: "GET" });
-        const addRes = await apiFetch("/retrieve-additionals", token, { method: "GET" });
+      const compRes = await apiFetch("/retrieve-toppings", token, { method: "GET" });
+      const addRes = await apiFetch("/retrieve-additionals", token, { method: "GET" });
 
-        if (compRes.ok) setToppings(await compRes.json());
-        if (addRes.ok) setAdditionals(await addRes.json());
-      } catch (err) {
-        console.error("Erro ao buscar complementos/adicionais:", err);
+      if (compRes.ok) setToppings(await compRes.json());
+      else {
+        const errorData = await compRes.text();
+        console.error("Erro ao buscar complementos:", errorData);
+      }
+      if (addRes.ok) setAdditionals(await addRes.json());
+      else {
+        const errorData = await addRes.text();
+        console.error("Erro ao buscar adicionais:", errorData);
       }
     };
 
@@ -138,6 +142,12 @@ const MenuEditForm = () => {
           ? parseFloat(value) || 0
           : value;
 
+    if (name === "showExtras") {
+      setShowExtras(newValue as boolean);
+      setSelectedToppings({});
+      setSelectedAdditionals({});
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: newValue,
@@ -148,44 +158,41 @@ const MenuEditForm = () => {
     e.preventDefault();
     if (!id || !token) return;
 
-    try {
-      let imageUrl = formData.imageUrl;
+    let imageUrl = formData.imageUrl;
 
-      if (imageFile) {
-        imageUrl = await uploadImage(imageFile, id);
-      }
-
-      const updatedData = {
-        id: formData.id,
-        name: formData.name,
-        price: formData.price,
-        available: formData.available,
-        category: formData.category,
-        description: formData.description,
-        imageUrl,
-        toppings: Object.keys(selectedToppings),
-        additionals: Object.keys(selectedAdditionals),
-        max_toppings: formData.max_toppings ?? 0,
-        max_additionals: formData.max_additionals ?? 0,
-      };
-
-      const response = await apiFetch("/edit-menu-item", token, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedData),
-      });
-
-      if (!response.ok) {
-        console.error(response);
-      }
-
-      navigate("/menu");
-    } catch (err) {
-      console.error("Erro ao atualizar item:", err);
-      alert(err instanceof Error ? err.message : "Erro ao atualizar item.");
+    if (imageFile) {
+      imageUrl = await uploadImage(imageFile, id);
     }
+
+    const updatedData = {
+      id: formData.id,
+      name: formData.name,
+      price: formData.price,
+      available: formData.available,
+      category: formData.category,
+      description: formData.description,
+      imageUrl,
+      toppings: Object.keys(selectedToppings),
+      additionals: Object.keys(selectedAdditionals),
+      max_toppings: formData.max_toppings ?? 0,
+      max_additionals: formData.max_additionals ?? 0,
+    };
+
+    const response = await apiFetch("/edit-menu-item", token, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error(errorData);
+      alert("Erro ao atualizar item do menu. Verifique os dados e tente novamente.");
+    }
+
+    navigate("/menu");
   };
 
   const toppingsParaAddons: Addon[] = toppings.map(({ id, name, available }) => ({
@@ -292,10 +299,11 @@ const MenuEditForm = () => {
 
           <label className="flex items-center space-x-2 mb-4">
             <input
+            name="showExtras"
               type="checkbox"
               checked={showExtras}
               className="cursor-pointer "
-              onChange={(e) => setShowExtras(e.target.checked)}
+              onChange={handleChange}
             />
             <span>Complementos e adicionais</span>
           </label>
