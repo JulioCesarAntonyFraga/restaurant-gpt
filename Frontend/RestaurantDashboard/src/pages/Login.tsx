@@ -37,17 +37,11 @@ const Login = () => {
 
         try {
             signInWithEmailAndPassword(auth, formData.email, formData.password)
-              .then(async (userCredential) => {
-                const user = userCredential.user;
-                const idToken = await user.getIdToken();
-
+              .then(async () => {
                 setResponseMsg("Login realizado com sucesso!");
-                console.log("ID Token:", idToken);
-                
                 // Agora você pode usar `idToken` nas requisições aos Azure Functions
               })
               .catch((error) => {
-                
                 setResponseMsg(error.message || "Erro ao efetuar login.");
                 console.error("Erro ao autenticar:", error.message);
               });

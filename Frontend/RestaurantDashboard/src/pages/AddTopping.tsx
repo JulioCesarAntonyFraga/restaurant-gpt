@@ -47,12 +47,15 @@ export default function ComplementosPage() {
     const fetchComplemntos = async () => {
         if (!token)
             return;
-        try {
-            const response = await apiFetch("/retrieve-toppings", token);
+        const response = await apiFetch("/retrieve-toppings", token);
+        if (response.ok) {
             const data: Toppings[] = await response.json();
             setToppings(data);
-        } catch (error) {
-            console.error("Erro ao buscar Complementos:", error);
+        }
+        else {
+            const data = await response.text();
+            console.error("Erro ao buscar Complementos:", data);
+            setMessage("❌ Erro ao buscar complementos.");
         }
     };
 
@@ -63,51 +66,52 @@ export default function ComplementosPage() {
     const createComplemento = async (item: Omit<Toppings, "id">) => {
         if (!token)
             return;
-        try {
-            const response = await apiFetch("/add-topping", token, {
-                method: "POST",
-                body: JSON.stringify(item),
-            });
+        const response = await apiFetch("/add-topping", token, {
+            method: "POST",
+            body: JSON.stringify(item),
+        });
 
-            if (response.ok) {
-                fetchComplemntos();
-                setMessage("✅ Criado!");
-            }
-        } catch (error) {
-            console.error("Erro ao adicionar complemento:", error);
+        if (response.ok) {
+            fetchComplemntos();
+            setMessage("✅ Criado!");
+        }
+        else {
+            const data = await response.text();
+            console.error("Erro ao adicionar complemento:", data);
+            setMessage("❌ Erro ao adicionar complemento.");
         }
     };
 
     const updateComplemento = async (item: Toppings) => {
         if (!token) return;
-        try {
-            const response = await apiFetch("/edit-topping/", token, {
-                method: "PUT",
-                body: JSON.stringify(item),
-            });
-            if (!response.ok) {
-                throw new Error("Erro ao atualizar complemento");
-            }
+        const response = await apiFetch("/edit-topping/", token, {
+            method: "PUT",
+            body: JSON.stringify(item),
+        });
+        if (response.ok) {
             setMessage("✅ Atualizado!");
             await fetchComplemntos();
-        } catch (error) {
-            console.error("Erro ao atualizar complemento:", error);
-            throw error;
+        }
+        else {
+            const data = await response.text();
+            console.error("Erro ao atualizar complemento:", data);
+            setMessage("❌ Erro ao atualizar complemento.");
         }
     };
 
     const deleteComplemento = async (id: string) => {
         if (!token)
             return;
-        try {
-            const response = await apiFetch(`/delete-topping/${id}`, token, {
-                method: "DELETE",
-            });
-            if (response.ok) {
-                fetchComplemntos();
-            }
-        } catch (error) {
-            console.error("Erro ao excluir complemnto:", error)
+        const response = await apiFetch(`/delete-topping/${id}`, token, {
+            method: "DELETE",
+        });
+        if (response.ok) {
+            fetchComplemntos();
+        }
+        else {
+            const data = await response.text();
+            console.error("Erro ao excluir complemento:", data);
+            setMessage("❌ Erro ao excluir complemento.");
         }
     };
 

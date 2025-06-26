@@ -7,25 +7,10 @@ export async function apiFetch(endpoint: string, token: string, options: Request
     ...options.headers,
   };
 
-  try {
-    const response = await fetch(`${apiUrl}${endpoint}`, {
-      ...options,
-      headers,
-    });
+  const response = await fetch(`${apiUrl}${endpoint}`, {
+    ...options,
+    headers,
+  });
 
-    if (!response.ok) {
-     
-
-      throw new Error(JSON.stringify(response) || "Erro na requisição");
-    }
-
-    return await response;
-  } catch (error: unknown) {
-      console.error("Request returned an error:", error);
-      if (error instanceof Error) {
-        throw new Error(error.message || "Error when making request");
-      } else {
-        throw new Error("Error when making request: " + String(error));
-      }
-    }
+  return response;
 }

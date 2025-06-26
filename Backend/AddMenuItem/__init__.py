@@ -28,14 +28,14 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     # Verifica toppings e additionals
     if "toppings" in menu_item:
-        toppings = menu_item["toppings"]
+        toppings = menu_item.get("toppings", [])
         if not isinstance(toppings, list) or not all(isinstance(t, str) for t in toppings):
             return func.HttpResponse("Field 'toppings' must be a list of strings", status_code=400)
         
-        if "max_toppings" not in menu_item:
+        if "max_toppings" not in menu_item and len(toppings) > 0:
             return func.HttpResponse("'max_toppings' is required when 'toppings' is provided", status_code=400)
         
-        max_toppings = menu_item["max_toppings"]
+        max_toppings = menu_item.get("max_toppings", 0)
         if isinstance(max_toppings, str):
             if max_toppings.isdigit():
                 menu_item["max_toppings"] = int(max_toppings)
@@ -50,14 +50,14 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 return func.HttpResponse(f"Invalid topping ID: {topping_id}", status_code=400)
 
     if "additionals" in menu_item:
-        additionals = menu_item["additionals"]
+        additionals = menu_item.get("additionals", [])
         if not isinstance(additionals, list) or not all(isinstance(a, str) for a in additionals):
             return func.HttpResponse("Field 'additionals' must be a list of strings", status_code=400)
 
-        if "max_additionals" not in menu_item:
+        if "max_additionals" not in menu_item and len(additionals) > 0:
             return func.HttpResponse("'max_additionals' is required when 'additionals' is provided", status_code=400)
 
-        max_additionals = menu_item["max_additionals"]
+        max_additionals = menu_item.get("max_additionals", 0)
         if isinstance(max_additionals, str):
             if max_additionals.isdigit():
                 menu_item["max_additionals"] = int(max_additionals)
