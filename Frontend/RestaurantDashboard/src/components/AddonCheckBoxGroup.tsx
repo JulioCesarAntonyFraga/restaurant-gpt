@@ -29,6 +29,7 @@ const AddonCheckboxGroup: React.FC<Props> = ({
           <input
             type="checkbox"
             checked={item.id in selectedAddons}
+            className="cursor-pointer"
             onChange={(e) => {
               const checked = e.target.checked;
               setSelectedAddons((prev) => {
