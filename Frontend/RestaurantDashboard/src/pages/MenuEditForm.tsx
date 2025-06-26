@@ -165,8 +165,8 @@ const MenuEditForm = () => {
       category: formData.category,
       description: formData.description,
       imageUrl,
-      toppings: Object.keys(selectedToppings).length > 0 ? Object.keys(selectedToppings) : undefined,
-      additionals: Object.keys(selectedAdditionals).length > 0 ? Object.keys(selectedAdditionals) : undefined,
+      toppings: Object.keys(selectedToppings),
+      additionals: Object.keys(selectedAdditionals),
       max_toppings: formData.max_toppings ?? 0,
       max_additionals: formData.max_additionals ?? 0,
     };
