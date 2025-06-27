@@ -175,7 +175,7 @@ const MenuForm: React.FC = () => {
   };  
 
   return (
-  <div className="min-h-screen flex flex-col">
+  <div className="min-h-screen flex flex-col pb-10">
     <main className="flex-grow p-6">
       <div className="max-w-xl mx-auto bg-white rounded-xl shadow-md space-y-4">
         <h2 className="text-xl font-bold">Cadastrar Novo Item</h2>

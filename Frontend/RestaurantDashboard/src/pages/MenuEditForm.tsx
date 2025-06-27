@@ -210,7 +210,7 @@ const MenuEditForm = () => {
   }));
 
   return (
-  <div className="min-h-screen flex flex-col">
+  <div className="min-h-screen flex flex-col pb-10">
     <main className="flex-grow p-6">
       <div className="max-w-xl mx-auto bg-white rounded-xl shadow-md space-y-4">
         <h2 className="text-xl font-bold">Editar Item do Menu</h2>
@@ -221,7 +221,7 @@ const MenuEditForm = () => {
             placeholder="Nome"
             value={formData.name}
             onChange={handleChange}
-            className="cursor-pointer w-full p-2 border rounded"
+            className="w-full p-2 border rounded"
             required
           />
           <input
@@ -230,7 +230,7 @@ const MenuEditForm = () => {
             placeholder="Preço"
             value={formData.price}
             onChange={handleChange}
-            className="cursor-pointer w-full p-2 border rounded"
+            className="w-full p-2 border rounded"
             required
           />
           <input
@@ -239,7 +239,7 @@ const MenuEditForm = () => {
             placeholder="Categoria"
             value={formData.category}
             onChange={handleChange}
-            className="cursor-pointer w-full p-2 border rounded"
+            className="w-full p-2 border rounded"
             required
           />
           <textarea
@@ -247,7 +247,7 @@ const MenuEditForm = () => {
             placeholder="Descrição (opcional)"
             value={formData.description}
             onChange={handleChange}
-            className="cursor-pointer w-full p-2 border rounded"
+            className="w-full p-2 border rounded"
           />
 
           <label htmlFor="image-upload" className="block text-sm font-medium text-gray-700">
@@ -318,7 +318,7 @@ const MenuEditForm = () => {
                   placeholder="Máximo de complementos"
                   value={formData.max_toppings}
                   onChange={handleChange}
-                  className="cursor-pointer w-full p-2 border rounded mb-2"
+                  className="w-full p-2 border rounded mb-2"
                 />
                 <AddonCheckboxGroup
                   title="Complementos"
@@ -336,7 +336,7 @@ const MenuEditForm = () => {
                   placeholder="Máximo de adicionais"
                   value={formData.max_additionals}
                   onChange={handleChange}
-                  className="cursor-pointer w-full p-2 border rounded mb-2"
+                  className="w-full p-2 border rounded mb-2"
                 />
                 <AddonCheckboxGroup
                   title="Adicionais"
