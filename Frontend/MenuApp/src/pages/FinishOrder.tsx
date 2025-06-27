@@ -344,7 +344,7 @@ function FinishOrder() {
 
           <button
             onClick={handleSubmit}
-            className="w-full bg-green-600 text-white py-3 rounded hover:bg-green-700 transition"
+            className="cursor-pointer w-full bg-green-600 text-white py-3 rounded hover:bg-green-700 transition"
           >
             Finalizar Pedido
           </button>

@@ -18,14 +18,14 @@ const Navbar = () => {
               className="flex items-center gap-1 bg-white text-blue-600 text-sm font-medium px-3 py-1.5 rounded-full shadow hover:bg-blue-100 transition"
             >
               <UtensilsCrossed size={16} />
-              Cardápio
+              <span className="hidden sm:inline">Cardápio</span>
             </Link>
             <Link
               to="/carrinho"
               className="flex items-center gap-1 bg-white text-blue-600 text-sm font-medium px-3 py-1.5 rounded-full shadow hover:bg-blue-100 transition"
             >
               <ShoppingCart size={16} />
-              Meu Pedido
+              <span className="hidden sm:inline">Meu Pedido</span>
             </Link>
           </nav>
         </div>
