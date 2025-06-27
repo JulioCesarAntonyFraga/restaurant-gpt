@@ -42,7 +42,7 @@ export default function App() {
           >
             <div className="h-full flex flex-col justify-between">
               <div>
-                <div className="p-4 flex items-center justify-between border-b border-white/20">
+                <div className="cursor-pointer p-4 flex items-center justify-between border-b border-white/20">
                   <span className="font-bold text-lg flex items-center gap-2">
                     <Menu onClick={() => setIsSidebarOpen(true)} />
                     {isSidebarOpen && "Menu"}
@@ -50,7 +50,7 @@ export default function App() {
                   {isSidebarOpen && (
                     <button
                       onClick={() => setIsSidebarOpen(false)}
-                      className="text-white/70"
+                      className="cursor-pointer text-white/70"
                     >
                       <ChevronLeft />
                     </button>
