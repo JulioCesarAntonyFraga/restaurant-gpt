@@ -309,7 +309,7 @@ const MenuForm: React.FC = () => {
             </>
           )}
 
-          <button type="submit" className="w-full bg-green-600 text-white py-2 rounded">
+          <button type="submit" className="cursor-pointer w-full bg-green-600 text-white py-2 rounded">
             Salvar Menu
           </button>
         </form>

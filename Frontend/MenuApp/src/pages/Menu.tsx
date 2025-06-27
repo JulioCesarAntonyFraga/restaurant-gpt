@@ -67,7 +67,7 @@ const Menu = () => {
     });
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen pb-20">
 
       {/* Banner entre a Navbar e o Cardápio */}
       <div
@@ -93,7 +93,7 @@ const Menu = () => {
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="p-2 border rounded bg-white"
+              className="cursor-pointer p-2 border rounded bg-white"
             >
               {categories.map((cat, idx) => (
                 <option key={idx} value={cat}>
@@ -108,7 +108,7 @@ const Menu = () => {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as "name" | "price")}
-              className="p-2 border rounded bg-white"
+              className="cursor-pointer p-2 border rounded bg-white"
             >
               <option value="name">Nome</option>
               <option value="price">Preço</option>

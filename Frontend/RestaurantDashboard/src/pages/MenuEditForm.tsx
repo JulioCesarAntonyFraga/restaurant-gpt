@@ -350,7 +350,7 @@ const MenuEditForm = () => {
 
           <button
             type="submit"
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded"
+            className="cursor-pointer w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded"
           >
             Salvar
           </button>

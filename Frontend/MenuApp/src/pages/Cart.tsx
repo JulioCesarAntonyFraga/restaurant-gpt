@@ -23,7 +23,7 @@ const Cart = () => {
             </Link>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-4 pb-20">
             {cartItems.map((item, idx) => (
               <div
                 key={idx}
@@ -43,7 +43,7 @@ const Cart = () => {
 
                 <button
                   onClick={() => removeFromCart(item)}
-                  className="text-red-500 hover:text-red-700 font-medium"
+                  className="cursor-pointer text-red-500 hover:text-red-700 font-medium"
                 >
                   Remover
                 </button>
@@ -57,12 +57,12 @@ const Cart = () => {
             <div className="flex justify-between mt-6">
               <button
                 onClick={clearCart}
-                className="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded transition"
+                className="cursor-pointer px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded transition"
               >
                 Limpar Carrinho
               </button>
               <button
-                className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded transition"
+                className="cursor-pointer px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded transition"
                 onClick={() => navigate("/finalizar-pedido")}
               >
                 Prosseguir
