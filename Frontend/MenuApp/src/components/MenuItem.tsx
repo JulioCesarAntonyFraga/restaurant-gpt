@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useCart } from "../utils/CartContext";
+import { estaDentroDoHorario } from "../utils/horarios";
 
 export type MenuItemProps = {
   id: string;
@@ -172,8 +173,29 @@ const MenuItem = ({
       <p className="mt-2 font-medium text-blue-600">R$ {price.toFixed(2)}</p>
 
       <button
-        onClick={() => setShowModal(true)}
-        className="cursor-pointer mt-auto bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded transition"
+        onClick={() => {
+          if (!estaDentroDoHorario()) {
+            alert("Pedidos indisponíveis no momento. Verifique o horário de funcionamento.");
+            return;
+          }
+
+          const hasToppings = toppings && toppings.length > 0;
+          const hasAdditionals = additionals && additionals.length > 0;
+
+          if (hasToppings || hasAdditionals) {
+            setShowModal(true);
+          } else {
+            addToCart({
+              id,
+              name,
+              price,
+              observation,
+              toppings: [],
+              additionals: [],
+            });
+          }
+        }}
+        className="cursor-pointer mt-auto bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 ronded transition "
       >
         Adicionar
       </button>
@@ -215,10 +237,9 @@ const MenuItem = ({
                       <label
                         key={index}
                         className={`flex flex-col items-start p-2 border rounded-md hover:bg-gray-100 text-sm 
-                          ${
-                            !canSelectMore && !isSelected
-                              ? "opacity-50 cursor-not-allowed"
-                              : ""
+                          ${!canSelectMore && !isSelected
+                            ? "opacity-50 cursor-not-allowed"
+                            : ""
                           }`}
                       >
                         <div className="flex items-center justify-between w-full">
