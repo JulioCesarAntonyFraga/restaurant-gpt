@@ -155,7 +155,7 @@ export default function ComplementosPage() {
 
    return (
   <>
-    <div className="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-xl shadow">
+    <div className="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-xl shadow pb-20">
       <h1 className="text-2xl font-bold mb-4">Gerenciar Complementos</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
@@ -164,7 +164,7 @@ export default function ComplementosPage() {
           placeholder="Nome"
           value={form.name}
           onChange={handleChange}
-          className="cursor-pointer w-full p-2 border rounded"
+          className="w-full p-2 border rounded"
           required
         />
         <textarea
@@ -172,7 +172,7 @@ export default function ComplementosPage() {
           placeholder="Descrição (opcional)"
           value={form.description}
           onChange={handleChange}
-          className="cursor-pointer w-full p-2 border rounded"
+          className="w-full p-2 border rounded"
         />
         <button
           type="submit"

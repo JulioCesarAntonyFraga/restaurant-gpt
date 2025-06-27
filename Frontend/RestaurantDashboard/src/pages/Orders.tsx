@@ -64,7 +64,7 @@ const Orders = () => {
 
 
     return (
-  <div className="min-h-screen flex flex-col">
+  <div className="min-h-screen flex flex-col pb-10">
     <main className="flex-grow p-6">
       {/* Filtros */}
       <div className="filters flex flex-wrap gap-6 items-start mb-6">

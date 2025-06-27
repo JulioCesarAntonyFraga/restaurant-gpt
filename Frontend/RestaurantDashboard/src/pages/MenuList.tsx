@@ -106,8 +106,8 @@ const MenuList = () => {
     });
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="p-6 pb-20">
+      <div className="flex justify-between items-center mb-6 ">
         <h1 className="text-2xl font-bold">Itens do Cardápio</h1>
         <button
         className="cursor-pointer bg-green-600 hover:bg-green-700 text-white px-12 py-3 rounded"

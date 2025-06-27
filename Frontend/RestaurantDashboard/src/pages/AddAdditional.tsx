@@ -163,7 +163,7 @@ export default function AdicionaisPage() {
 
  return (
     <>
-      <div className="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-xl shadow">
+      <div className="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-xl shadow pb-20">
         <h1 className="text-2xl font-bold mb-4">Gerenciar Adicionais</h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -173,7 +173,7 @@ export default function AdicionaisPage() {
             placeholder="Nome"
             value={form.name}
             onChange={handleChange}
-            className="cursor-pointer w-full p-2 border rounded"
+            className="w-full p-2 border rounded"
             required
           />
           <input
@@ -182,7 +182,7 @@ export default function AdicionaisPage() {
             placeholder="Preço"
             value={form.price}
             onChange={handleChange}
-            className="cursor-pointer w-full p-2 border rounded"
+            className="w-full p-2 border rounded"
             required
           />
           <textarea
@@ -190,7 +190,7 @@ export default function AdicionaisPage() {
             placeholder="Descrição (opcional)"
             value={form.description}
             onChange={handleChange}
-            className="cursor-pointer w-full p-2 border rounded"
+            className="w-full p-2 border rounded"
           />
           <button
             type="submit"
