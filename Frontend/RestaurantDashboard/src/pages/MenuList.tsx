@@ -23,6 +23,8 @@ type SortField = "name" | "price" | "category";
 
 const MenuList = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [removingItem, setRemovingItem] = useState<boolean>(false);
+
   const [loading, setLoading] = useState(true);
   const { token } = useAuth();
 
@@ -53,6 +55,17 @@ const MenuList = () => {
 
   const navigate = useNavigate();
 
+  if (removingItem) {
+  return (
+    <div className="fixed inset-0 bg-transparent bg-opacity-50 flex flex-col justify-center items-center z-50">
+      <div className="bg-white p-6 rounded shadow text-center">
+        <p className="text-lg font-semibold mb-2">Removendo item...</p>
+        <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    </div>
+  );
+}
+
   if (loading) {
     return <p className="text-center mt-8">Carregando pedidos...</p>;
   }
@@ -80,6 +93,7 @@ const MenuList = () => {
   };
 
   const removeMenuItem = async (id: string) => {
+    setRemovingItem(true);
     const res = await apiFetch(`/delete-menu-item/${id}`, token ?? "", {
       method: "DELETE",
     });
@@ -90,6 +104,7 @@ const MenuList = () => {
     else {
       setMenuItems((prevItems) => prevItems.filter((item) => item.id !== id));
     }
+    setRemovingItem(false);
   };
 
   const filteredItems = menuItems

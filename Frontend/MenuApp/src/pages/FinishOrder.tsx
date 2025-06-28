@@ -10,6 +10,8 @@ function FinishOrder() {
   const navigate = useNavigate();
 
   const { clearCart, cartItems } = useCart();
+  const [isLoading, setIsLoading] = useState(false);
+
 
 
 
@@ -63,16 +65,13 @@ function FinishOrder() {
     }
   };
 
-  const formatCep = (value: string): string => {
-    const cepLimpo = value.replace(/\D/g, "").slice(0, 8);
-    return cepLimpo.replace(/^(\d{5})(\d{0,3})$/, "$1-$2");
-  };
-
   const handleSubmit = async () => {
     if (cartItems.length === 0) {
       alert("O carrinho está vazio!");
       return;
     }
+
+    setIsLoading(true);
 
     const newErrors: { [key: string]: boolean } = {};
 
@@ -99,6 +98,7 @@ function FinishOrder() {
 
     if (Object.keys(newErrors).length > 0) {
       alert("Preencha todos os campos corretamente.");
+      setIsLoading(false);
       return;
     }
 
@@ -140,6 +140,7 @@ function FinishOrder() {
       if (!response.ok) {
         console.error("Erro na resposta do servidor:", data);
         alert(data.message || "Erro ao finalizar o pedido. Tente novamente.");
+        setIsLoading(false);
         return;
       }
 
@@ -152,6 +153,8 @@ function FinishOrder() {
     } catch (error) {
       console.error("Erro ao enviar pedido:", error);
       alert("Erro ao finalizar o pedido. Tente novamente.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -181,11 +184,15 @@ function FinishOrder() {
               inputProps={{
                 name: 'phone',
                 required: true,
-                className: `w-full p-2 mb-3 rounded border ${errors.phone_number ? "border-red-800" : "border-gray-300"
-                  }`
+                className: `w-full p-2 mb-1 rounded border ${errors.phone_number ? "border-red-800" : "border-gray-300"
+                  }`,
               }}
-            />
+             />
 
+            {/* Mensagem de aviso */}
+            <p className="text-sm text-gray-600 mb-3">
+              A confirmação do pedido será enviada para este número.
+            </p>
           </div>
 
           {/* Tipo de entrega */}
@@ -225,13 +232,23 @@ function FinishOrder() {
                 type="text"
                 placeholder="CEP"
                 value={form.cep}
-                onChange={(e) =>
-                  setForm({ ...form, cep: formatCep(e.target.value) })
-                }
-                onBlur={() => searchByCEP(form.cep)}
+                onChange={(e) => {
+                  const rawValue = e.target.value;
+                  const numeric = rawValue.replace(/\D/g, "").slice(0, 8);
+                  const formatted = numeric.length > 5 ? `${numeric.slice(0, 5)}-${numeric.slice(5)}` : numeric;
+
+                  setForm({ ...form, cep: formatted });
+                }}
+                onBlur={() => {
+                  const cepNumerico = form.cep.replace(/\D/g, "");
+                  if (cepNumerico.length === 8) {
+                    searchByCEP(cepNumerico);
+                  }
+                }}
                 className={`w-full p-2 mb-3 rounded border ${errors.cep ? "border-red-800" : "border-gray-300"
                   }`}
               />
+
               <input
                 value={form.rua}
                 onChange={(e) => setForm({ ...form, rua: e.target.value })}
@@ -292,7 +309,7 @@ function FinishOrder() {
                 Pagamento na retirada (PIX, Cartão ou Dinheiro)
               </label>
             )}
-            
+
             {form.is_delivery && (
               <label className="flex items-center gap-2 mb-2">
                 <input
@@ -318,7 +335,7 @@ function FinishOrder() {
                 Cartão ou PIX na entrega
               </label>
             )}
-            
+
             {form.payment_method === "cash_on_delivery" && (
               <input
                 type="number"
@@ -346,7 +363,7 @@ function FinishOrder() {
             onClick={handleSubmit}
             className="cursor-pointer w-full bg-green-600 text-white py-3 rounded hover:bg-green-700 transition"
           >
-            Finalizar Pedido
+            {isLoading ? "Enviando pedido..." : "Finalizar Pedido"}
           </button>
         </div>
       </div>

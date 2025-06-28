@@ -6,6 +6,8 @@ import { uploadImage } from "../utils/firebase";
 import AddonCheckboxGroup, { Addon } from "../components/AddonCheckBoxGroup";
 import Footer from "../components/Footer";
 
+
+
 type Additionals = {
   id: string;
   name: string;
@@ -38,6 +40,9 @@ const MenuEditForm = () => {
   const { id } = useParams<{ id: string }>();
   const { token } = useAuth();
   const navigate = useNavigate();
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState<MenuItem>({
     id: "",
@@ -103,12 +108,15 @@ const MenuEditForm = () => {
         if ((data.toppings?.length ?? 0) > 0 || (data.additionals?.length ?? 0) > 0) {
           setShowExtras(true);
         }
-      }
-      else {
+
+        setIsLoading(false);
+      } else {
         const errorData = await res.text();
         console.error("Erro ao carregar item:", errorData);
+        setIsLoading(false);
         alert("Erro ao carregar item. Verifique o ID e tente novamente.");
       }
+
     };
 
     const fetchExtras = async () => {
@@ -156,6 +164,7 @@ const MenuEditForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     if (!id || !token) return;
 
     let imageUrl = formData.imageUrl;
@@ -209,158 +218,170 @@ const MenuEditForm = () => {
     available,
   }));
 
-  return (
-  <div className="min-h-screen flex flex-col pb-10">
-    <main className="flex-grow p-6">
-      <div className="max-w-xl mx-auto bg-white rounded-xl shadow-md space-y-4">
-        <h2 className="text-xl font-bold">Editar Item do Menu</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            name="name"
-            placeholder="Nome"
-            value={formData.name}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-            required
-          />
-          <input
-            type="number"
-            name="price"
-            placeholder="Preço"
-            value={formData.price}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-            required
-          />
-          <input
-            type="text"
-            name="category"
-            placeholder="Categoria"
-            value={formData.category}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-            required
-          />
-          <textarea
-            name="description"
-            placeholder="Descrição (opcional)"
-            value={formData.description}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          />
-
-          <label htmlFor="image-upload" className="block text-sm font-medium text-gray-700">
-            Imagem
-          </label>
-
-          <div className="flex items-center space-x-4">
-            <label
-              htmlFor="image-upload"
-              className="cursor-pointer px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded"
-            >
-              📷 Selecionar imagem
-            </label>
-            {imageFile && <span className="text-sm text-gray-600">{imageFile.name}</span>}
-          </div>
-
-          <input
-            id="image-upload"
-            type="file"
-            accept="image/*"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) {
-                setImageFile(file);
-                setImagePreview(URL.createObjectURL(file));
-              }
-            }}
-            className="hidden"
-          />
-
-          {(imagePreview || formData.imageUrl) && (
-            <img
-              src={imagePreview || formData.imageUrl}
-              alt="Pré-visualização"
-              className="mt-2 h-32 w-32 object-cover rounded border"
-            />
-          )}
-
-          <label className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              name="available"
-              checked={formData.available}
-              className="cursor-pointer "
-              onChange={handleChange}
-            />
-            <span>Disponível</span>
-          </label>
-
-          <label className="flex items-center space-x-2 mb-4">
-            <input
-            name="showExtras"
-              type="checkbox"
-              checked={showExtras}
-              className="cursor-pointer "
-              onChange={handleChange}
-            />
-            <span>Complementos e adicionais</span>
-          </label>
-
-          {showExtras && (
-            <>
-              <div className="mb-4">
-                <h3 className="text-lg font-semibold">Complementos</h3>
-                <input
-                  type="number"
-                  name="max_toppings"
-                  placeholder="Máximo de complementos"
-                  value={formData.max_toppings}
-                  onChange={handleChange}
-                  className="w-full p-2 border rounded mb-2"
-                />
-                <AddonCheckboxGroup
-                  title="Complementos"
-                  addons={toppingsParaAddons}
-                  selectedAddons={selectedToppings}
-                  setSelectedAddons={setSelectedToppings}
-                />
-              </div>
-
-              <div className="mb-4">
-                <h3 className="text-lg font-semibold">Adicionais</h3>
-                <input
-                  type="number"
-                  name="max_additionals"
-                  placeholder="Máximo de adicionais"
-                  value={formData.max_additionals}
-                  onChange={handleChange}
-                  className="w-full p-2 border rounded mb-2"
-                />
-                <AddonCheckboxGroup
-                  title="Adicionais"
-                  addons={additionalsParaAddons}
-                  selectedAddons={selectedAdditionals}
-                  setSelectedAddons={setSelectedAdditionals}
-                />
-              </div>
-            </>
-          )}
-
-          <button
-            type="submit"
-            className="cursor-pointer w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded"
-          >
-            Salvar
-          </button>
-        </form>
+  if (isLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center text-lg font-semibold text-gray-600">
+        Carregando item do menu...
       </div>
-    </main>
+    );
+  }
 
-    <Footer />
-  </div>
-);
+  return (
+    <div className="min-h-screen flex flex-col pb-10">
+      <main className="flex-grow p-6">
+        <div className="max-w-xl mx-auto bg-white rounded-xl shadow-md space-y-4">
+          <h2 className="text-xl font-bold">Editar Item do Menu</h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <input
+              type="text"
+              name="name"
+              placeholder="Nome"
+              value={formData.name}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+              required
+            />
+            <input
+              type="number"
+              name="price"
+              placeholder="Preço"
+              value={formData.price}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+              required
+            />
+            <input
+              type="text"
+              name="category"
+              placeholder="Categoria"
+              value={formData.category}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+              required
+            />
+            <textarea
+              name="description"
+              placeholder="Descrição (opcional)"
+              value={formData.description}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+            />
+
+            <label htmlFor="image-upload" className="block text-sm font-medium text-gray-700">
+              Imagem
+            </label>
+
+            <div className="flex items-center space-x-4">
+              <label
+                htmlFor="image-upload"
+                className="cursor-pointer px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded"
+              >
+                📷 Selecionar imagem
+              </label>
+              {imageFile && <span className="text-sm text-gray-600">{imageFile.name}</span>}
+            </div>
+
+            <input
+              id="image-upload"
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  setImageFile(file);
+                  setImagePreview(URL.createObjectURL(file));
+                }
+              }}
+              className="hidden"
+            />
+
+            {(imagePreview || formData.imageUrl) && (
+              <img
+                src={imagePreview || formData.imageUrl}
+                alt="Pré-visualização"
+                className="mt-2 h-32 w-32 object-cover rounded border"
+              />
+            )}
+
+            <label className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                name="available"
+                checked={formData.available}
+                className="cursor-pointer "
+                onChange={handleChange}
+              />
+              <span>Disponível</span>
+            </label>
+
+            <label className="flex items-center space-x-2 mb-4">
+              <input
+                name="showExtras"
+                type="checkbox"
+                checked={showExtras}
+                className="cursor-pointer "
+                onChange={handleChange}
+              />
+              <span>Complementos e adicionais</span>
+            </label>
+
+            {showExtras && (
+              <>
+                <div className="mb-4">
+                  <h3 className="text-lg font-semibold">Complementos</h3>
+                  <input
+                    type="number"
+                    name="max_toppings"
+                    placeholder="Máximo de complementos"
+                    value={formData.max_toppings}
+                    onChange={handleChange}
+                    className="w-full p-2 border rounded mb-2"
+                  />
+                  <AddonCheckboxGroup
+                    title="Complementos"
+                    addons={toppingsParaAddons}
+                    selectedAddons={selectedToppings}
+                    setSelectedAddons={setSelectedToppings}
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <h3 className="text-lg font-semibold">Adicionais</h3>
+                  <input
+                    type="number"
+                    name="max_additionals"
+                    placeholder="Máximo de adicionais"
+                    value={formData.max_additionals}
+                    onChange={handleChange}
+                    className="w-full p-2 border rounded mb-2"
+                  />
+                  <AddonCheckboxGroup
+                    title="Adicionais"
+                    addons={additionalsParaAddons}
+                    selectedAddons={selectedAdditionals}
+                    setSelectedAddons={setSelectedAdditionals}
+                  />
+                </div>
+              </>
+            )}
+
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className={`w-full font-bold py-2 rounded transition ${isSubmitting
+                  ? "bg-gray-400 text-white cursor-not-allowed"
+                  : "bg-green-600 hover:bg-green-700 text-white cursor-pointer"
+                }`}
+            >
+              {isSubmitting ? "Salvando..." : "Salvar"}
+            </button>
+          </form>
+        </div>
+      </main>
+
+      <Footer />
+    </div>
+  );
 };
 
 export default MenuEditForm;

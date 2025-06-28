@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import MenuItem, { Additionals, Toppings } from "../components/MenuItem";
 import Footer from "../components/Footer";
+import { getStatusLoja } from "../utils/horarios";
 
 type MenuItemType = {
   id: string;
@@ -66,6 +67,8 @@ const Menu = () => {
       return 0;
     });
 
+  const { texto } = getStatusLoja();
+
   return (
     <div className="flex flex-col min-h-screen pb-20">
 
@@ -79,6 +82,7 @@ const Menu = () => {
             <h2 className="text-3xl font-bold mb-2">Restaurante Sabor Caseiro</h2>
             <p className="text-sm sm:text-base">📍 Rua das Flores, 123 – Centro, Cidade Exemplo</p>
             <p className="text-sm sm:text-base">☎️ (11) 91234-5678</p>
+            <p className="text-sm sm:text-base mt-4 font-semibold italic">{texto}</p>
           </div>
         </div>
       </div>
