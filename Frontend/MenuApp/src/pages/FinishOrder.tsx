@@ -10,6 +10,8 @@ function FinishOrder() {
   const navigate = useNavigate();
 
   const { clearCart, cartItems } = useCart();
+  const [isLoading, setIsLoading] = useState(false);
+
 
 
 
@@ -69,6 +71,8 @@ function FinishOrder() {
       return;
     }
 
+    setIsLoading(true);
+
     const newErrors: { [key: string]: boolean } = {};
 
     if (!form.name.trim()) newErrors.name = true;
@@ -94,6 +98,7 @@ function FinishOrder() {
 
     if (Object.keys(newErrors).length > 0) {
       alert("Preencha todos os campos corretamente.");
+      setIsLoading(false);
       return;
     }
 
@@ -135,6 +140,7 @@ function FinishOrder() {
       if (!response.ok) {
         console.error("Erro na resposta do servidor:", data);
         alert(data.message || "Erro ao finalizar o pedido. Tente novamente.");
+        setIsLoading(false);
         return;
       }
 
@@ -147,6 +153,8 @@ function FinishOrder() {
     } catch (error) {
       console.error("Erro ao enviar pedido:", error);
       alert("Erro ao finalizar o pedido. Tente novamente.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -176,11 +184,15 @@ function FinishOrder() {
               inputProps={{
                 name: 'phone',
                 required: true,
-                className: `w-full p-2 mb-3 rounded border ${errors.phone_number ? "border-red-800" : "border-gray-300"
-                  }`
+                className: `w-full p-2 mb-1 rounded border ${errors.phone_number ? "border-red-800" : "border-gray-300"
+                  }`,
               }}
-            />
+             />
 
+            {/* Mensagem de aviso */}
+            <p className="text-sm text-gray-600 mb-3">
+              A confirmação do pedido será enviada para este número.
+            </p>
           </div>
 
           {/* Tipo de entrega */}
@@ -351,7 +363,7 @@ function FinishOrder() {
             onClick={handleSubmit}
             className="cursor-pointer w-full bg-green-600 text-white py-3 rounded hover:bg-green-700 transition"
           >
-            Finalizar Pedido
+            {isLoading ? "Enviando pedido..." : "Finalizar Pedido"}
           </button>
         </div>
       </div>

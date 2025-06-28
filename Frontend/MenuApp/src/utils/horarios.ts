@@ -7,12 +7,12 @@ type Horario ={
 
 export const horarioFuncionamento: Record<number, Horario> = {
     0: null,
-    1: {inicio: "09:00", fim: "18:00"},
-    2: {inicio: "09:00", fim: "18:00"},
-    3: {inicio: "09:00", fim: "18:00"},
-    4: {inicio: "09:00", fim: "18:00"},
-    5: {inicio: "09:00", fim: "18:00"},
-    6: {inicio: "09:00", fim: "18:00"},
+    1: {inicio: "08:00", fim: "18:00"},
+    2: {inicio: "08:00", fim: "18:00"},
+    3: {inicio: "08:00", fim: "18:00"},
+    4: {inicio: "08:00", fim: "18:00"},
+    5: {inicio: "08:00", fim: "18:00"},
+    6: {inicio: "08:00", fim: "18:00"},
 };
 
 export const estaDentroDoHorario = (): boolean => {

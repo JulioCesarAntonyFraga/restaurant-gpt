@@ -35,6 +35,7 @@ type MenuItem = {
 
 const MenuForm: React.FC = () => {
   const { token } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState<MenuItem>({
     name: "",
@@ -65,7 +66,7 @@ const MenuForm: React.FC = () => {
       const response = await apiFetch("/retrieve-toppings", token);
 
       if (response.ok) {
-          const data: Toppings[] = await response.json();
+        const data: Toppings[] = await response.json();
         setToppings(data.filter(c => c.available));
       }
       else {
@@ -117,210 +118,223 @@ const MenuForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await apiFetch(`/add-menu-item`, token ?? "", {
-      method: "POST",
-      body: JSON.stringify({
-        ...formData,
-        toppings: Object.keys(selectedToppings),
-        additionals: Object.keys(selectedAdditionals),
-      }),
-    });
+    setIsSubmitting(true);
 
-    if (res.ok) {
-      const data = await res.json();
-      
-      let imageUrl = formData.imageUrl;
-
-      if (imageFile) {
-        imageUrl = await uploadImage(imageFile, data.id);
-
-        await apiFetch(`/edit-menu-item`, token ?? "", {
-          method: "PUT",
-          body: JSON.stringify({ 
-            ...formData, 
-            imageUrl, 
-            id: data.id, 
-            toppings: selectedToppings && Object.keys(selectedToppings || undefined), 
-            additionals: selectedAdditionals && Object.keys(selectedAdditionals) 
-          }),
-        });
-      }
-      
-      setResponseMsg("Item adicionado com sucesso!");
-      setTimeout(() =>{
-        setResponseMsg("");
-      }, 3000);
-
-      setFormData({
-        name: "",
-        price: "",
-        available: true,
-        category: "",
-        description: "",
-        imageUrl: "",
-        toppings: [],
-        max_toppings: 0,
-        additionals: [],
-        max_additionals: 0,
+    try {
+      const res = await apiFetch(`/add-menu-item`, token ?? "", {
+        method: "POST",
+        body: JSON.stringify({
+          ...formData,
+          toppings: Object.keys(selectedToppings),
+          additionals: Object.keys(selectedAdditionals),
+        }),
       });
-      setImageFile(null);
-      setImagePreview(null);
-      setSelectedToppings({});
-      setSelectedAdditionals({});
-    } else {
-      const data = await res.text();
-      console.error("Erro ao adicionar item:", data);
-      setResponseMsg(data || "Erro ao adicionar item.");
+
+      if (res.ok) {
+        const data = await res.json();
+
+        let imageUrl = formData.imageUrl;
+
+        if (imageFile) {
+          imageUrl = await uploadImage(imageFile, data.id);
+
+          await apiFetch(`/edit-menu-item`, token ?? "", {
+            method: "PUT",
+            body: JSON.stringify({
+              ...formData,
+              imageUrl,
+              id: data.id,
+              toppings: Object.keys(selectedToppings),
+              additionals: Object.keys(selectedAdditionals),
+            }),
+          });
+        }
+
+        setResponseMsg("Item adicionado com sucesso!");
+        setTimeout(() => setResponseMsg(""), 3000);
+
+        setFormData({
+          name: "",
+          price: "",
+          available: true,
+          category: "",
+          description: "",
+          imageUrl: "",
+          toppings: [],
+          max_toppings: 0,
+          additionals: [],
+          max_additionals: 0,
+        });
+        setImageFile(null);
+        setImagePreview(null);
+        setSelectedToppings({});
+        setSelectedAdditionals({});
+      } else {
+        const data = await res.text();
+        console.error("Erro ao adicionar item:", data);
+        setResponseMsg(data || "Erro ao adicionar item.");
+      }
+    } catch (error) {
+      console.error("Erro inesperado:", error);
+      setResponseMsg("Erro inesperado ao salvar.");
+    } finally {
+      setIsSubmitting(false);
     }
-  };  
-
+  };
   return (
-  <div className="min-h-screen flex flex-col pb-10">
-    <main className="flex-grow p-6">
-      <div className="max-w-xl mx-auto bg-white rounded-xl shadow-md space-y-4">
-        <h2 className="text-xl font-bold">Cadastrar Novo Item</h2>
+    <div className="min-h-screen flex flex-col pb-20">
+      <main className="flex-grow p-6">
+        <div className="max-w-xl mx-auto bg-white rounded-xl shadow-md space-y-4">
+          <h2 className="text-xl font-bold">Cadastrar Novo Item</h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            name="name"
-            placeholder="Nome"
-            value={formData.name}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-            required
-          />
-          <input
-            type="number"
-            name="price"
-            placeholder="Preço"
-            value={formData.price}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-            required
-          />
-          <input
-            type="text"
-            name="category"
-            placeholder="Categoria"
-            value={formData.category}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-            required
-          />
-          <textarea
-            name="description"
-            placeholder="Descrição (opcional)"
-            value={formData.description}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          />
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <input
+              type="text"
+              name="name"
+              placeholder="Nome"
+              value={formData.name}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+              required
+            />
+            <input
+              type="number"
+              name="price"
+              placeholder="Preço"
+              value={formData.price}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+              required
+            />
+            <input
+              type="text"
+              name="category"
+              placeholder="Categoria"
+              value={formData.category}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+              required
+            />
+            <textarea
+              name="description"
+              placeholder="Descrição (opcional)"
+              value={formData.description}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+            />
 
-          {/* Upload de Imagem */}
-          <div className="space-y-2">
-            <label htmlFor="image-upload" className="block text-sm font-medium text-gray-700">
-              Imagem do prato
-            </label>
-            <div className="flex items-center space-x-4">
-              <label htmlFor="image-upload" className="cursor-pointer px-4 py-2 bg-blue-500 text-white rounded shadow">
-                📷 Selecionar imagem
+            {/* Upload de Imagem */}
+            <div className="space-y-2">
+              <label htmlFor="image-upload" className="block text-sm font-medium text-gray-700">
+                Imagem do prato
               </label>
-              {imageFile && <span className="text-sm truncate">{imageFile.name}</span>}
-            </div>
-            <input
-              id="image-upload"
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                if (e.target.files && e.target.files[0]) {
-                  setImageFile(e.target.files[0]);
-                  setImagePreview(URL.createObjectURL(e.target.files[0]));
-                }
-              }}
-              className="hidden"
-            />
-            {(imagePreview || formData.imageUrl) && (
-              <img
-                src={imagePreview || formData.imageUrl}
-                alt="Pré-visualização"
-                className="mt-2 h-32 w-32 object-cover rounded border"
+              <div className="flex items-center space-x-4">
+                <label htmlFor="image-upload" className="cursor-pointer px-4 py-2 bg-blue-500 text-white rounded shadow">
+                  📷 Selecionar imagem
+                </label>
+                {imageFile && <span className="text-sm truncate">{imageFile.name}</span>}
+              </div>
+              <input
+                id="image-upload"
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    setImageFile(e.target.files[0]);
+                    setImagePreview(URL.createObjectURL(e.target.files[0]));
+                  }
+                }}
+                className="hidden"
               />
+              {(imagePreview || formData.imageUrl) && (
+                <img
+                  src={imagePreview || formData.imageUrl}
+                  alt="Pré-visualização"
+                  className="mt-2 h-32 w-32 object-cover rounded border"
+                />
+              )}
+            </div>
+
+            <label className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                name="available"
+                checked={formData.available}
+                onChange={handleChange}
+              />
+              <span>Disponível</span>
+            </label>
+
+            <label className="flex items-center space-x-2 mb-4">
+              <input name="showExtras"
+                type="checkbox"
+                checked={showExtras}
+                onChange={handleChange}
+              />
+              <span>Complementos e adicionais</span>
+            </label>
+
+            {showExtras && (
+              <>
+                {/* Complementos */}
+                <div>
+                  <h3 className="text-lg font-semibold">Complementos</h3>
+                  <input
+                    type="number"
+                    name="max_toppings"
+                    placeholder="Máximo de complementos"
+                    value={formData.max_toppings}
+                    onChange={handleChange}
+                    className="w-full p-2 border rounded mb-2"
+                  />
+                  <AddonCheckboxGroup
+                    title=""
+                    addons={toppings}
+                    selectedAddons={selectedToppings}
+                    setSelectedAddons={setSelectedToppings}
+                  />
+                </div>
+
+                {/* Adicionais */}
+                <div>
+                  <h3 className="text-lg font-semibold">Adicionais</h3>
+                  <input
+                    type="number"
+                    name="max_additionals"
+                    placeholder="Máximo de adicionais"
+                    value={formData.max_additionals}
+                    onChange={handleChange}
+                    className="w-full p-2 border rounded mb-2"
+                  />
+                  <AddonCheckboxGroup
+                    title=""
+                    addons={additionals}
+                    selectedAddons={selectedAdditionals}
+                    setSelectedAddons={setSelectedAdditionals}
+                  />
+                </div>
+              </>
             )}
-          </div>
 
-          <label className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              name="available"
-              checked={formData.available}
-              onChange={handleChange}
-            />
-            <span>Disponível</span>
-          </label>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className={`w-full font-bold py-2 rounded transition ${isSubmitting
+                  ? "bg-gray-400 text-white cursor-not-allowed"
+                  : "bg-green-600 hover:bg-green-700 text-white cursor-pointer"
+                }`}
+            >
+              {isSubmitting ? "Salvando..." : "Salvar Menu"}
+            </button>
+          </form>
 
-          <label className="flex items-center space-x-2 mb-4">
-            <input name="showExtras"
-              type="checkbox"
-              checked={showExtras}
-              onChange={handleChange}
-            />
-            <span>Complementos e adicionais</span>
-          </label>
+          {responseMsg && <p className="text-center text-sm text-red-500 mt-2">{responseMsg}</p>}
+        </div>
+      </main>
 
-          {showExtras && (
-            <>
-              {/* Complementos */}
-              <div>
-                <h3 className="text-lg font-semibold">Complementos</h3>
-                <input
-                  type="number"
-                  name="max_toppings"
-                  placeholder="Máximo de complementos"
-                  value={formData.max_toppings}
-                  onChange={handleChange}
-                  className="w-full p-2 border rounded mb-2"
-                />
-                <AddonCheckboxGroup
-                  title=""
-                  addons={toppings}
-                  selectedAddons={selectedToppings}
-                  setSelectedAddons={setSelectedToppings}
-                />
-              </div>
-
-              {/* Adicionais */}
-              <div>
-                <h3 className="text-lg font-semibold">Adicionais</h3>
-                <input
-                  type="number"
-                  name="max_additionals"
-                  placeholder="Máximo de adicionais"
-                  value={formData.max_additionals}
-                  onChange={handleChange}
-                  className="w-full p-2 border rounded mb-2"
-                />
-                <AddonCheckboxGroup
-                  title=""
-                  addons={additionals}
-                  selectedAddons={selectedAdditionals}
-                  setSelectedAddons={setSelectedAdditionals}
-                />
-              </div>
-            </>
-          )}
-
-          <button type="submit" className="cursor-pointer w-full bg-green-600 text-white py-2 rounded">
-            Salvar Menu
-          </button>
-        </form>
-
-        {responseMsg && <p className="text-center text-sm text-red-500 mt-2">{responseMsg}</p>}
-      </div>
-    </main>
-
-    <Footer />
-  </div>
-);
+      <Footer />
+    </div>
+  );
 };
 
 export default MenuForm;
